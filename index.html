@@ -165,37 +165,74 @@
 </div>
 </section>
 <!-- Pain Points -->
-<section class="py-24 bg-surface-container-low">
+<section class="py-24 overflow-hidden">
 <div class="max-w-[1120px] mx-auto px-6">
-<h2 class="text-4xl md:text-5xl font-bold mb-16 text-center max-w-3xl mx-auto">
-            El seeding se rompe cuando falta proceso y medición.
-        </h2>
-<div class="grid md:grid-cols-5 gap-4">
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
-<span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">01</span>
-<span class="material-symbols-outlined text-4xl text-primary/30 group-hover:text-primary/70 transition-colors my-2 md:my-0">person_search</span>
-<p class="font-medium text-on-surface leading-snug">Perfiles que no conectan con la marca.</p>
-</div>
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
-<span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">02</span>
-<span class="material-symbols-outlined text-4xl text-primary/30 group-hover:text-primary/70 transition-colors my-2 md:my-0">sync_problem</span>
-<p class="font-medium text-on-surface leading-snug">Logística manual y propensa a errores.</p>
-</div>
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
-<span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">03</span>
-<span class="material-symbols-outlined text-4xl text-primary/30 group-hover:text-primary/70 transition-colors my-2 md:my-0">timer_off</span>
-<p class="font-medium text-on-surface leading-snug">Historias que se pierden a las 24h.</p>
-</div>
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
-<span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">04</span>
-<span class="material-symbols-outlined text-4xl text-primary/30 group-hover:text-primary/70 transition-colors my-2 md:my-0">local_shipping</span>
-<p class="font-medium text-on-surface leading-snug">Falta de trazabilidad en los envíos.</p>
-</div>
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
-<span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">05</span>
-<span class="material-symbols-outlined text-4xl text-primary/30 group-hover:text-primary/70 transition-colors my-2 md:my-0">query_stats</span>
-<p class="font-medium text-on-surface leading-snug">Incertidumbre sobre el ROI real.</p>
-</div>
+<div class="flex flex-col md:flex-row gap-12 md:gap-16 items-stretch">
+
+  <!-- Left: title + list -->
+  <div class="w-full md:w-1/2 flex flex-col justify-center py-4">
+    <h2 class="text-4xl md:text-5xl font-bold mb-10 leading-[1.1]">El seeding se rompe cuando falta proceso y medición.</h2>
+    <ul class="space-y-5">
+      <li class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-error text-xl">person_search</span>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">01</span>
+          <p class="font-medium text-on-surface leading-snug">Perfiles que no conectan con la marca.</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-error text-xl">sync_problem</span>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">02</span>
+          <p class="font-medium text-on-surface leading-snug">Logística manual y propensa a errores.</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-error text-xl">timer_off</span>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">03</span>
+          <p class="font-medium text-on-surface leading-snug">Historias que se pierden a las 24h.</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-error text-xl">local_shipping</span>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">04</span>
+          <p class="font-medium text-on-surface leading-snug">Falta de trazabilidad en los envíos.</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-error text-xl">query_stats</span>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">05</span>
+          <p class="font-medium text-on-surface leading-snug">Incertidumbre sobre el ROI real.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Right: image area with reddish treatment -->
+  <!-- Reemplaza el div interno por: <img src="Imagenes/stressed.jpg" class="w-full h-full object-cover absolute inset-0 rounded-[2rem]"/> -->
+  <div class="w-full md:w-1/2 rounded-[2rem] overflow-hidden relative min-h-[420px] md:min-h-0">
+    <div class="absolute inset-0 bg-gradient-to-br from-[#fff0ee] via-[#ffdad6] to-[#ffb4ab]"></div>
+    <div class="absolute inset-0 flex items-center justify-center opacity-[0.07]">
+      <span class="material-symbols-outlined text-error" style="font-size: 18rem; line-height:1">sentiment_dissatisfied</span>
+    </div>
+    <div class="absolute bottom-8 left-8 right-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
+      <p class="text-sm text-on-surface/80 font-medium leading-relaxed italic">"Sin sistema, la campaña depende del azar — y el azar no escala."</p>
+    </div>
+  </div>
+
 </div>
 </div>
 </section>
@@ -242,73 +279,109 @@
 <!-- How it works (4 stages) -->
 <section class="py-24 bg-surface-container-low/50">
 <div class="max-w-[1120px] mx-auto px-6">
-<div class="flex justify-between items-end mb-16">
-<div>
-<span class="font-label text-sm uppercase tracking-widest text-primary mb-2 block font-semibold">Metodología</span>
-<h2 class="text-4xl font-bold">Un ciclo cerrado de crecimiento</h2>
+<div class="mb-16">
+  <span class="font-label text-sm uppercase tracking-widest text-primary mb-2 block font-semibold">Metodología</span>
+  <h2 class="text-4xl font-bold">Un ciclo cerrado de crecimiento</h2>
 </div>
-</div>
-<div class="grid md:grid-cols-4 gap-12">
-<!-- Step 1 -->
-<div class="group relative">
-<div class="flex items-center gap-4 mb-6">
-<div class="text-6xl font-bold text-primary/10 group-hover:text-primary transition-colors font-['Fraunces']">01</div>
-<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
-<span class="material-symbols-outlined text-primary">psychology</span>
-</div>
-</div>
-<h3 class="text-xl font-bold mb-4">Segmentación</h3>
-<ul class="space-y-3 text-sm text-on-surface-variant">
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Auditoría de audiencia</li>
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Cruce de intereses</li>
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Validación de engagement</li>
-</ul>
-</div>
-<!-- Step 2 -->
-<div class="group relative">
-<div class="flex items-center gap-4 mb-6">
-<div class="text-6xl font-bold text-primary/10 group-hover:text-primary transition-colors font-['Fraunces']">02</div>
-<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
-<span class="material-symbols-outlined text-primary">diversity_3</span>
-</div>
-</div>
-<h3 class="text-xl font-bold mb-4">Reclutamiento</h3>
-<ul class="space-y-3 text-sm text-on-surface-variant">
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Contacto personalizado</li>
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Gestión de acuerdos</li>
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Recolección de datos</li>
-</ul>
-</div>
-<!-- Step 3 -->
-<div class="group relative">
-<div class="flex items-center gap-4 mb-6">
-<div class="text-6xl font-bold text-primary/10 group-hover:text-primary transition-colors font-['Fraunces']">03</div>
-<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
-<span class="material-symbols-outlined text-primary">conveyor_belt</span>
-</div>
-</div>
-<h3 class="text-xl font-bold mb-4">Gestión + Logística</h3>
-<ul class="space-y-3 text-sm text-on-surface-variant">
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Picking &amp; Packing</li>
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Logística última milla</li>
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Tracking de entrega</li>
-</ul>
-</div>
-<!-- Step 4 -->
-<div class="group relative">
-<div class="flex items-center gap-4 mb-6">
-<div class="text-6xl font-bold text-primary/10 group-hover:text-primary transition-colors font-['Fraunces']">04</div>
-<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
-<span class="material-symbols-outlined text-primary">monitoring</span>
-</div>
-</div>
-<h3 class="text-xl font-bold mb-4">Métricas + Dashboard</h3>
-<ul class="space-y-3 text-sm text-on-surface-variant">
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Monitoreo 24/7</li>
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Reporte de impacto</li>
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Base de datos limpia</li>
-</ul>
-</div>
+
+<div class="space-y-16 md:space-y-24">
+
+  <!-- Step 1: texto izq, imagen der -->
+  <div class="flex flex-col md:flex-row gap-10 md:gap-16 items-center">
+    <div class="w-full md:w-1/2 order-2 md:order-1">
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="text-5xl font-bold text-primary/15 font-['Fraunces']">01</span>
+        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary text-xl">psychology</span>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold mb-3">Segmentación</h3>
+      <p class="text-on-surface-variant mb-6 leading-relaxed">Identificamos los perfiles que realmente conectan con tu marca usando auditoría de audiencia y validación de datos reales.</p>
+      <ul class="space-y-3">
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Auditoría de audiencia</li>
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Cruce de intereses</li>
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Validación de engagement</li>
+      </ul>
+    </div>
+    <div class="w-full md:w-1/2 order-1 md:order-2 aspect-[4/3] rounded-[2rem] overflow-hidden relative bg-primary-fixed/30 flex items-center justify-center">
+      <!-- <img src="Imagenes/segmentacion.jpg" class="w-full h-full object-cover absolute inset-0" alt="Segmentación"/> -->
+      <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/20 to-primary/10"></div>
+      <span class="material-symbols-outlined text-primary/20 relative z-10" style="font-size: 9rem; line-height:1">manage_search</span>
+    </div>
+  </div>
+
+  <!-- Step 2: imagen izq, texto der -->
+  <div class="flex flex-col md:flex-row gap-10 md:gap-16 items-center">
+    <div class="w-full md:w-1/2 aspect-[4/3] rounded-[2rem] overflow-hidden relative bg-secondary-fixed/40 flex items-center justify-center">
+      <!-- <img src="Imagenes/reclutamiento.jpg" class="w-full h-full object-cover absolute inset-0" alt="Reclutamiento"/> -->
+      <div class="absolute inset-0 bg-gradient-to-br from-secondary-fixed/30 to-secondary/10"></div>
+      <span class="material-symbols-outlined text-secondary/20 relative z-10" style="font-size: 9rem; line-height:1">diversity_3</span>
+    </div>
+    <div class="w-full md:w-1/2">
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="text-5xl font-bold text-primary/15 font-['Fraunces']">02</span>
+        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary text-xl">diversity_3</span>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold mb-3">Reclutamiento</h3>
+      <p class="text-on-surface-variant mb-6 leading-relaxed">Contactamos y gestionamos a cada influencer de forma personalizada. Acuerdos claros, datos completos desde el primer día.</p>
+      <ul class="space-y-3">
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Contacto personalizado</li>
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Gestión de acuerdos</li>
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Recolección de datos</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Step 3: texto izq, imagen der -->
+  <div class="flex flex-col md:flex-row gap-10 md:gap-16 items-center">
+    <div class="w-full md:w-1/2 order-2 md:order-1">
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="text-5xl font-bold text-primary/15 font-['Fraunces']">03</span>
+        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary text-xl">conveyor_belt</span>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold mb-3">Gestión + Logística</h3>
+      <p class="text-on-surface-variant mb-6 leading-relaxed">Nos encargamos del picking, packing y la última milla. Tú solo recibes el tracking actualizado.</p>
+      <ul class="space-y-3">
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Picking &amp; Packing</li>
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Logística última milla</li>
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Tracking de entrega</li>
+      </ul>
+    </div>
+    <div class="w-full md:w-1/2 order-1 md:order-2 aspect-[4/3] rounded-[2rem] overflow-hidden relative bg-tertiary-fixed/40 flex items-center justify-center">
+      <!-- <img src="Imagenes/logistica.jpg" class="w-full h-full object-cover absolute inset-0" alt="Logística"/> -->
+      <div class="absolute inset-0 bg-gradient-to-br from-tertiary-fixed/30 to-tertiary/10"></div>
+      <span class="material-symbols-outlined text-tertiary/20 relative z-10" style="font-size: 9rem; line-height:1">local_shipping</span>
+    </div>
+  </div>
+
+  <!-- Step 4: imagen izq, texto der -->
+  <div class="flex flex-col md:flex-row gap-10 md:gap-16 items-center">
+    <div class="w-full md:w-1/2 aspect-[4/3] rounded-[2rem] overflow-hidden relative bg-primary-container/40 flex items-center justify-center">
+      <!-- <img src="Imagenes/dashboard.jpg" class="w-full h-full object-cover absolute inset-0" alt="Dashboard"/> -->
+      <div class="absolute inset-0 bg-gradient-to-br from-primary-container/40 to-primary/10"></div>
+      <span class="material-symbols-outlined text-primary/20 relative z-10" style="font-size: 9rem; line-height:1">monitoring</span>
+    </div>
+    <div class="w-full md:w-1/2">
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="text-5xl font-bold text-primary/15 font-['Fraunces']">04</span>
+        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary text-xl">monitoring</span>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold mb-3">Métricas + Dashboard</h3>
+      <p class="text-on-surface-variant mb-6 leading-relaxed">Todo el impacto de la campaña en un dashboard en tiempo real. Datos limpios, reportes accionables.</p>
+      <ul class="space-y-3">
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Monitoreo 24/7</li>
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Reporte de impacto</li>
+        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Base de datos limpia</li>
+      </ul>
+    </div>
+  </div>
+
 </div>
 </div>
 </section>
