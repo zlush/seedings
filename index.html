@@ -144,10 +144,13 @@
 <div class="rounded-[2rem] overflow-hidden drop-shadow-2xl">
 <video
   id="hero-video"
-  autoplay muted loop playsinline
+  preload="auto"
+  muted
+  playsinline
+  disablepictureinpicture
   class="w-full object-cover"
   style="-webkit-mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%); mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%);">
-  <source src="Imagenes/freepik_el-influencer-abre-la-caja_kling_1080p_1-1_24fps_30500.mp4" type="video/mp4"/>
+  <source src="Imagenes/hero-scrub.mp4" type="video/mp4"/>
 </video>
 </div>
 <div class="absolute -bottom-8 -left-8 bg-surface-container-lowest p-6 rounded-2xl shadow-xl max-w-[200px]">
@@ -161,10 +164,42 @@
 </div>
 <script>
 (function(){
-  var wrap = document.getElementById('hero-video-wrap');
+  var video = document.getElementById('hero-video');
+  var seekPending = false;
+  var pendingTime = null;
+
+  video.addEventListener('seeked', function(){
+    seekPending = false;
+    if (pendingTime !== null) {
+      var t = pendingTime;
+      pendingTime = null;
+      if (Math.abs(video.currentTime - t) > 0.001) {
+        video.currentTime = t;
+        seekPending = true;
+      }
+    }
+  });
+
+  var rafPending = false;
+  function update() {
+    rafPending = false;
+    // Map scrollY 0 → innerHeight to video 0 → duration
+    var progress = Math.min(1, Math.max(0, window.scrollY / window.innerHeight));
+    if (video.readyState >= 2 && video.duration) {
+      var t = progress * video.duration;
+      if (!seekPending) {
+        if (Math.abs(video.currentTime - t) > 0.001) {
+          video.currentTime = t;
+          seekPending = true;
+        }
+      } else {
+        pendingTime = t;
+      }
+    }
+  }
+
   window.addEventListener('scroll', function(){
-    var y = window.scrollY;
-    if(y < 800) wrap.style.transform = 'translateY(' + (y * 0.12) + 'px)';
+    if (!rafPending) { rafPending = true; requestAnimationFrame(update); }
   }, {passive: true});
 })();
 </script>
