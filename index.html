@@ -140,9 +140,15 @@
                 </div>
 </div>
 </div>
-<div class="relative">
-<div class="flex items-center justify-center rotate-2 hover:rotate-0 transition-transform duration-700 drop-shadow-2xl">
-<img src="Imagenes/tree.png" alt="Seedings Lab botanical growth metrics" class="w-full max-w-sm object-contain"/>
+<div class="relative" id="hero-video-wrap">
+<div class="rounded-[2rem] overflow-hidden drop-shadow-2xl">
+<video
+  id="hero-video"
+  autoplay muted loop playsinline
+  class="w-full object-cover"
+  style="-webkit-mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%); mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%);">
+  <source src="Imagenes/freepik_el-influencer-abre-la-caja_kling_1080p_1-1_24fps_30500.mp4" type="video/mp4"/>
+</video>
 </div>
 <div class="absolute -bottom-8 -left-8 bg-surface-container-lowest p-6 rounded-2xl shadow-xl max-w-[200px]">
 <div class="flex -space-x-3 mb-3">
@@ -153,6 +159,15 @@
 <p class="text-xs font-medium text-on-surface-variant leading-tight">Segmentación curada de perfiles afines.</p>
 </div>
 </div>
+<script>
+(function(){
+  var wrap = document.getElementById('hero-video-wrap');
+  window.addEventListener('scroll', function(){
+    var y = window.scrollY;
+    if(y < 800) wrap.style.transform = 'translateY(' + (y * 0.12) + 'px)';
+  }, {passive: true});
+})();
+</script>
 </div>
 </section>
 <!-- Pain Points -->
@@ -194,7 +209,7 @@
 <section class="py-24">
 <div class="max-w-[1120px] mx-auto px-6 flex flex-col md:flex-row gap-16 items-center">
 <div class="w-full md:w-1/2">
-<img class="rounded-[2rem] w-full object-cover" src="Imagenes/image.png" alt="Influencer unboxing productos de una campaña de seeding con métricas de ROI en tiempo real"/>
+<img class="rounded-[2rem] w-full object-contain" src="Imagenes/tree.png" alt="Métricas botánicas de crecimiento de campaña Seedings Lab"/>
 </div>
 <div class="w-full md:w-1/2">
 <h2 class="text-4xl font-bold mb-6">Seedings Lab es un sistema operativo para campañas.</h2>
