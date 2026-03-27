@@ -79,8 +79,8 @@
 <body class="selection:bg-primary-container selection:text-white">
 <!-- Header (TopNavBar) -->
 <nav class="fixed top-0 w-full z-50 bg-[#fdf9f4]/85 backdrop-blur-md transition-colors duration-300">
-<div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
-<img src="Imagenes/Logo.png" alt="Seedings Lab" class="h-10 w-auto"/>
+<div class="flex justify-between items-center px-4 md:px-8 py-3 md:py-4 max-w-7xl mx-auto">
+<img src="Imagenes/Logo.png" alt="Seedings Lab" class="h-8 md:h-10 w-auto"/>
 <div class="hidden md:flex items-center space-x-8 font-['Fraunces'] font-semibold tracking-tight">
 <a class="text-[#1c1c19]/70 hover:text-primary transition-opacity" href="#">Cómo funciona</a>
 <a class="text-[#1c1c19]/70 hover:text-primary transition-opacity" href="#">Dashboard</a>
@@ -88,19 +88,34 @@
 <a class="text-[#1c1c19]/70 hover:text-primary transition-opacity" href="#">FAQ</a>
 <a class="text-[#1c1c19]/70 hover:text-primary transition-opacity" href="#">Contacto</a>
 </div>
-<button class="bg-primary text-white px-6 py-2 rounded-full font-medium hover:opacity-80 transition-opacity active:scale-95 duration-200">
-            Cotizar campaña
-        </button>
+<div class="flex items-center gap-2">
+<button class="bg-primary text-white px-4 py-2 md:px-6 text-sm md:text-base rounded-full font-medium hover:opacity-80 transition-opacity active:scale-95 duration-200">
+  Cotizar campaña
+</button>
+<button id="nav-toggle" class="md:hidden p-2 rounded-lg text-on-surface hover:bg-surface-container transition-colors" aria-label="Menú">
+  <span class="material-symbols-outlined">menu</span>
+</button>
 </div>
+</div>
+<div id="mobile-menu" class="hidden md:hidden border-t border-outline-variant/10 bg-[#fdf9f4]/97 px-4 py-5">
+<div class="flex flex-col gap-4 font-['Fraunces'] font-semibold text-lg">
+<a class="text-[#1c1c19]/70 hover:text-primary transition-colors py-1" href="#">Cómo funciona</a>
+<a class="text-[#1c1c19]/70 hover:text-primary transition-colors py-1" href="#">Dashboard</a>
+<a class="text-[#1c1c19]/70 hover:text-primary transition-colors py-1" href="#">Entregables</a>
+<a class="text-[#1c1c19]/70 hover:text-primary transition-colors py-1" href="#">FAQ</a>
+<a class="text-[#1c1c19]/70 hover:text-primary transition-colors py-1" href="#">Contacto</a>
+</div>
+</div>
+<script>document.getElementById('nav-toggle').addEventListener('click',function(){var m=document.getElementById('mobile-menu');m.classList.toggle('hidden');this.querySelector('.material-symbols-outlined').textContent=m.classList.contains('hidden')?'menu':'close';});</script>
 </nav>
 <!-- Hero Section -->
-<section class="relative pt-32 pb-24 px-6 overflow-hidden">
-<div class="max-w-[1120px] mx-auto grid md:grid-cols-2 gap-16 items-center">
+<section class="relative pt-24 pb-16 md:pt-32 md:pb-24 px-6 overflow-hidden">
+<div class="max-w-[1120px] mx-auto grid md:grid-cols-2 gap-8 md:gap-16 items-center">
 <div class="z-10">
 <div class="inline-block px-4 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold uppercase tracking-widest mb-6">
                 SEED-2024.PRECISION
             </div>
-<h1 class="text-5xl md:text-7xl font-bold text-on-surface leading-[1.1] mb-8 tracking-tight">
+<h1 class="text-4xl sm:text-5xl md:text-7xl font-bold text-on-surface leading-[1.1] mb-6 md:mb-8 tracking-tight">
                 Seedings con influencers, de punta a punta.
             </h1>
 <p class="text-xl text-on-surface-variant leading-relaxed mb-10 max-w-lg">
@@ -147,23 +162,23 @@
             El seeding se rompe cuando falta proceso y medición.
         </h2>
 <div class="grid md:grid-cols-5 gap-4">
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between aspect-square group hover:border-primary transition-colors">
+<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
 <span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">01</span>
 <p class="font-medium text-on-surface leading-snug">Perfiles que no conectan con la marca.</p>
 </div>
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between aspect-square group hover:border-primary transition-colors">
+<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
 <span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">02</span>
 <p class="font-medium text-on-surface leading-snug">Logística manual y propensa a errores.</p>
 </div>
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between aspect-square group hover:border-primary transition-colors">
+<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
 <span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">03</span>
 <p class="font-medium text-on-surface leading-snug">Historias que se pierden a las 24h.</p>
 </div>
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between aspect-square group hover:border-primary transition-colors">
+<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
 <span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">04</span>
 <p class="font-medium text-on-surface leading-snug">Falta de trazabilidad en los envíos.</p>
 </div>
-<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between aspect-square group hover:border-primary transition-colors">
+<div class="bg-surface p-8 rounded-lg border-b-4 border-primary/20 flex flex-col justify-between md:aspect-square group hover:border-primary transition-colors py-6 md:py-0">
 <span class="text-primary font-bold text-4xl font-['Fraunces'] opacity-40 group-hover:opacity-100 transition-opacity">05</span>
 <p class="font-medium text-on-surface leading-snug">Incertidumbre sobre el ROI real.</p>
 </div>
@@ -319,7 +334,7 @@
 </div>
 <div class="text-[10px] font-bold tracking-widest uppercase text-outline">Real-time Performance Panel</div>
 </div>
-<div class="grid grid-cols-4 gap-4 mb-8">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
 <div class="bg-surface-container-low rounded-xl p-4 border border-outline-variant/10">
 <div class="text-[9px] uppercase font-bold text-outline mb-1">Reach</div>
 <div class="text-xl font-bold text-on-surface">1.2M</div>
@@ -467,7 +482,7 @@
 </section>
 <!-- Influencer CTA -->
 <section class="py-16 px-6 bg-surface-container-low">
-<div class="max-w-[1120px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8 bg-surface-container-lowest rounded-[2rem] px-12 py-10 border border-outline-variant/10 shadow-sm">
+<div class="max-w-[1120px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 bg-surface-container-lowest rounded-[2rem] px-6 py-8 md:px-12 md:py-10 border border-outline-variant/10 shadow-sm">
 <div>
 <span class="text-xs font-bold uppercase tracking-widest text-primary mb-2 block">Para influencers</span>
 <h3 class="text-2xl font-bold text-on-surface mb-2">¿Quieres recibir productos de marcas?</h3>
@@ -481,8 +496,8 @@ Quiero ser parte
 </section>
 <!-- Final CTA + Form -->
 <section class="py-24 px-6">
-<div class="max-w-[1120px] mx-auto bg-primary rounded-[3rem] p-12 md:p-20 text-white relative overflow-hidden">
-<div class="relative z-10 grid md:grid-cols-2 gap-16 items-start">
+<div class="max-w-[1120px] mx-auto bg-primary rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 lg:p-20 text-white relative overflow-hidden">
+<div class="relative z-10 grid md:grid-cols-2 gap-8 md:gap-16 items-start">
 <div>
 <h2 class="text-4xl md:text-5xl font-bold mb-6">¿Listo para correr tu próximo seeding sin caos?</h2>
 <p class="text-lg text-white/80 mb-8 leading-relaxed">Completa el formulario y recibe una propuesta estratégica diseñada para los objetivos de tu marca en menos de 24h.</p>
@@ -495,7 +510,7 @@ Quiero ser parte
 </div>
 <div class="bg-white rounded-2xl p-8 text-on-surface shadow-2xl">
 <form id="cotizar-form" class="space-y-4">
-<div class="grid grid-cols-2 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 <div>
 <label class="text-xs font-bold uppercase text-outline mb-2 block">Nombre</label>
 <input id="f-nombre" class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary" placeholder="Tu nombre" type="text" required/>
@@ -520,7 +535,7 @@ Quiero ser parte
 <label class="text-xs font-bold uppercase text-outline mb-2 block">Producto</label>
 <input id="f-producto" class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary" placeholder="¿Qué quieres enviar?" type="text" required/>
 </div>
-<div class="grid grid-cols-2 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 <div>
 <label class="text-xs font-bold uppercase text-outline mb-2 block">Volumen</label>
 <select id="f-volumen" class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary">
