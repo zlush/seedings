@@ -12,10 +12,12 @@ We break the "template" look by utilizing **intentional asymmetry**—offsetting
 Our palette is rooted in the earth but refined by the lab. It uses a "Low-Contrast, High-Sophistication" approach.
 
 ### The Palette (Material Design Tokens)
-*   **Primary (Olive):** `#625d3a` — Used for active states and primary actions.
-*   **Secondary (Cream):** `#705a46` — Used for supplemental accents and tonal shifts.
-*   **Background (Sand):** `#fdf9f4` — The canvas for all interactions.
-*   **On-Surface (Ink):** `#1c1c19` — High-legibility text with a soft, organic edge.
+*   **Primary (Sage):** `#7A8C6A` — CTAs, active states, icon accents.
+*   **Secondary (Bark):** `#5A5040` — Supplemental accents and tonal shifts.
+*   **Surface (Parchment):** `#EAE5D2` — Base canvas for all interactions.
+*   **Surface Container Low (Sand):** `#D6C9B8` — Section backgrounds and tonal shifts.
+*   **Surface Container Highest (Olive):** `#AEBFA0` — Icon circles and subtle green accents.
+*   **On-Surface (Olivewood):** `#252820` — High-legibility text, near-black with olive undertone.
 
 ### The "No-Line" Rule
 **Strict Prohibition:** 1px solid borders are forbidden for sectioning. 
@@ -23,9 +25,9 @@ Structure must be defined solely through **Surface Nesting** or **Tonal Transiti
 
 ### Surface Hierarchy & Nesting
 Treat the UI as a physical stack of fine papers.
-*   **Base:** `surface` (#fdf9f4)
-*   **Sectioning:** `surface-container-low` (#f7f3ee) for large background shifts.
-*   **Floating Elements:** `surface-container-lowest` (#ffffff) for cards to create a "lifted" feel.
+*   **Base:** `surface` (#EAE5D2) — Parchment
+*   **Sectioning:** `surface-container-low` (#D6C9B8) for large background shifts — Sand
+*   **Floating Elements:** `surface-container-lowest` (#F5F1E6) for cards to create a "lifted" feel.
 
 ### The "Glass & Gradient" Rule
 To add a "Laboratory" polish, use **Glassmorphism** for floating navigation or overlays. 
