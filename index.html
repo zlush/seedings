@@ -1,789 +1,1277 @@
-<!DOCTYPE html>
-
-<html class="scroll-smooth" lang="es"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Seedings Lab | Marketing Botánico de Precisión</title>
-<link rel="icon" type="image/png" href="Imagenes/favicon.png"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "primary": "#7A8C6A",
-              "secondary": "#5A5040",
-              "tertiary": "#5A5040",
-              "surface": "#EAE5D2",
-              "surface-bright": "#EAE5D2",
-              "surface-container-lowest": "#F5F1E6",
-              "surface-container-low": "#D6C9B8",
-              "surface-container": "#CCC0AB",
-              "surface-container-high": "#C2B6A3",
-              "surface-container-highest": "#AEBFA0",
-              "surface-dim": "#C8BBAA",
-              "surface-variant": "#D6C9B8",
-              "on-surface": "#252820",
-              "on-surface-variant": "#4A4A3A",
-              "surface-tint": "#7A8C6A",
-              "background": "#EAE5D2",
-              "on-background": "#252820",
-              "primary-container": "#6B7D5C",
-              "on-primary": "#ffffff",
-              "on-primary-container": "#F5F1E6",
-              "on-primary-fixed": "#1A1F17",
-              "on-primary-fixed-variant": "#3D4E35",
-              "primary-fixed": "#C8D4BC",
-              "primary-fixed-dim": "#AEBFA0",
-              "secondary-container": "#D6C9B8",
-              "on-secondary": "#ffffff",
-              "on-secondary-container": "#5A5040",
-              "on-secondary-fixed": "#1E1810",
-              "on-secondary-fixed-variant": "#3E3328",
-              "secondary-fixed": "#E8DFD0",
-              "secondary-fixed-dim": "#C8BBAA",
-              "tertiary-container": "#7A8C6A",
-              "on-tertiary": "#ffffff",
-              "on-tertiary-container": "#F5F1E6",
-              "on-tertiary-fixed": "#1E1A12",
-              "on-tertiary-fixed-variant": "#4A4238",
-              "tertiary-fixed": "#E8DFD0",
-              "tertiary-fixed-dim": "#C8BBAA",
-              "error": "#ba1a1a",
-              "on-error": "#ffffff",
-              "error-container": "#ffdad6",
-              "on-error-container": "#93000a",
-              "outline": "#8A9A7E",
-              "outline-variant": "#BFBAAD",
-              "inverse-surface": "#252820",
-              "inverse-on-surface": "#EAE5D2",
-              "inverse-primary": "#AEBFA0"
-            },
-            fontFamily: {
-              "headline": ["Fraunces", "serif"],
-              "body": ["Inter", "sans-serif"],
-              "label": ["Inter", "sans-serif"]
-            },
-            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-          },
-        },
-      }
-    </script>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seedings Lab — Hacemos virales a las marcas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,700;0,6..96,800;0,6..96,900;1,6..96,400;1,6..96,700;1,6..96,900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
-      body { background-color: #EAE5D2; color: #252820; font-family: 'Inter', sans-serif; }
-      h1, h2, h3 { font-family: 'Fraunces', serif; }
-    </style>
-</head>
-<body class="selection:bg-primary-container selection:text-white">
-<!-- Header (TopNavBar) -->
-<nav class="fixed top-0 w-full z-50 bg-[#EAE5D2]/85 backdrop-blur-md transition-colors duration-300">
-<div class="flex justify-between items-center px-4 md:px-8 py-3 md:py-4 max-w-7xl mx-auto">
-<img src="Imagenes/Logo.png" alt="Seedings Lab" class="h-8 md:h-10 w-auto"/>
-<div class="hidden md:flex items-center space-x-8 font-['Fraunces'] font-semibold tracking-tight">
-<a class="text-[#252820]/70 hover:text-primary transition-opacity" href="#">Cómo funciona</a>
-<a class="text-[#252820]/70 hover:text-primary transition-opacity" href="#">Dashboard</a>
-<a class="text-[#252820]/70 hover:text-primary transition-opacity" href="#">Entregables</a>
-<a class="text-[#252820]/70 hover:text-primary transition-opacity" href="#">FAQ</a>
-<a class="text-[#252820]/70 hover:text-primary transition-opacity" href="#">Contacto</a>
-</div>
-<div class="flex items-center gap-2">
-<a href="#contacto" class="bg-primary text-white px-4 py-2 md:px-6 text-sm md:text-base rounded-full font-medium hover:opacity-80 transition-opacity active:scale-95 duration-200">
-  Cotizar campaña
-</a>
-<button id="nav-toggle" class="md:hidden p-2 rounded-lg text-on-surface hover:bg-surface-container transition-colors" aria-label="Menú">
-  <span class="material-symbols-outlined">menu</span>
-</button>
-</div>
-</div>
-<div id="mobile-menu" class="hidden md:hidden border-t border-outline-variant/10 bg-[#EAE5D2]/97 px-4 py-5">
-<div class="flex flex-col gap-4 font-['Fraunces'] font-semibold text-lg">
-<a class="text-[#252820]/70 hover:text-primary transition-colors py-1" href="#">Cómo funciona</a>
-<a class="text-[#252820]/70 hover:text-primary transition-colors py-1" href="#">Dashboard</a>
-<a class="text-[#252820]/70 hover:text-primary transition-colors py-1" href="#">Entregables</a>
-<a class="text-[#252820]/70 hover:text-primary transition-colors py-1" href="#">FAQ</a>
-<a class="text-[#252820]/70 hover:text-primary transition-colors py-1" href="#">Contacto</a>
-</div>
-</div>
-<script>document.getElementById('nav-toggle').addEventListener('click',function(){var m=document.getElementById('mobile-menu');m.classList.toggle('hidden');this.querySelector('.material-symbols-outlined').textContent=m.classList.contains('hidden')?'menu':'close';});</script>
-</nav>
-<!-- Hero Section -->
-<section class="relative pt-24 pb-16 md:pt-32 md:pb-24 px-6 overflow-hidden">
-<div class="max-w-[1120px] mx-auto grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-<div class="z-10">
-<div class="inline-block px-4 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold uppercase tracking-widest mb-6">
-                CONVERSACIÓN A ESCALA
-            </div>
-<h1 class="text-4xl sm:text-5xl md:text-7xl font-bold text-on-surface leading-[1.1] mb-6 md:mb-8 tracking-tight">
-                No hagas publicidad. Haz que hablen de ti.
-            </h1>
-<p class="text-xl text-on-surface-variant leading-relaxed mb-10 max-w-lg">
-                La gente sabe cuándo le estás vendiendo. El <span class="text-primary font-semibold italic">92%</span> confía más en recomendaciones reales que en publicidad directa. Nosotros activamos conversaciones a escala — para que tu marca sea un tema, no un anuncio.
-            </p>
-<div class="flex flex-wrap gap-4 mb-12">
-<a href="#contacto" class="bg-primary text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg shadow-primary/10 hover:-translate-y-1 transition-transform inline-block">
-                    Cotizar mi campaña
-                </a>
-<button class="border border-outline-variant/30 px-8 py-4 rounded-full font-semibold text-lg hover:bg-surface-container-low transition-colors text-on-surface">
-                    Ver cómo funciona
-                </button>
-</div>
-<div class="flex items-center gap-6 text-sm text-on-surface-variant/60 font-medium">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-lg">bolt</span>
-                    Respuesta en 24h
-                </div>
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-lg">package_2</span>
-                    20 a 500+ envíos
-                </div>
-</div>
-</div>
-<div class="relative" id="hero-video-wrap">
-<div class="rounded-[2rem] overflow-hidden drop-shadow-2xl">
-<video
-  id="hero-video"
-  autoplay muted loop playsinline
-  class="w-full object-cover"
-  style="-webkit-mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%); mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%);">
-  <source src="Imagenes/freepik_el-influencer-abre-la-caja_kling_1080p_1-1_24fps_30500.mp4" type="video/mp4"/>
-</video>
-</div>
-<div class="absolute -bottom-8 -left-8 bg-surface-container-lowest p-5 rounded-2xl shadow-xl max-w-[210px]">
-<div class="flex items-center gap-2 mb-3">
-  <span class="relative flex h-2.5 w-2.5 flex-shrink-0">
-    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-  </span>
-  <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Campaña activa</span>
-</div>
-<p class="text-sm font-bold text-on-surface font-['Fraunces'] leading-tight">Natura Chile</p>
-<p class="text-xs text-on-surface-variant mt-1">47 envíos · Semana 2</p>
-</div>
-</div>
-</div>
-</section>
-<!-- Pain Points -->
-<section class="py-24 overflow-hidden">
-<div class="max-w-[1120px] mx-auto px-6">
-<div class="flex flex-col md:flex-row gap-12 md:gap-16 items-stretch">
-
-  <!-- Left: title + list -->
-  <div class="w-full md:w-1/2 flex flex-col justify-center py-4">
-    <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-[1.1]">La publicidad perdió la credibilidad. El seeding tampoco funciona sin sistema.</h2>
-    <div class="flex gap-4 mb-8">
-      <div class="flex-1 bg-error-container/40 rounded-2xl p-4 text-center">
-        <p class="text-3xl font-bold font-['Fraunces'] text-error">92%</p>
-        <p class="text-xs text-on-surface-variant mt-1 leading-snug">confía más en personas reales que en ads</p>
-      </div>
-      <div class="flex-1 bg-error-container/40 rounded-2xl p-4 text-center">
-        <p class="text-3xl font-bold font-['Fraunces'] text-error">70%</p>
-        <p class="text-xs text-on-surface-variant mt-1 leading-snug">identifica el contenido patrocinado y lo ignora</p>
-      </div>
-    </div>
-    <ul class="space-y-5">
-      <li class="flex items-start gap-4">
-        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
-          <span class="material-symbols-outlined text-error text-xl">person_search</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">01</span>
-          <p class="font-medium text-on-surface leading-snug">Perfiles que no conectan con la marca.</p>
-        </div>
-      </li>
-      <li class="flex items-start gap-4">
-        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
-          <span class="material-symbols-outlined text-error text-xl">sync_problem</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">02</span>
-          <p class="font-medium text-on-surface leading-snug">Logística manual y propensa a errores.</p>
-        </div>
-      </li>
-      <li class="flex items-start gap-4">
-        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
-          <span class="material-symbols-outlined text-error text-xl">timer_off</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">03</span>
-          <p class="font-medium text-on-surface leading-snug">Historias que se pierden a las 24h.</p>
-        </div>
-      </li>
-      <li class="flex items-start gap-4">
-        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
-          <span class="material-symbols-outlined text-error text-xl">local_shipping</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">04</span>
-          <p class="font-medium text-on-surface leading-snug">Falta de trazabilidad en los envíos.</p>
-        </div>
-      </li>
-      <li class="flex items-start gap-4">
-        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
-          <span class="material-symbols-outlined text-error text-xl">query_stats</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-error/60 block mb-0.5">05</span>
-          <p class="font-medium text-on-surface leading-snug">Incertidumbre sobre el ROI real.</p>
-        </div>
-      </li>
-    </ul>
-  </div>
-
-  <!-- Right: stressed person image -->
-  <div class="w-full md:w-1/2 rounded-[2rem] overflow-hidden relative min-h-[420px] md:min-h-0">
-    <img src="Imagenes/stressed.png" class="w-full h-full object-cover absolute inset-0" alt="Gestión de campaña sin sistema"/>
-    <div class="absolute inset-0 bg-red-900/10"></div>
-    <div class="absolute bottom-8 left-8 right-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
-      <p class="text-sm text-on-surface/80 font-medium leading-relaxed italic">"Sin sistema, la campaña depende del azar — y el azar no escala."</p>
-    </div>
-  </div>
-
-</div>
-</div>
-</section>
-<!-- Solution -->
-<section class="py-24">
-<div class="max-w-[1120px] mx-auto px-6 flex flex-col md:flex-row gap-16 items-center">
-<div class="w-full md:w-1/2">
-<img class="rounded-[2rem] w-full object-contain" src="Imagenes/tree.png" alt="Métricas botánicas de crecimiento de campaña Seedings Lab"/>
-</div>
-<div class="w-full md:w-1/2">
-<h2 class="text-4xl font-bold mb-4">Activamos conversaciones a escala — con sistema.</h2>
-<p class="text-on-surface-variant text-sm leading-relaxed mb-8">Las campañas con contenido generado por usuarios tienen <strong class="text-primary">2.4× más engagement</strong> que las campañas tradicionales. El secreto está en el volumen, la autenticidad y el proceso detrás.</p>
-<div class="space-y-8">
-<div class="flex gap-4">
-<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-primary">biotech</span>
-</div>
-<div>
-<h3 class="font-bold text-xl mb-2">Precisión</h3>
-<p class="text-on-surface-variant">Algoritmos y curaduría humana para encontrar el "fit" perfecto.</p>
-</div>
-</div>
-<div class="flex gap-4">
-<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-primary">account_tree</span>
-</div>
-<div>
-<h3 class="font-bold text-xl mb-2">Control</h3>
-<p class="text-on-surface-variant">Dashboard en tiempo real para ver cada etapa del proceso.</p>
-</div>
-</div>
-<div class="flex gap-4">
-<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-primary">query_stats</span>
-</div>
-<div>
-<h3 class="font-bold text-xl mb-2">Aprendizaje</h3>
-<p class="text-on-surface-variant">Reportes que transforman likes en data accionable para tu negocio.</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Client logos strip -->
-<section class="py-12 border-y border-outline-variant/10">
-<div class="max-w-[1120px] mx-auto px-6 text-center">
-  <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50 mb-6">Algunas marcas que han confiado en nuestros seedings</p>
-  <div class="flex items-center justify-center gap-6 md:gap-12 flex-wrap">
-    <span class="text-xl md:text-2xl font-['Fraunces'] font-semibold text-on-surface/40 hover:text-on-surface/70 transition-colors">Jergens</span>
-    <span class="text-on-surface/20 font-light text-2xl">·</span>
-    <span class="text-xl md:text-2xl font-['Fraunces'] font-semibold text-on-surface/40 hover:text-on-surface/70 transition-colors">Tangle Teezer</span>
-    <span class="text-on-surface/20 font-light text-2xl">·</span>
-    <span class="text-xl md:text-2xl font-['Fraunces'] font-semibold text-on-surface/40 hover:text-on-surface/70 transition-colors">ChapStick</span>
-  </div>
-</div>
-</section>
-<!-- How it works (4 stages) -->
-<section class="py-24 bg-surface-container-low/50">
-<div class="max-w-[1120px] mx-auto px-6">
-<div class="mb-16">
-  <span class="font-label text-sm uppercase tracking-widest text-primary mb-2 block font-semibold">Metodología</span>
-  <h2 class="text-4xl font-bold">Un ciclo cerrado de crecimiento</h2>
-</div>
-
-<div class="space-y-16 md:space-y-24">
-
-  <!-- Step 1: texto izq, imagen der -->
-  <div class="flex flex-col md:flex-row gap-10 md:gap-16 items-center">
-    <div class="w-full md:w-1/2 order-2 md:order-1">
-      <div class="flex items-baseline gap-3 mb-4">
-        <span class="text-5xl font-bold text-primary/15 font-['Fraunces']">01</span>
-        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-          <span class="material-symbols-outlined text-primary text-xl">psychology</span>
-        </div>
-      </div>
-      <h3 class="text-2xl font-bold mb-3">Segmentación</h3>
-      <p class="text-on-surface-variant mb-6 leading-relaxed">Identificamos los perfiles que realmente conectan con tu marca usando auditoría de audiencia y validación de datos reales.</p>
-      <ul class="space-y-3">
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Auditoría de audiencia</li>
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Cruce de intereses</li>
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Validación de engagement</li>
-      </ul>
-    </div>
-    <div class="w-full md:w-1/2 order-1 md:order-2 aspect-[4/3] rounded-[2rem] overflow-hidden bg-surface flex items-center justify-center">
-      <img src="Imagenes/Segmentacion.png" class="w-full h-full object-contain" alt="Segmentación de influencers"/>
-    </div>
-  </div>
-
-  <!-- Step 2: imagen izq, texto der -->
-  <div class="flex flex-col md:flex-row gap-10 md:gap-16 items-center">
-    <div class="w-full md:w-1/2 aspect-[4/3] rounded-[2rem] overflow-hidden bg-surface flex items-center justify-center">
-      <img src="Imagenes/Reclutamiento.png" class="w-full h-full object-contain" alt="Reclutamiento de influencers"/>
-    </div>
-    <div class="w-full md:w-1/2">
-      <div class="flex items-baseline gap-3 mb-4">
-        <span class="text-5xl font-bold text-primary/15 font-['Fraunces']">02</span>
-        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-          <span class="material-symbols-outlined text-primary text-xl">diversity_3</span>
-        </div>
-      </div>
-      <h3 class="text-2xl font-bold mb-3">Reclutamiento</h3>
-      <p class="text-on-surface-variant mb-6 leading-relaxed">Contactamos y gestionamos a cada influencer de forma personalizada. Acuerdos claros, datos completos desde el primer día.</p>
-      <ul class="space-y-3">
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Contacto personalizado</li>
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Gestión de acuerdos</li>
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Recolección de datos</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Step 3: texto izq, imagen der -->
-  <div class="flex flex-col md:flex-row gap-10 md:gap-16 items-center">
-    <div class="w-full md:w-1/2 order-2 md:order-1">
-      <div class="flex items-baseline gap-3 mb-4">
-        <span class="text-5xl font-bold text-primary/15 font-['Fraunces']">03</span>
-        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-          <span class="material-symbols-outlined text-primary text-xl">conveyor_belt</span>
-        </div>
-      </div>
-      <h3 class="text-2xl font-bold mb-3">Gestión + Logística</h3>
-      <p class="text-on-surface-variant mb-6 leading-relaxed">Nos encargamos del picking, packing y la última milla. Tú solo recibes el tracking actualizado.</p>
-      <ul class="space-y-3">
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Picking &amp; Packing</li>
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Logística última milla</li>
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Tracking de entrega</li>
-      </ul>
-    </div>
-    <div class="w-full md:w-1/2 order-1 md:order-2 aspect-[4/3] rounded-[2rem] overflow-hidden bg-surface flex items-center justify-center">
-      <img src="Imagenes/Logistica.png" class="w-full h-full object-contain" alt="Gestión y logística"/>
-    </div>
-  </div>
-
-  <!-- Step 4: imagen izq, texto der -->
-  <div class="flex flex-col md:flex-row gap-10 md:gap-16 items-center">
-    <div class="w-full md:w-1/2 aspect-[4/3] rounded-[2rem] overflow-hidden bg-surface flex items-center justify-center">
-      <img src="Imagenes/Visualizacion.png" class="w-full h-full object-contain" alt="Métricas y dashboard"/>
-    </div>
-    <div class="w-full md:w-1/2">
-      <div class="flex items-baseline gap-3 mb-4">
-        <span class="text-5xl font-bold text-primary/15 font-['Fraunces']">04</span>
-        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-          <span class="material-symbols-outlined text-primary text-xl">monitoring</span>
-        </div>
-      </div>
-      <h3 class="text-2xl font-bold mb-3">Métricas + Dashboard</h3>
-      <p class="text-on-surface-variant mb-6 leading-relaxed">Todo el impacto de la campaña en un dashboard en tiempo real. Datos limpios, reportes accionables.</p>
-      <ul class="space-y-3">
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Monitoreo 24/7</li>
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Reporte de impacto</li>
-        <li class="flex items-center gap-3 text-sm font-medium"><span class="material-symbols-outlined text-primary text-base">check_circle</span>Base de datos limpia</li>
-      </ul>
-    </div>
-  </div>
-
-</div>
-</div>
-</section>
-<!-- Dashboard Mockup -->
-<section class="py-24 overflow-hidden">
-<div class="max-w-[1120px] mx-auto px-6">
-<div class="bg-surface-container rounded-3xl p-8 md:p-12 relative border border-outline-variant/20 shadow-sm">
-<div class="grid md:grid-cols-5 gap-12 items-center">
-<div class="md:col-span-2">
-<h2 class="text-3xl font-bold mb-6 leading-tight">Tu campaña, bajo un microscopio digital.</h2>
-<ul class="space-y-5 mb-10">
-<li class="flex gap-4 text-sm font-medium items-center">
-<span class="material-symbols-outlined text-primary bg-primary/5 p-2 rounded-full">photo_library</span>
-                            Contenidos UGC generados en tiempo real
-                        </li>
-<li class="flex gap-4 text-sm font-medium items-center">
-<span class="material-symbols-outlined text-primary bg-primary/5 p-2 rounded-full">local_shipping</span>
-                            Estado de envíos y tracking por influencer
-                        </li>
-<li class="flex gap-4 text-sm font-medium items-center">
-<span class="material-symbols-outlined text-primary bg-primary/5 p-2 rounded-full">person_check</span>
-                            Tasa de publicación y engagement por perfil
-                        </li>
-<li class="flex gap-4 text-sm font-medium items-center">
-<span class="material-symbols-outlined text-primary bg-primary/5 p-2 rounded-full">sentiment_satisfied</span>
-                            Análisis de sentimiento de comentarios
-                        </li>
-</ul>
-<button class="bg-primary text-white px-8 py-3 rounded-full text-sm font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-primary/20">
-                        Pedir demo del dashboard
-                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
-</button>
-</div>
-<div class="md:col-span-3 relative">
-<div class="bg-white rounded-2xl shadow-2xl p-6 border border-surface-container-highest/50">
-<div class="flex justify-between items-center mb-8 border-b border-surface-container pb-4">
-<div class="flex gap-1.5">
-<div class="w-2.5 h-2.5 rounded-full bg-primary/20"></div>
-<div class="w-2.5 h-2.5 rounded-full bg-primary/10"></div>
-<div class="w-2.5 h-2.5 rounded-full bg-primary/5"></div>
-</div>
-<div class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Real-time Performance Panel</div>
-</div>
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
-<div class="text-[9px] uppercase font-bold text-on-surface-variant mb-1">UGC generado</div>
-<div class="text-xl font-bold text-on-surface">247</div>
-</div>
-<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
-<div class="text-[9px] uppercase font-bold text-on-surface-variant mb-1">Publicaron</div>
-<div class="text-xl font-bold text-on-surface">84%</div>
-</div>
-<div class="bg-primary/15 rounded-xl p-4 border border-primary/30">
-<div class="text-[9px] uppercase font-bold text-primary mb-1">Eng. Rate</div>
-<div class="text-xl font-bold text-primary">4.8%</div>
-</div>
-<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
-<div class="text-[9px] uppercase font-bold text-on-surface-variant mb-1">Costo/UGC</div>
-<div class="text-xl font-bold text-on-surface">$4.20</div>
-</div>
-</div>
-<div class="mb-2 flex justify-between items-end">
-<div class="text-[10px] font-bold text-on-surface-variant uppercase">UGC generado durante la campaña</div>
-<div class="text-[10px] text-primary font-bold">+12% vs semana anterior</div>
-</div>
-<div class="h-40 w-full relative">
-<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 100">
-<defs>
-<linearGradient id="grad" x1="0%" x2="0%" y1="0%" y2="100%">
-<stop offset="0%" style="stop-color:#7A8C6A;stop-opacity:1"></stop>
-<stop offset="100%" style="stop-color:#7A8C6A;stop-opacity:0"></stop>
-</linearGradient>
-</defs>
-<path d="M0 80 C 30 75 70 45 100 40 C 130 35 170 65 200 60 C 230 55 270 25 300 20 C 330 18 365 28 400 32" fill="none" stroke="#7A8C6A" stroke-width="3"></path>
-<path d="M0 80 C 30 75 70 45 100 40 C 130 35 170 65 200 60 C 230 55 270 25 300 20 C 330 18 365 28 400 32 V 100 H 0 Z" fill="url(#grad)" opacity="0.15"></path>
-<circle cx="300" cy="20" fill="#7A8C6A" r="4"></circle>
-</svg>
-<div class="absolute top-1" style="left:calc(75% - 60px)">
-<div class="bg-on-surface text-white text-[9px] px-2 py-1 rounded shadow-lg whitespace-nowrap">Pico: Día 14</div>
-</div>
-</div>
-<div class="mt-4 flex justify-between text-[8px] uppercase font-bold text-on-surface-variant tracking-widest">
-<span>Día 01</span>
-<span>Día 07</span>
-<span>Día 14</span>
-<span>Día 21</span>
-<span>Día 30</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Entregables -->
-<section class="py-24 bg-surface">
-<div class="max-w-[1120px] mx-auto px-6">
-<h2 class="text-center text-3xl font-bold mb-16">Lo que recibes en cada ciclo</h2>
-<div class="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-<div class="p-6 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:shadow-md transition-shadow">
-<span class="material-symbols-outlined text-primary mb-4">list_alt</span>
-<h4 class="font-bold mb-2">Whitelist de Perfiles</h4>
-<p class="text-xs text-on-surface-variant leading-relaxed">Selección curada con data de performance real.</p>
-</div>
-<div class="p-6 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:shadow-md transition-shadow">
-<span class="material-symbols-outlined text-primary mb-4">move_to_inbox</span>
-<h4 class="font-bold mb-2">Logística Integral</h4>
-<p class="text-xs text-on-surface-variant leading-relaxed">Toda la operación de envío y seguimiento.</p>
-</div>
-<div class="p-6 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:shadow-md transition-shadow">
-<span class="material-symbols-outlined text-primary mb-4">dashboard_customize</span>
-<h4 class="font-bold mb-2">Acceso al Lab-Panel</h4>
-<p class="text-xs text-on-surface-variant leading-relaxed">Control total de tu campaña en vivo.</p>
-</div>
-<div class="p-6 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:shadow-md transition-shadow">
-<span class="material-symbols-outlined text-primary mb-4">pie_chart</span>
-<h4 class="font-bold mb-2">Reporte de Cierre</h4>
-<p class="text-xs text-on-surface-variant leading-relaxed">Análisis profundo de KPI's y sentimiento.</p>
-</div>
-<div class="p-6 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:shadow-md transition-shadow">
-<span class="material-symbols-outlined text-primary mb-4">chat</span>
-<h4 class="font-bold mb-2">Gestión de Crisis</h4>
-<p class="text-xs text-on-surface-variant leading-relaxed">Soporte directo ante incidencias de envío.</p>
-</div>
-</div>
-</div>
-</section>
-<!-- Results -->
-<section class="py-24 bg-surface-container-low">
-<div class="max-w-[1120px] mx-auto px-6">
-  <div class="text-center mb-12">
-    <span class="font-label text-sm uppercase tracking-widest text-primary mb-2 block font-semibold">Resultados</span>
-    <h2 class="text-4xl font-bold">Lo que genera una campaña bien ejecutada</h2>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-surface-container-lowest rounded-[2rem] p-8 text-center">
-      <p class="text-6xl font-bold font-['Fraunces'] text-primary mb-2">+200%</p>
-      <p class="text-sm font-semibold text-on-surface mb-1">menciones orgánicas</p>
-      <p class="text-xs text-on-surface-variant">incremento promedio en campañas activas</p>
-    </div>
-    <div class="bg-surface-container-lowest rounded-[2rem] p-8 text-center">
-      <p class="text-6xl font-bold font-['Fraunces'] text-primary mb-2">+110%</p>
-      <p class="text-sm font-semibold text-on-surface mb-1">aumento en engagement</p>
-      <p class="text-xs text-on-surface-variant">vs. período sin campaña de seeding</p>
-    </div>
-    <div class="bg-surface-container-lowest rounded-[2rem] p-8 text-center">
-      <p class="text-6xl font-bold font-['Fraunces'] text-primary mb-2">+30%</p>
-      <p class="text-sm font-semibold text-on-surface mb-1">intención de compra</p>
-      <p class="text-xs text-on-surface-variant">medida post-campaña en panel de consumidores</p>
-    </div>
-  </div>
-  <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-[2rem] p-8 flex flex-col md:flex-row gap-6 items-center">
-    <div class="flex-shrink-0 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-      <span class="material-symbols-outlined text-primary text-3xl">package_2</span>
-    </div>
-    <div>
-      <p class="text-xs font-bold uppercase tracking-widest text-primary mb-1">Caso real · 100 envíos</p>
-      <p class="text-on-surface font-semibold text-lg mb-1">+250 contenidos generados · +195 menciones orgánicas · +150% engagement</p>
-      <p class="text-sm text-on-surface-variant">Una sola campaña. Múltiples voces. Conversación sostenida.</p>
-    </div>
-  </div>
-</div>
-</section>
-<!-- Packages -->
-<section class="py-24 bg-surface-container-low">
-<div class="max-w-[1120px] mx-auto px-6">
-<div class="text-center mb-16">
-<h2 class="text-4xl font-bold mb-4">Diseñado para escalar</h2>
-<p class="text-on-surface-variant">Planes adaptados a tu etapa de crecimiento.</p>
-</div>
-<div class="grid md:grid-cols-3 gap-8 items-stretch">
-<!-- Starter -->
-<div class="bg-surface p-10 rounded-3xl flex flex-col items-center text-center border border-outline-variant/10">
-<div class="text-primary font-bold uppercase tracking-widest text-xs mb-6">Discovery</div>
-<h3 class="text-2xl font-bold mb-4">Starter</h3>
-<p class="text-sm text-on-surface-variant mb-8 flex-grow">Ideal para segmentación y reclutamiento.</p>
-<div class="text-4xl font-bold mb-8">20-50 <span class="text-sm font-medium text-outline">envíos</span></div>
-<a href="#contacto" class="block w-full py-4 border border-primary text-primary font-bold rounded-full hover:bg-primary/5 transition-colors text-center">Cotizar volumen</a>
-</div>
-<!-- Growth -->
-<div class="bg-primary text-white p-10 rounded-3xl flex flex-col items-center text-center transform md:scale-105 shadow-2xl relative z-10">
-<div class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-bold uppercase tracking-widest text-[10px] mb-6">Most Popular</div>
-<h3 class="text-2xl font-bold mb-4">Growth</h3>
-<p class="text-sm text-white/80 mb-8 flex-grow">Crecimiento sostenido con mix de perfiles, métricas y dashboard.</p>
-<div class="text-4xl font-bold mb-8">50-150 <span class="text-sm font-medium text-white/50">envíos</span></div>
-<a href="#contacto" class="block w-full py-4 bg-white text-primary font-bold rounded-full hover:opacity-90 transition-opacity text-center">Cotizar volumen</a>
-</div>
-<!-- Lab Pro -->
-<div class="bg-surface p-10 rounded-3xl flex flex-col items-center text-center border border-outline-variant/10">
-<div class="text-primary font-bold uppercase tracking-widest text-xs mb-6">Dominance</div>
-<h3 class="text-2xl font-bold mb-4">Lab Pro</h3>
-<p class="text-sm text-on-surface-variant mb-8 flex-grow">El sistema completo: métricas, logística, fulfillment y todo lo incluido.</p>
-<div class="text-4xl font-bold mb-8">150+ <span class="text-sm font-medium text-outline">envíos</span></div>
-<a href="#contacto" class="block w-full py-4 border border-primary text-primary font-bold rounded-full hover:bg-primary/5 transition-colors text-center">Cotizar volumen</a>
-</div>
-</div>
-</div>
-</section>
-<!-- FAQ -->
-<section class="py-24">
-<div class="max-w-[800px] mx-auto px-6">
-<h2 class="text-3xl font-bold mb-12 text-center">Preguntas Frecuentes</h2>
-<div class="space-y-4">
-<details class="group bg-surface-container-low p-6 rounded-xl transition-all">
-<summary class="flex justify-between items-center font-bold cursor-pointer list-none text-on-surface">
-                    ¿Ustedes ponen los productos o los enviamos nosotros?
-                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
-</summary>
-<p class="mt-4 text-sm text-on-surface-variant leading-relaxed">Recibimos tu inventario en nuestro centro de distribución y nos encargamos de todo el picking, packing y envío.</p>
-</details>
-<details class="group bg-surface-container-low p-6 rounded-xl transition-all">
-<summary class="flex justify-between items-center font-bold cursor-pointer list-none text-on-surface">
-                    ¿Cómo aseguran que los influencers publiquen?
-                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
-</summary>
-<p class="mt-4 text-sm text-on-surface-variant leading-relaxed">Usamos un proceso de "doble validación" donde el influencer acepta explícitamente el envío y las condiciones antes de despachar.</p>
-</details>
-<details class="group bg-surface-container-low p-6 rounded-xl transition-all">
-<summary class="flex justify-between items-center font-bold cursor-pointer list-none text-on-surface">
-                    ¿Puedo elegir los influencers yo mismo?
-                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
-</summary>
-<p class="mt-4 text-sm text-on-surface-variant leading-relaxed">Totalmente. Nosotros hacemos la propuesta basada en data, pero tú tienes la última palabra (vía nuestra plataforma) sobre quién recibe el producto.</p>
-</details>
-<details class="group bg-surface-container-low p-6 rounded-xl transition-all">
-<summary class="flex justify-between items-center font-bold cursor-pointer list-none text-on-surface">
-                    ¿Trabajan con microinfluencers?
-                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
-</summary>
-<p class="mt-4 text-sm text-on-surface-variant leading-relaxed">Sí, y es parte central de nuestra estrategia. Los microinfluencers tienen audiencias más pequeñas pero altamente comprometidas y específicas. Incluimos un mix de perfiles —nano, micro y mid-tier— según los objetivos de cada campaña, siempre validando engagement real antes de seleccionar.</p>
-</details>
-<details class="group bg-surface-container-low p-6 rounded-xl transition-all">
-<summary class="flex justify-between items-center font-bold cursor-pointer list-none text-on-surface">
-                    ¿Puedo reutilizar el contenido que generan los influencers?
-                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
-</summary>
-<p class="mt-4 text-sm text-on-surface-variant leading-relaxed">Sí. El contenido orgánico generado —unboxings, reseñas, publicaciones— puede reutilizarse en campañas de paid media, páginas de producto o e-commerce. Esto multiplica el valor de cada envío mucho más allá de la publicación original.</p>
-</details>
-<details class="group bg-surface-container-low p-6 rounded-xl transition-all">
-<summary class="flex justify-between items-center font-bold cursor-pointer list-none text-on-surface">
-                    ¿Puedo hacer una campaña pequeña para validar antes de escalar?
-                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
-</summary>
-<p class="mt-4 text-sm text-on-surface-variant leading-relaxed">Es una de las formas más inteligentes de usar el seeding. Nuestro plan Starter (20-50 envíos) está diseñado exactamente para eso: probar la aceptación del producto, validar qué perfiles generan mejor respuesta y obtener data real antes de comprometer un presupuesto mayor.</p>
-</details>
-</div>
-</div>
-</section>
-<!-- Influencer CTA -->
-<section class="py-16 px-6 bg-surface-container-low">
-<div class="max-w-[1120px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 bg-surface-container-lowest rounded-[2rem] px-6 py-8 md:px-12 md:py-10 border border-outline-variant/10 shadow-sm">
-<div>
-<span class="text-xs font-bold uppercase tracking-widest text-primary mb-2 block">Para influencers</span>
-<h3 class="text-2xl font-bold text-on-surface mb-2">¿Quieres recibir productos de marcas?</h3>
-<p class="text-sm text-on-surface-variant max-w-md">Inscríbete en nuestra red de creadores y sé parte de las próximas campañas de seeding.</p>
-</div>
-<a href="https://link.webgurux.com/widget/form/ewXDwMDGrEnRlknSl2Eo" target="_blank" rel="noopener" class="flex-shrink-0 inline-flex items-center gap-2 bg-secondary-container text-on-surface px-8 py-4 rounded-full font-bold hover:-translate-y-1 transition-transform duration-200 shadow-sm">
-<span class="material-symbols-outlined text-primary">volunteer_activism</span>
-Quiero ser parte
-</a>
-</div>
-</section>
-<!-- Final CTA + Form -->
-<section id="contacto" class="py-8 px-3 md:py-24 md:px-6">
-<div class="max-w-[1120px] mx-auto bg-primary rounded-[2rem] md:rounded-[3rem] p-4 md:p-12 lg:p-20 text-white relative">
-<div class="absolute inset-0 overflow-hidden rounded-[2rem] md:rounded-[3rem] pointer-events-none">
-<div class="absolute -bottom-20 -right-20 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
-</div>
-<div class="relative z-10 grid md:grid-cols-2 gap-6 md:gap-16 items-start">
-<div>
-<h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">¿Qué quieres... ser una marca más, o la que todos están comentando?</h2>
-<p class="text-lg text-white/80 mb-8 leading-relaxed">Completa el formulario y recibe una propuesta estratégica diseñada para los objetivos de tu marca en menos de 24h.</p>
-<div class="flex items-center gap-4">
-<div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center">
-<span class="material-symbols-outlined">verified</span>
-</div>
-<span class="text-sm font-medium">Expertos en logística &amp; influencer marketing.</span>
-</div>
-</div>
-<div class="bg-white rounded-2xl p-4 sm:p-6 md:p-8 text-on-surface shadow-lg md:shadow-2xl">
-<form id="cotizar-form" class="space-y-4">
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="text-xs font-bold uppercase text-outline mb-2 block">Nombre</label>
-<input id="f-nombre" class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary" placeholder="Tu nombre" type="text" required/>
-</div>
-<div>
-<label class="text-xs font-bold uppercase text-outline mb-2 block">Brand IG</label>
-<input id="f-brand" class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary" placeholder="@tu_marca" type="text" required/>
-</div>
-</div>
-<div>
-<label class="text-xs font-bold uppercase text-outline mb-2 block">Email</label>
-<input id="f-email" class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary" placeholder="tu@email.com" type="email" required/>
-</div>
-<div>
-<label class="text-xs font-bold uppercase text-outline mb-2 block">Teléfono</label>
-<div class="flex gap-2">
-<span class="flex items-center px-3 bg-surface-container-low rounded-lg text-sm font-semibold text-on-surface-variant select-none">+569</span>
-<input id="f-telefono" class="flex-1 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary" placeholder="8 dígitos" type="tel" maxlength="8" pattern="[0-9]{8}" required/>
-</div>
-</div>
-<div>
-<label class="text-xs font-bold uppercase text-outline mb-2 block">Producto</label>
-<input id="f-producto" class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary" placeholder="¿Qué quieres enviar?" type="text" required/>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="text-xs font-bold uppercase text-outline mb-2 block">Volumen</label>
-<select id="f-volumen" class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary">
-<option>20-50 envíos</option>
-<option>50-150 envíos</option>
-<option>150+ envíos</option>
-</select>
-</div>
-<div>
-<label class="text-xs font-bold uppercase text-outline mb-2 block">Fecha de inicio</label>
-<input id="f-fecha" class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary" type="date"/>
-</div>
-</div>
-<button id="f-submit" class="w-full py-4 bg-primary text-white font-bold rounded-full mt-4 hover:bg-primary/90 transition-colors" type="submit">Recibir propuesta</button>
-<p id="f-success" class="hidden text-center text-sm font-semibold text-primary pt-2">¡Propuesta enviada! Te contactamos en menos de 24h.</p>
-<p id="f-error" class="hidden text-center text-sm font-semibold text-error pt-2">Hubo un error. Intenta nuevamente.</p>
-</form>
-<script>
-document.getElementById('cotizar-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn = document.getElementById('f-submit');
-  btn.disabled = true;
-  btn.textContent = 'Enviando...';
-  document.getElementById('f-success').classList.add('hidden');
-  document.getElementById('f-error').classList.add('hidden');
-  try {
-    const res = await fetch('https://services.leadconnectorhq.com/hooks/Z8KrOIcAnVpsZzTBSBXf/webhook-trigger/a741a061-1f69-4370-b69c-af7b657d1fa5', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nombre: document.getElementById('f-nombre').value,
-        brand_ig: document.getElementById('f-brand').value,
-        email: document.getElementById('f-email').value,
-        telefono: '+569' + document.getElementById('f-telefono').value,
-        producto: document.getElementById('f-producto').value,
-        volumen: document.getElementById('f-volumen').value,
-        fecha_inicio: document.getElementById('f-fecha').value,
-        source: 'Seedings Lab Landing'
-      })
-    });
-    if (res.ok) {
-      document.getElementById('f-success').classList.remove('hidden');
-      document.getElementById('cotizar-form').reset();
-    } else {
-      document.getElementById('f-error').classList.remove('hidden');
-    }
-  } catch {
-    document.getElementById('f-error').classList.remove('hidden');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Recibir propuesta';
+  :root{
+    --wine:#3D1B1E;
+    --wine-deep:#2A1214;
+    --wine-soft:#4A2226;
+    --cream:#EBE4CC;
+    --cream-warm:#E8DDC3;
+    --cream-paper:#F2ECD7;
+    --terra:#A04A3B;
+    --gold:#C39D5B;
+    --line:rgba(235,228,204,.18);
+    --line-strong:rgba(235,228,204,.32);
   }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--wine);color:var(--cream);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{overflow-x:hidden}
+  img{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  .serif{font-family:'Bodoni Moda',serif;font-weight:700;letter-spacing:-.01em}
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.04em}
+  .container{max-width:1440px;margin:0 auto;padding:0 56px}
+  @media (max-width:720px){.container{padding:0 22px}}
+  ::selection{background:var(--cream);color:var(--wine)}
+  .ph{background:var(--wine-soft);position:relative;overflow:hidden;border-radius:2px}
+  .ph::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,transparent 0 14px,rgba(235,228,204,.04) 14px 15px)}
+  .ph-label{position:absolute;left:14px;top:14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--cream);opacity:.55;text-transform:uppercase}
+  .logo-mark{font-family:'Bodoni Moda',serif;font-weight:900;font-style:italic;line-height:.82;letter-spacing:-.04em}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- tweaks-panel -->
+<script type="text/babel">
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+  .twk-field{appearance:none;box-sizing:border-box;width:100%;min-width:0;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;overflow-wrap:anywhere}
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+`;
+
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
+}
+
+function TweaksPanel({ title = 'Tweaks', noDeckControls = false, children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(clampToViewport) : null;
+    if (ro) { ro.observe(document.documentElement); return () => ro.disconnect(); }
+    window.addEventListener('resize', clampToViewport);
+    return () => window.removeEventListener('resize', clampToViewport);
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = { x: startRight - (ev.clientX - sx), y: startBottom - (ev.clientY - sy) };
+      clampToViewport();
+    };
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" onMouseDown={(e) => e.stopPropagation()} onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+function TweakSection({ label, children }) {
+  return (<><div className="twk-sect">{label}</div>{children}</>);
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value} onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+
+  if (!fitsAsSegments) {
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return (
+      <TweakRow label={label}>
+        <select className="twk-field" value={value} onChange={(e) => onChange(resolve(e.target.value))}>
+          {options.map((o) => {
+            const v = typeof o === 'object' ? o.value : o;
+            const l = typeof o === 'object' ? o.label : o;
+            return <option key={v} value={v}>{l}</option>;
+          })}
+        </select>
+      </TweakRow>
+    );
+  }
+
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => { if (!trackRef.current) return; const v = segAt(ev.clientX); if (v !== valueRef.current) onChange(v); };
+    const up = () => { setDragging(false); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`, width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>{o.label}</button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round" stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value} onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }} onClick={() => onChange(o)}>
+              {sup.length > 0 && (<span>{sup.map((c, j) => <i key={j} style={{ background: c }} />)}</span>)}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakToggle, TweakRadio, TweakColor,
 });
 </script>
-</div>
-</div>
-</div>
-</section>
-<!-- Footer -->
-<footer class="w-full rounded-t-[2rem] bg-[#D6C9B8] py-16 px-12 mt-12">
-<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-<div class="flex flex-col items-center md:items-start">
-<span class="text-xl font-bold font-['Fraunces'] text-[#252820] mb-2">Seedings Lab</span>
-<p class="font-['Inter'] text-sm uppercase tracking-widest text-primary font-medium">Botanical precision in marketing.</p>
-</div>
-<div class="flex flex-wrap justify-center gap-8 font-['Inter'] text-xs uppercase tracking-widest font-bold text-secondary">
-<a class="hover:text-primary transition-colors" href="#">Contacto</a>
-<a class="hover:text-primary transition-colors" href="#">Términos</a>
-<a class="hover:text-primary transition-colors" href="#">Privacidad</a>
-<a class="hover:text-primary transition-colors" href="#">Instagram</a>
-<a class="hover:text-primary transition-colors" href="#">LinkedIn</a>
-</div>
-<div class="text-outline text-[10px] uppercase tracking-widest font-medium">
-            © 2024 Seedings Lab. All rights reserved.
-        </div>
-</div>
-</footer>
-<!-- GHL Chat Widget -->
-<script
-  src="https://widgets.leadconnectorhq.com/loader.js"
-  data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js"
-  data-widget-id="69c6af0b54ae4edede180582">
+
+<!-- Logo -->
+<script type="text/babel">
+function Logo({size = 56, color = "var(--cream)", showLab = true}) {
+  const s = size;
+  return (
+    <div style={{display:"inline-flex", alignItems:"flex-end", gap: s*0.06, color}}>
+      <div style={{
+        fontFamily:"'Bodoni Moda', serif", fontWeight: 900, fontStyle: "italic",
+        fontSize: s, lineHeight: 0.78, letterSpacing: "-0.045em",
+        display:"flex", flexDirection:"column",
+      }}>
+        <span style={{transform:"translateX(0.04em)"}}>See</span>
+        <span style={{transform:"translateX(-0.02em)"}}>drgs</span>
+      </div>
+      {showLab && (
+        <span style={{
+          fontFamily:"'Bodoni Moda', serif", fontWeight: 800, fontStyle:"italic",
+          fontSize: s*0.16, letterSpacing:"0.02em", paddingBottom: s*0.08,
+        }}>lab.</span>
+      )}
+    </div>
+  );
+}
+Object.assign(window, { Logo });
 </script>
-</body></html>
+
+<!-- Nav -->
+<script type="text/babel">
+function Nav({onCTA}) {
+  const [scrolled, setScrolled] = React.useState(false);
+  React.useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  const items = [
+    ["Servicios", "#servicios"],
+    ["Proceso", "#proceso"],
+    ["FAQ", "#faq"],
+    ["Contacto", "#contacto"],
+  ];
+  return (
+    <header style={{
+      position:"fixed", top:0, left:0, right:0, zIndex:50,
+      transition:"all .35s ease",
+      background: scrolled ? "rgba(42,18,20,0.78)" : "transparent",
+      backdropFilter: scrolled ? "blur(18px) saturate(140%)" : "none",
+      WebkitBackdropFilter: scrolled ? "blur(18px) saturate(140%)" : "none",
+      borderBottom: scrolled ? "1px solid var(--line)" : "1px solid transparent",
+    }}>
+      <div className="container" style={{
+        display:"flex", alignItems:"center", justifyContent:"space-between",
+        height: scrolled ? 76 : 96, transition:"height .35s ease",
+      }}>
+        <nav style={{display:"flex", gap:32, alignItems:"center"}} className="navlinks">
+          {items.map(([label, href]) => (
+            <a key={href} href={href} style={{
+              fontSize:13, fontWeight:500, letterSpacing:".02em",
+              opacity:.78, transition:"opacity .2s",
+            }} onMouseEnter={e=>e.currentTarget.style.opacity=1}
+               onMouseLeave={e=>e.currentTarget.style.opacity=.78}>{label}</a>
+          ))}
+        </nav>
+        <a href="#" style={{display:"flex", alignItems:"center"}}>
+          <img src="assets/seedings-logo.png" alt="Seedings Lab"
+               style={{
+                 height: scrolled ? 48 : 64, width:"auto", display:"block",
+                 transition:"height .35s ease",
+               }}/>
+        </a>
+      </div>
+      <style>{`@media(max-width:820px){.navlinks{display:none !important}}`}</style>
+    </header>
+  );
+}
+Object.assign(window, { Nav });
+</script>
+
+<!-- Hero -->
+<script type="text/babel">
+function Hero() {
+  return (
+    <section style={{
+      position:"relative", minHeight:"100vh", paddingTop:0, paddingBottom:80,
+      overflow:"hidden", display:"flex", flexDirection:"column",
+    }}>
+      <div style={{
+        position:"absolute", inset:0, pointerEvents:"none",
+        background:"radial-gradient(ellipse 60% 50% at 78% 28%, rgba(195,157,91,.10), transparent 70%), radial-gradient(ellipse 70% 60% at 20% 80%, rgba(160,74,59,.14), transparent 70%)",
+      }}/>
+      <div style={{
+        position:"relative", marginTop:96,
+        background:"var(--wine-deep)",
+        borderTop:"1px solid var(--line)",
+        borderBottom:"1px solid var(--line)",
+      }}>
+        <div className="container hero-eyebrow" style={{
+          display:"flex", justifyContent:"space-between", alignItems:"center",
+          padding:"14px 56px", fontSize:11, letterSpacing:".18em",
+          textTransform:"uppercase", opacity:.62,
+          fontFamily:"'JetBrains Mono',monospace",
+        }}>
+          <span style={{display:"inline-flex", alignItems:"center", gap:10}}>
+            <span style={{width:6, height:6, borderRadius:"50%", background:"var(--terra)"}}/>
+            Santiago · Chile
+          </span>
+          <span>Marketing & Viralización</span>
+          <span>Est. 2024</span>
+        </div>
+      </div>
+
+      <div className="container" style={{position:"relative", width:"100%", flex:1, display:"flex", alignItems:"center", paddingTop:64, paddingBottom:24}}>
+        <div style={{
+          display:"grid", gridTemplateColumns:"1.15fr 1fr", gap:72, alignItems:"center", width:"100%",
+        }} className="hero-grid">
+          <div>
+            <h1 className="serif" style={{
+              fontSize:"clamp(36px, 4.2vw, 64px)", lineHeight:1.0, fontWeight:800,
+              letterSpacing:"-0.025em", textWrap:"balance", maxWidth:"14ch",
+            }}>
+              <span style={{display:"block"}}>Hacemos</span>
+              <span style={{display:"block", fontStyle:"italic", color:"var(--cream-paper)"}}>virales</span>
+              <span style={{display:"block"}}>
+                a las marcas<span style={{color:"var(--terra)"}}>.</span>
+              </span>
+            </h1>
+
+            <p style={{marginTop:36, fontSize:17, lineHeight:1.55, opacity:.85, maxWidth:480}}>
+              Lab donde elevamos tu presencia digital en <em style={{fontFamily:"'Bodoni Moda',serif", fontWeight:500}}>tiempo récord</em> y la hacemos explotar. Envíos masivos, creadores reales, contenido orgánico.
+            </p>
+
+            <div style={{marginTop:40, display:"flex", gap:14, flexWrap:"wrap"}}>
+              <a href="#contacto" style={{
+                background:"var(--cream)", color:"var(--wine)",
+                padding:"15px 26px", borderRadius:999, fontSize:14, fontWeight:600,
+                display:"inline-flex", alignItems:"center", gap:10, letterSpacing:".01em",
+              }}>
+                Empieza tu campaña
+                <span style={{fontFamily:"'Bodoni Moda',serif", fontStyle:"italic", fontWeight:700}}>→</span>
+              </a>
+              <a href="#proceso" style={{
+                padding:"15px 26px", borderRadius:999, fontSize:14, fontWeight:500,
+                border:"1px solid var(--line-strong)",
+                display:"inline-flex", alignItems:"center", gap:10, opacity:.9,
+              }}>
+                Ver cómo funciona
+              </a>
+            </div>
+
+            <div style={{
+              marginTop:64, paddingTop:28, borderTop:"1px solid var(--line)",
+              display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:24,
+            }}>
+              <Stat n="48h" label="primera entrega" />
+              <Stat n="+200" label="creadores activos" />
+              <Stat n="3.4M" label="impresiones / mes" />
+            </div>
+          </div>
+
+          <div style={{
+            position:"relative", aspectRatio:"4/5", borderRadius:4, overflow:"hidden",
+            boxShadow:"0 30px 60px -20px rgba(0,0,0,.5)",
+          }} className="hero-img">
+            <img src="assets/hero-unboxing-sm.png" alt="Cápsula Seedings Lab"
+              style={{width:"100%", height:"100%", objectFit:"cover", display:"block"}}
+              onError={(e)=>{ e.currentTarget.style.opacity='0'; }}
+              />
+            <div style={{
+              position:"absolute", inset:0,
+              background:"linear-gradient(180deg, transparent 55%, rgba(42,18,20,.55) 100%)",
+              pointerEvents:"none",
+            }}/>
+            <div style={{position:"absolute", left:20, top:20, fontFamily:"'JetBrains Mono',monospace", fontSize:10, letterSpacing:".14em", textTransform:"uppercase", color:"var(--cream)", opacity:.85}}>
+              SDL — 001 / unboxing
+            </div>
+            <div style={{position:"absolute", left:20, bottom:20, right:20, display:"flex", justifyContent:"space-between", fontFamily:"'JetBrains Mono',monospace", fontSize:10, opacity:.85, letterSpacing:".12em", color:"var(--cream)"}}>
+              <span>cápsula · burdeos</span>
+              <span>4:5 / film</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @media(max-width:880px){
+          .hero-grid{grid-template-columns:1fr !important; gap:48px !important}
+          .hero-eyebrow span:nth-child(2){display:none}
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function Stat({n, label}) {
+  return (
+    <div>
+      <div className="serif" style={{fontSize:40, lineHeight:0.95, fontWeight:700, letterSpacing:"-.02em"}}>{n}</div>
+      <div style={{fontSize:11, opacity:.6, marginTop:6, letterSpacing:".08em", textTransform:"uppercase"}}>{label}</div>
+    </div>
+  );
+}
+Object.assign(window, { Hero, Stat });
+</script>
+
+<!-- Marquee -->
+<script type="text/babel">
+function Marquee() {
+  const words = [
+    "envíos masivos", "ugc real", "unboxings", "creadores ↓ chile",
+    "presencia 360", "campañas relámpago", "contenido orgánico", "brand seeding",
+  ];
+  const row = [...words, ...words];
+  return (
+    <div style={{
+      borderTop:"1px solid var(--line)", borderBottom:"1px solid var(--line)",
+      padding:"24px 0", overflow:"hidden", background:"var(--wine-deep)",
+    }}>
+      <div style={{
+        display:"flex", gap:48, whiteSpace:"nowrap",
+        animation:"sd-marq 38s linear infinite", width:"max-content",
+      }}>
+        {row.map((w,i)=>(
+          <span key={i} style={{
+            display:"inline-flex", alignItems:"center", gap:48,
+            fontFamily:"'Bodoni Moda',serif", fontStyle:"italic",
+            fontWeight:700, fontSize:46, letterSpacing:"-.02em",
+            color: i%4===1 ? "var(--terra)" : "var(--cream)",
+          }}>
+            {w}
+            <span style={{width:10, height:10, borderRadius:"50%", background:"var(--cream)", opacity:.4, flexShrink:0}}/>
+          </span>
+        ))}
+      </div>
+      <style>{`@keyframes sd-marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
+    </div>
+  );
+}
+Object.assign(window, { Marquee });
+</script>
+
+<!-- Manifesto -->
+<script type="text/babel">
+function Manifesto() {
+  return (
+    <section style={{padding:"160px 0 120px", background:"var(--wine)", position:"relative"}}>
+      <div className="container">
+        <div style={{display:"grid", gridTemplateColumns:"auto 1fr", gap:80, alignItems:"start"}} className="man-grid">
+          <div style={{
+            fontFamily:"'JetBrains Mono',monospace", fontSize:11,
+            letterSpacing:".18em", opacity:.6, textTransform:"uppercase",
+            position:"sticky", top:120, writingMode:"horizontal-tb",
+          }}>
+            <div style={{width:48, height:1, background:"var(--cream)", marginBottom:14, opacity:.6}}/>
+            01 — Manifesto
+          </div>
+          <div>
+            <h2 className="serif" style={{
+              fontSize:"clamp(40px, 5.4vw, 80px)", lineHeight:1.02, fontWeight:700,
+              letterSpacing:"-.025em", maxWidth:"15ch", textWrap:"balance",
+            }}>
+              Enviamos tu producto.<br/>
+              <em style={{color:"var(--cream-paper)"}}>Creamos deseos.</em>
+            </h2>
+            <p style={{marginTop:48, fontSize:20, lineHeight:1.55, maxWidth:680, opacity:.85}}>
+              No publicamos anuncios. No compramos likes. Curamos un círculo de creadores reales en Chile y LATAM, les enviamos tu producto en una caja que pide ser abierta, y dejamos que el contenido nazca solo. Eso es viralidad orgánica — y se nota.
+            </p>
+            <div style={{
+              marginTop:72, display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:32,
+            }} className="man-cards">
+              {[
+                ["No vendemos alcance.","Vendemos conversación. Cada envío vuelve en 4-7 días con piezas que tu marca puede reutilizar."],
+                ["No improvisamos.","Cada cápsula tiene brief, selección manual y reporte. Lab → no agencia."],
+                ["No prometemos magia.","Sembramos. Cuando el producto es bueno, el contenido explota solo."],
+              ].map(([t,d],i)=>(
+                <div key={i} style={{paddingTop:22, borderTop:"1px solid var(--line-strong)"}}>
+                  <div className="serif" style={{
+                    fontSize:24, fontWeight:700, fontStyle:"italic", lineHeight:1.2, color:"var(--cream-paper)",
+                  }}>{t}</div>
+                  <p style={{marginTop:14, fontSize:14, lineHeight:1.55, opacity:.72}}>{d}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>{`
+        @media(max-width:820px){
+          .man-grid{grid-template-columns:1fr !important; gap:40px !important}
+          .man-cards{grid-template-columns:1fr !important}
+        }
+      `}</style>
+    </section>
+  );
+}
+Object.assign(window, { Manifesto });
+</script>
+
+<!-- Servicios -->
+<script type="text/babel">
+function Servicios() {
+  const [active, setActive] = React.useState(0);
+  const servicios = [
+    {
+      tag: "S/01", title: "Envíos masivos", kicker: "seeding",
+      desc: "Mandamos tu producto a 30 – 300 creadores curados en una sola ola. Cada caja sale con copy, ficha de producto y CTA listos para Stories.",
+      includes: ["Curación manual de creadores", "Packaging brandeado", "Logística punto a punto", "Tracking en vivo"],
+      stat: "200+", statLabel: "creadores en red"
+    },
+    {
+      tag: "S/02", title: "UGC + Contenido orgánico", kicker: "content",
+      desc: "Recibimos el contenido que generan los creadores, lo curamos y te lo entregamos listo para reutilizar en tus canales y ads.",
+      includes: ["Foto y video formato 9:16", "Derechos de uso negociados", "Edición y subtítulos", "Drive organizado por creador"],
+      stat: "4-7d", statLabel: "primera entrega"
+    },
+    {
+      tag: "S/03", title: "Unboxings & PR", kicker: "moments",
+      desc: "Cápsulas PR con producción de cajas, regalos personalizados y notas escritas a mano. Para lanzamientos que necesitan un momento.",
+      includes: ["Diseño de caja exclusiva", "Set selección creadores top", "Notas y dedicatorias", "Cobertura post-evento"],
+      stat: "01", statLabel: "lanzamiento / mes"
+    },
+    {
+      tag: "S/04", title: "Estrategia & Reporting", kicker: "strategy",
+      desc: "Antes de sembrar, planeamos. Brief, segmentación, calendario y al cierre un reporte con métricas reales (no impresiones infladas).",
+      includes: ["Brief de campaña", "Mapa de creadores", "Reporte de métricas", "Aprendizajes para la siguiente"],
+      stat: "100%", statLabel: "datos verificables"
+    },
+  ];
+  const s = servicios[active];
+
+  return (
+    <section id="servicios" style={{padding:"140px 0 140px"}}>
+      <div className="container">
+        <SectionHeader index="02" label="Servicios" title={<>Cuatro <em style={{color:"var(--cream-paper)"}}>cápsulas</em> de servicio</>} />
+        <div style={{
+          marginTop:80, display:"grid", gridTemplateColumns:"1fr 1.1fr", gap:80, alignItems:"start",
+        }} className="serv-grid">
+          <div style={{display:"flex", flexDirection:"column"}}>
+            {servicios.map((srv, i) => (
+              <button key={i} onClick={()=>setActive(i)} style={{
+                background:"transparent", border:"none", textAlign:"left",
+                padding:"28px 0", cursor:"pointer", color:"var(--cream)",
+                borderTop: i===0 ? "1px solid var(--line-strong)" : "none",
+                borderBottom:"1px solid var(--line-strong)",
+                display:"grid", gridTemplateColumns:"60px 1fr auto", alignItems:"center", gap:24,
+                transition:"padding .25s ease", paddingLeft: active===i ? 24 : 0,
+              }}>
+                <span className="mono" style={{fontSize:11, opacity: active===i ? 1 : .5, letterSpacing:".14em"}}>{srv.tag}</span>
+                <span className="serif" style={{
+                  fontSize:36, fontWeight:700, fontStyle: active===i ? "italic" : "normal",
+                  color: active===i ? "var(--cream-paper)" : "var(--cream)",
+                  opacity: active===i ? 1 : .82, letterSpacing:"-.02em", transition:"all .25s ease",
+                }}>{srv.title}</span>
+                <span style={{
+                  fontFamily:"'Bodoni Moda',serif", fontStyle:"italic", fontSize:22,
+                  opacity: active===i ? 1 : .35,
+                  transform: active===i ? "translateX(0)" : "translateX(-8px)",
+                  transition:"all .25s ease",
+                }}>→</span>
+              </button>
+            ))}
+          </div>
+
+          <div style={{
+            position:"sticky", top:120, background:"var(--wine-deep)",
+            border:"1px solid var(--line)", borderRadius:6, padding:40,
+          }} className="serv-card">
+            <div style={{display:"flex", justifyContent:"space-between", alignItems:"baseline", marginBottom:24}}>
+              <span className="mono" style={{fontSize:11, opacity:.6, letterSpacing:".16em", textTransform:"uppercase"}}>{s.tag} / {s.kicker}</span>
+              <span className="mono" style={{fontSize:11, opacity:.5}}>cápsula activa</span>
+            </div>
+            <h3 className="serif" style={{
+              fontSize:"clamp(40px, 4.6vw, 64px)", lineHeight:.98, fontWeight:800,
+              letterSpacing:"-.025em", maxWidth:"12ch",
+            }}>{s.title}</h3>
+            <p style={{marginTop:28, fontSize:16, lineHeight:1.55, opacity:.82, maxWidth:520}}>{s.desc}</p>
+            <div style={{
+              marginTop:36, paddingTop:28, borderTop:"1px solid var(--line)",
+              display:"grid", gridTemplateColumns:"1fr 1fr", gap:14,
+            }}>
+              {s.includes.map((it,i)=>(
+                <div key={i} style={{display:"flex", alignItems:"center", gap:12, fontSize:13, opacity:.85}}>
+                  <span style={{width:5, height:5, borderRadius:"50%", background:"var(--terra)", flexShrink:0}}/>
+                  {it}
+                </div>
+              ))}
+            </div>
+            <div style={{
+              marginTop:36, paddingTop:28, borderTop:"1px solid var(--line)",
+              display:"flex", justifyContent:"space-between", alignItems:"flex-end",
+            }}>
+              <div>
+                <div className="serif" style={{fontSize:54, fontWeight:800, lineHeight:.9, color:"var(--cream-paper)"}}>{s.stat}</div>
+                <div style={{fontSize:11, marginTop:6, opacity:.55, letterSpacing:".08em", textTransform:"uppercase"}}>{s.statLabel}</div>
+              </div>
+              <a href="#contacto" style={{
+                background:"var(--cream)", color:"var(--wine)", border:"none",
+                padding:"14px 24px", borderRadius:999, fontSize:13, fontWeight:600,
+                cursor:"pointer", display:"inline-flex", alignItems:"center", gap:10,
+              }}>
+                Solicitar brief
+                <span style={{fontFamily:"'Bodoni Moda',serif",fontStyle:"italic"}}>→</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>{`
+        @media(max-width:980px){
+          .serv-grid{grid-template-columns:1fr !important; gap:48px !important}
+          .serv-card{position:static !important}
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function SectionHeader({index, label, title}) {
+  return (
+    <div style={{display:"flex", alignItems:"flex-end", justifyContent:"space-between", gap:32, flexWrap:"wrap"}}>
+      <div>
+        <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".18em", textTransform:"uppercase", marginBottom:18}}>
+          {index} — {label}
+        </div>
+        <h2 className="serif" style={{
+          fontSize:"clamp(40px, 5vw, 76px)", lineHeight:1.0, fontWeight:700,
+          letterSpacing:"-.025em", textWrap:"balance", maxWidth:"14ch",
+        }}>{title}</h2>
+      </div>
+    </div>
+  );
+}
+Object.assign(window, { Servicios, SectionHeader });
+</script>
+
+<!-- Proceso -->
+<script type="text/babel">
+function Proceso() {
+  const steps = [
+    {
+      n:"01", title:"Seleccionamos creadores",
+      desc:"Curamos manualmente una shortlist de creadores que ya hablan tu lenguaje y los reclutamos para tu marca. Sin bots, sin pago por post — coherencia primero.",
+      detail:"Audiencia · Tono · Engagement real",
+    },
+    {
+      n:"02", title:"Enviamos tu producto",
+      desc:"Tu cápsula sale en caja brandeada con copy, ficha de uso y un detalle a mano. Cada paquete es una pequeña historia.",
+      detail:"Packaging · Logística · Tracking",
+    },
+    {
+      n:"03", title:"Medimos el impacto",
+      desc:"El contenido lo crean los creadores en sus propias stories. Nosotros recolectamos las métricas de cada uno — alcance, engagement, vistas — y te entregamos un reporte con la performance real de la campaña.",
+      detail:"Métricas · Reporte · Performance",
+    },
+  ];
+
+  return (
+    <section id="proceso" style={{padding:"140px 0", background:"var(--cream)", color:"var(--wine)"}}>
+      <div className="container">
+        <div style={{display:"flex", alignItems:"flex-end", justifyContent:"space-between", gap:32, flexWrap:"wrap"}}>
+          <div>
+            <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".18em", textTransform:"uppercase", marginBottom:18, color:"var(--wine)"}}>
+              03 — Proceso
+            </div>
+            <h2 className="serif" style={{
+              fontSize:"clamp(40px, 5vw, 76px)", lineHeight:1.0, fontWeight:700,
+              letterSpacing:"-.025em", maxWidth:"16ch", color:"var(--wine)",
+            }}>De brief a viral en <em style={{color:"var(--terra)"}}>tres pasos</em>.</h2>
+          </div>
+          <div style={{fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:".14em", textTransform:"uppercase", opacity:.55}}>
+            duración promedio · 14 – 21 días
+          </div>
+        </div>
+
+        <div style={{
+          marginTop:80, display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:0,
+          borderTop:"1px solid rgba(61,27,30,.18)", borderBottom:"1px solid rgba(61,27,30,.18)",
+        }} className="proc-grid">
+          {steps.map((st,i)=>(
+            <div key={i} style={{
+              padding:"56px 36px 48px",
+              borderRight: i<steps.length-1 ? "1px solid rgba(61,27,30,.18)" : "none",
+              position:"relative",
+            }}>
+              <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:48}}>
+                <span className="serif" style={{fontSize:88, lineHeight:.8, fontWeight:800, fontStyle:"italic", color:"var(--wine)"}}>{st.n}</span>
+                <span style={{
+                  width:32, height:32, borderRadius:"50%",
+                  background:"var(--wine)", color:"var(--cream)",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontFamily:"'Bodoni Moda',serif", fontStyle:"italic", fontSize:18, fontWeight:700,
+                }}>→</span>
+              </div>
+              <h3 className="serif" style={{fontSize:30, fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:"var(--wine)", marginBottom:18}}>{st.title}</h3>
+              <p style={{fontSize:15, lineHeight:1.55, color:"var(--wine)", opacity:.78, marginBottom:36}}>{st.desc}</p>
+              <div style={{
+                paddingTop:18, borderTop:"1px solid rgba(61,27,30,.18)",
+                fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:".1em",
+                textTransform:"uppercase", opacity:.62,
+              }}>{st.detail}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{
+          marginTop:48, display:"flex", alignItems:"center", gap:18,
+          fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:".12em",
+          textTransform:"uppercase", opacity:.6,
+        }}>
+          <span style={{flexShrink:0}}>Día 01</span>
+          <span style={{flex:1, height:1, background:"var(--wine)", opacity:.25}}/>
+          <span style={{flexShrink:0}}>Día 07 · envío</span>
+          <span style={{flex:1, height:1, background:"var(--wine)", opacity:.25}}/>
+          <span style={{flexShrink:0}}>Día 14 · UGC</span>
+          <span style={{flex:1, height:1, background:"var(--wine)", opacity:.25}}/>
+          <span style={{flexShrink:0}}>Día 21 · reporte</span>
+        </div>
+      </div>
+      <style>{`
+        @media(max-width:820px){
+          .proc-grid{grid-template-columns:1fr !important}
+          .proc-grid > div{border-right:none !important; border-bottom:1px solid rgba(61,27,30,.18)}
+          .proc-grid > div:last-child{border-bottom:none !important}
+        }
+      `}</style>
+    </section>
+  );
+}
+Object.assign(window, { Proceso });
+</script>
+
+<!-- CTA / Contact form -->
+<script type="text/babel">
+const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/Z8KrOIcAnVpsZzTBSBXf/webhook-trigger/a741a061-1f69-4370-b69c-af7b657d1fa5";
+
+function CTA() {
+  const [name, setName] = React.useState("");
+  const [brand, setBrand] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [phone, setPhone] = React.useState("");
+  const [service, setService] = React.useState("envios");
+  const [message, setMessage] = React.useState("");
+  const [status, setStatus] = React.useState("idle");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!name || !email || status==="sending") return;
+    setStatus("sending");
+    const payload = {
+      name, brand, email, phone, service, message,
+      source: "seedings.cl", page: "landing",
+      submitted_at: new Date().toISOString(),
+      url: typeof window !== "undefined" ? window.location.href : "",
+      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+    };
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      setStatus("sent");
+      setTimeout(() => {
+        setName(""); setBrand(""); setEmail(""); setPhone(""); setMessage("");
+        setService("envios"); setStatus("idle");
+      }, 5000);
+    } catch (err) {
+      console.error("Webhook submission failed:", err);
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 4000);
+    }
+  }
+
+  const services = [
+    { v:"envios", label:"Envíos masivos" },
+    { v:"ugc", label:"UGC + Contenido" },
+    { v:"unboxings", label:"Unboxings & PR" },
+    { v:"estrategia", label:"Estrategia" },
+  ];
+
+  return (
+    <section id="contacto" style={{padding:"160px 0 120px", background:"var(--cream)", color:"var(--wine)"}}>
+      <div className="container">
+        <div style={{display:"grid", gridTemplateColumns:"1.1fr 1fr", gap:80, alignItems:"start"}} className="cta-grid">
+          <div>
+            <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".18em", textTransform:"uppercase", marginBottom:18}}>
+              06 — Empieza tu campaña
+            </div>
+            <h2 className="serif" style={{
+              fontSize:"clamp(48px, 7vw, 120px)", lineHeight:.92, fontWeight:800,
+              letterSpacing:"-.03em", maxWidth:"11ch", textWrap:"balance",
+            }}>
+              Sembremos<br/>
+              <em style={{color:"var(--terra)"}}>tu próxima</em><br/>
+              campaña.
+            </h2>
+            <p style={{marginTop:32, fontSize:17, lineHeight:1.55, opacity:.82, maxWidth:440}}>
+              Cuéntanos qué marca lideras y respondemos en menos de 24 horas con una propuesta inicial. Sin compromiso, sin SDR insistente.
+            </p>
+            <div style={{marginTop:48, display:"flex", flexDirection:"column", gap:14, fontSize:14, opacity:.85}}>
+              <a href="mailto:hola@seedings.cl" style={{display:"flex", alignItems:"center", gap:14, borderBottom:"1px solid rgba(61,27,30,.2)", paddingBottom:14}}>
+                <span className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".12em", width:80}}>EMAIL</span>
+                hola@seedings.cl
+              </a>
+              <a href="https://instagram.com/seedings.lab" target="_blank" rel="noopener" style={{display:"flex", alignItems:"center", gap:14, borderBottom:"1px solid rgba(61,27,30,.2)", paddingBottom:14}}>
+                <span className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".12em", width:80}}>IG</span>
+                @seedings.lab
+              </a>
+              <a href="https://wa.me/56987654321" target="_blank" rel="noopener" style={{display:"flex", alignItems:"center", gap:14, borderBottom:"1px solid rgba(61,27,30,.2)", paddingBottom:14}}>
+                <span className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".12em", width:80}}>WHATSAPP</span>
+                +56 9 8765 4321
+              </a>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} style={{
+            background:"var(--wine)", color:"var(--cream)",
+            padding:"40px 36px", borderRadius:6, display:"flex", flexDirection:"column", gap:20,
+          }}>
+            <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".16em", textTransform:"uppercase"}}>brief inicial</div>
+            <FormField label="Nombre" value={name} onChange={setName} placeholder="María José" required />
+            <FormField label="Marca" value={brand} onChange={setBrand} placeholder="Olea Skin" />
+            <FormField label="Email" type="email" value={email} onChange={setEmail} placeholder="hola@marca.cl" required />
+            <FormField label="Teléfono / WhatsApp" type="tel" value={phone} onChange={setPhone} placeholder="+56 9 ..." />
+            <div>
+              <label className="mono" style={{display:"block", fontSize:11, opacity:.55, letterSpacing:".12em", textTransform:"uppercase", marginBottom:10}}>Servicio de interés</label>
+              <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8}}>
+                {services.map(s=>(
+                  <button type="button" key={s.v} onClick={()=>setService(s.v)} style={{
+                    background: service===s.v ? "var(--cream)" : "transparent",
+                    color: service===s.v ? "var(--wine)" : "var(--cream)",
+                    border:"1px solid var(--line-strong)",
+                    padding:"10px 14px", borderRadius:999, fontSize:12, fontWeight:600,
+                    cursor:"pointer", letterSpacing:".02em", transition:"all .2s",
+                  }}>{s.label}</button>
+                ))}
+              </div>
+            </div>
+            <FormTextarea label="Cuéntanos sobre tu marca" value={message} onChange={setMessage}
+                          placeholder="¿Qué venden, qué buscan lograr, timing aproximado?" />
+            <button type="submit" disabled={status==="sending" || status==="sent"} style={{
+              marginTop:8,
+              background: status==="sent" ? "var(--terra)" : status==="error" ? "#b94a4a" : "var(--cream)",
+              color: (status==="sent" || status==="error") ? "var(--cream)" : "var(--wine)",
+              border:"none", padding:"16px 22px", borderRadius:999, fontSize:14, fontWeight:600,
+              cursor: (status==="sending" || status==="sent") ? "default" : "pointer",
+              display:"flex", alignItems:"center", justifyContent:"center", gap:10,
+              transition:"all .25s", opacity: status==="sending" ? .8 : 1,
+            }}>
+              {status==="sending" && <>Enviando…</>}
+              {status==="sent" && "✓ Brief enviado — te respondemos en 24h"}
+              {status==="error" && "Algo falló — vuelve a intentar"}
+              {status==="idle" && (<>Enviar brief <span style={{fontFamily:"'Bodoni Moda',serif",fontStyle:"italic"}}>→</span></>)}
+            </button>
+            <div style={{fontSize:11, opacity:.55, lineHeight:1.5}}>
+              Al enviar aceptas nuestra política de privacidad. No spameamos — la primera respuesta es humana.
+            </div>
+          </form>
+        </div>
+      </div>
+      <style>{`@media(max-width:880px){.cta-grid{grid-template-columns:1fr !important; gap:48px !important}}`}</style>
+    </section>
+  );
+}
+
+function FormField({label, value, onChange, placeholder, type="text", required}) {
+  return (
+    <div>
+      <label className="mono" style={{display:"block", fontSize:11, opacity:.55, letterSpacing:".12em", textTransform:"uppercase", marginBottom:8}}>
+        {label}{required && <span style={{color:"var(--terra)", marginLeft:6}}>*</span>}
+      </label>
+      <input type={type} value={value} required={required} placeholder={placeholder}
+        onChange={(e)=>onChange(e.target.value)}
+        style={{
+          width:"100%", background:"transparent", border:"none",
+          borderBottom:"1px solid var(--line-strong)", color:"var(--cream)",
+          fontSize:18, fontFamily:"'Bodoni Moda',serif", fontWeight:500,
+          padding:"10px 0 12px", outline:"none",
+        }}
+        onFocus={e=>e.target.style.borderBottomColor="var(--cream)"}
+        onBlur={e=>e.target.style.borderBottomColor="var(--line-strong)"}
+      />
+    </div>
+  );
+}
+
+function FormTextarea({label, value, onChange, placeholder}) {
+  return (
+    <div>
+      <label className="mono" style={{display:"block", fontSize:11, opacity:.55, letterSpacing:".12em", textTransform:"uppercase", marginBottom:8}}>{label}</label>
+      <textarea value={value} placeholder={placeholder} rows={3} onChange={(e)=>onChange(e.target.value)}
+        style={{
+          width:"100%", background:"transparent", resize:"vertical", border:"none",
+          borderBottom:"1px solid var(--line-strong)", color:"var(--cream)",
+          fontSize:15, fontFamily:"'Inter',sans-serif", fontWeight:400,
+          padding:"10px 0 12px", outline:"none", lineHeight:1.5,
+        }}
+        onFocus={e=>e.target.style.borderBottomColor="var(--cream)"}
+        onBlur={e=>e.target.style.borderBottomColor="var(--line-strong)"}
+      />
+    </div>
+  );
+}
+Object.assign(window, { CTA, FormField, FormTextarea });
+</script>
+
+<!-- Footer (includes FAQ) -->
+<script type="text/babel">
+function Footer() {
+  const [open, setOpen] = React.useState(-1);
+  const faqs = [
+    {q:"¿Cuánto tiempo toma una cápsula?", a:"Desde brief firmado, 14 a 21 días. Día 7 sale el envío, día 14 ya tienes el primer UGC, día 21 recibes reporte completo."},
+    {q:"¿En qué países pueden hacer envíos?", a:"Hoy operamos en Chile, Argentina, México y Colombia. Si necesitas otra geografía, escríbenos y cotizamos según logística."},
+    {q:"¿Qué pasa si un creador no publica?", a:"Tenemos un acuerdo de entregable con cada uno. Si no publica, lo reemplazamos sin costo o ajustamos el reporte. Solo cobramos por contenido entregado."},
+    {q:"¿Puedo usar el UGC en mis ads?", a:"Sí. Negociamos derechos de uso con cada creador al momento del seeding. Te entregamos la licencia firmada junto al material."},
+    {q:"¿Tienen mínimo de campaña?", a:"El plan Seed parte con 30 creadores / mes. Bajo eso, no logramos masa crítica para que la viralidad despegue."},
+  ];
+
+  return (
+    <>
+      <section id="faq" style={{padding:"140px 0 100px", background:"var(--wine)"}}>
+        <div className="container">
+          <div style={{display:"grid", gridTemplateColumns:"1fr 1.4fr", gap:80, alignItems:"start"}} className="faq-grid">
+            <div style={{position:"sticky", top:120}}>
+              <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".18em", textTransform:"uppercase", marginBottom:18}}>07 — FAQ</div>
+              <h2 className="serif" style={{
+                fontSize:"clamp(40px, 5vw, 76px)", lineHeight:1.0, fontWeight:700,
+                letterSpacing:"-.025em", maxWidth:"12ch",
+              }}>
+                Lo que <em style={{color:"var(--cream-paper)"}}>siempre</em> preguntan.
+              </h2>
+              <p style={{marginTop:24, fontSize:15, opacity:.7, maxWidth:340, lineHeight:1.55}}>
+                ¿No está aquí? Escríbenos a hola@seedings.cl — respondemos rápido, prometido.
+              </p>
+            </div>
+            <div>
+              {faqs.map((f,i)=>{
+                const isOpen = open===i;
+                return (
+                  <div key={i} style={{
+                    borderTop: i===0 ? "1px solid var(--line-strong)" : "none",
+                    borderBottom:"1px solid var(--line-strong)",
+                  }}>
+                    <button onClick={()=>setOpen(isOpen ? -1 : i)} style={{
+                      width:"100%", background:"transparent", border:"none", color:"var(--cream)",
+                      padding:"28px 0", display:"flex", justifyContent:"space-between", alignItems:"center",
+                      cursor:"pointer", textAlign:"left",
+                    }}>
+                      <span className="serif" style={{
+                        fontSize:"clamp(20px, 2.2vw, 28px)", fontWeight:700,
+                        fontStyle: isOpen ? "italic" : "normal",
+                        color: isOpen ? "var(--cream-paper)" : "var(--cream)",
+                        letterSpacing:"-.015em", lineHeight:1.2, transition:"all .2s",
+                      }}>{f.q}</span>
+                      <span style={{
+                        fontFamily:"'Bodoni Moda',serif", fontStyle:"italic", fontWeight:700,
+                        fontSize:28, transform: isOpen ? "rotate(45deg)" : "rotate(0)",
+                        transition:"transform .25s ease", flexShrink:0, marginLeft:24,
+                        color: isOpen ? "var(--terra)" : "var(--cream)",
+                      }}>+</span>
+                    </button>
+                    <div style={{
+                      maxHeight: isOpen ? 200 : 0, overflow:"hidden",
+                      transition:"max-height .35s ease, padding .35s ease, opacity .35s ease",
+                      opacity: isOpen ? 1 : 0, paddingBottom: isOpen ? 28 : 0,
+                    }}>
+                      <p style={{fontSize:16, lineHeight:1.6, opacity:.78, maxWidth:560}}>{f.a}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <style>{`
+          @media(max-width:880px){
+            .faq-grid{grid-template-columns:1fr !important; gap:48px !important}
+            .faq-grid > div:first-child{position:static !important}
+          }
+        `}</style>
+      </section>
+
+      <footer style={{background:"var(--wine-deep)", paddingTop:80, overflow:"hidden"}}>
+        <div className="container">
+          <div style={{
+            display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:48,
+            paddingBottom:60, borderBottom:"1px solid var(--line)",
+          }} className="foot-cols">
+            <div style={{gridColumn:"span 2"}}>
+              <img src="assets/seedings-logo.png" alt="Seedings Lab" style={{height:80, width:"auto", display:"block"}}/>
+              <p style={{marginTop:24, fontSize:14, lineHeight:1.6, opacity:.7, maxWidth:380}}>
+                Lab de marketing y viralización. Sembramos marcas que florecen rápido.
+              </p>
+            </div>
+            <div>
+              <div className="mono" style={{fontSize:11, opacity:.5, letterSpacing:".14em", textTransform:"uppercase", marginBottom:18}}>Lab</div>
+              <ul style={{listStyle:"none", display:"flex", flexDirection:"column", gap:10, fontSize:14, opacity:.85}}>
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#proceso">Proceso</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+              </ul>
+            </div>
+            <div>
+              <div className="mono" style={{fontSize:11, opacity:.5, letterSpacing:".14em", textTransform:"uppercase", marginBottom:18}}>Conecta</div>
+              <ul style={{listStyle:"none", display:"flex", flexDirection:"column", gap:10, fontSize:14, opacity:.85}}>
+                <li><a href="https://instagram.com/seedings.lab" target="_blank" rel="noopener">Instagram</a></li>
+                <li><a href="https://tiktok.com/@seedings.lab" target="_blank" rel="noopener">TikTok</a></li>
+                <li><a href="mailto:hola@seedings.cl">hola@seedings.cl</a></li>
+                <li><a href="https://wa.me/56987654321" target="_blank" rel="noopener">WhatsApp</a></li>
+              </ul>
+            </div>
+          </div>
+          <div style={{
+            padding:"32px 0 28px", display:"flex", justifyContent:"space-between", alignItems:"center",
+            fontSize:12, opacity:.6, flexWrap:"wrap", gap:16,
+          }}>
+            <span>© 2026 Seedings Lab · Santiago, Chile</span>
+            <span className="mono" style={{letterSpacing:".14em", textTransform:"uppercase"}}>marketing & viralización</span>
+            <span>Términos · Privacidad</span>
+          </div>
+        </div>
+        <div style={{paddingTop:32, paddingBottom:24, textAlign:"center", overflow:"hidden"}}>
+          <div className="serif" style={{
+            fontSize:"clamp(120px, 28vw, 460px)", lineHeight:.78, fontWeight:900, fontStyle:"italic",
+            letterSpacing:"-.06em", color:"var(--wine-soft)", whiteSpace:"nowrap",
+          }}>
+            Seedings<span style={{color:"var(--terra)"}}>.</span>
+          </div>
+        </div>
+        <style>{`
+          @media(max-width:880px){
+            .foot-cols{grid-template-columns:1fr 1fr !important}
+            .foot-cols > div:first-child{grid-column:span 2}
+          }
+        `}</style>
+      </footer>
+    </>
+  );
+}
+Object.assign(window, { Footer });
+</script>
+
+<!-- App -->
+<script type="text/babel">
+function App() {
+  const TWEAK_DEFAULTS = {
+    "palette": "wine",
+    "accent": "#A04A3B",
+    "showMarquee": true
+  };
+
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  React.useEffect(()=>{
+    const palettes = {
+      wine: { wine:"#3D1B1E", wineDeep:"#2A1214", wineSoft:"#4A2226", cream:"#EBE4CC", creamPaper:"#F2ECD7" },
+      warm: { wine:"#4A2620", wineDeep:"#321712", wineSoft:"#5A302A", cream:"#EFE6CB", creamPaper:"#F5EDD4" },
+      midnight: { wine:"#1F1F2A", wineDeep:"#13131C", wineSoft:"#2A2A38", cream:"#EBE4CC", creamPaper:"#F2ECD7" },
+      forest: { wine:"#1F2A22", wineDeep:"#131C16", wineSoft:"#2A382E", cream:"#EBE4CC", creamPaper:"#F2ECD7" },
+    };
+    const p = palettes[tweaks.palette] || palettes.wine;
+    const root = document.documentElement;
+    root.style.setProperty("--wine", p.wine);
+    root.style.setProperty("--wine-deep", p.wineDeep);
+    root.style.setProperty("--wine-soft", p.wineSoft);
+    root.style.setProperty("--cream", p.cream);
+    root.style.setProperty("--cream-paper", p.creamPaper);
+    root.style.setProperty("--terra", tweaks.accent || "#A04A3B");
+  }, [tweaks.palette, tweaks.accent]);
+
+  function scrollToContact() {
+    document.getElementById("contacto")?.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  return (
+    <>
+      <Nav onCTA={scrollToContact} />
+      <Hero />
+      {tweaks.showMarquee && <Marquee />}
+      <Manifesto />
+      <Servicios />
+      <Proceso />
+      <CTA />
+      <Footer />
+
+      <TweaksPanel>
+        <TweakSection label="Paleta" />
+        <TweakRadio
+          label="Tema"
+          value={tweaks.palette}
+          options={["wine","warm","midnight","forest"]}
+          onChange={v=>setTweak("palette", v)} />
+        <TweakColor
+          label="Acento"
+          value={tweaks.accent}
+          options={["#A04A3B","#C39D5B","#C97E6F","#8A6B3E"]}
+          onChange={v=>setTweak("accent", v)} />
+        <TweakSection label="Layout" />
+        <TweakToggle label="Mostrar marquee" value={tweaks.showMarquee} onChange={v=>setTweak("showMarquee", v)} />
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+
+<script src="https://widgets.leadconnectorhq.com/loader.js" data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js" data-widget-id="69c6af0b54ae4edede180582"></script>
+</body>
+</html>
