@@ -202,21 +202,22 @@
   /* ============ Marquee ============ */
   .marquee{
     border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-    padding:22px 0;overflow:hidden;background:var(--wine-deep);
+    padding:20px 0;overflow:hidden;background:var(--wine-deep);
   }
   .marquee-track{
-    display:flex;gap:48px;white-space:nowrap;width:max-content;
-    animation:sd-marq 40s linear infinite;
+    display:flex;gap:56px;white-space:nowrap;width:max-content;
+    animation:sd-marq 36s linear infinite;
   }
   .marquee:hover .marquee-track{animation-play-state:paused}
   .marquee-track span{
-    display:inline-flex;align-items:center;gap:48px;
-    font-family:'Fraunces',serif;font-style:italic;font-weight:600;
-    font-size:clamp(30px,3.4vw,46px);letter-spacing:-.02em;color:var(--cream);
+    display:inline-flex;align-items:center;gap:56px;
+    font-family:'Inter',sans-serif;font-weight:600;
+    font-size:clamp(13px,1.1vw,15px);letter-spacing:.24em;text-transform:uppercase;
+    color:var(--cream);opacity:.92;
   }
-  .marquee-track span:nth-child(4n+2){color:var(--terra)}
+  .marquee-track span:nth-child(4n+2){color:var(--gold)}
   .marquee-track span i{
-    width:10px;height:10px;border-radius:50%;background:var(--cream);
+    width:6px;height:6px;border-radius:50%;background:var(--cream);
     opacity:.4;flex-shrink:0;font-style:normal;
   }
   @keyframes sd-marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -241,17 +242,9 @@
   }
   .manifesto h2 em{color:var(--cream-paper);font-weight:540}
   .man-lead{margin-top:44px;font-size:clamp(18px,1.5vw,21px);line-height:1.62;max-width:680px;opacity:.92}
-  .man-cards{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
-  .man-card{padding-top:22px;border-top:1px solid var(--line-strong)}
-  .man-card h3{
-    font-family:'Fraunces',serif;font-size:clamp(22px,1.8vw,25px);font-weight:600;
-    font-style:italic;line-height:1.25;color:var(--cream-paper);
-  }
-  .man-card p{margin-top:14px;font-size:var(--fs-small);line-height:1.6;opacity:.82}
   @media (max-width:880px){
     .man-grid{grid-template-columns:1fr;gap:36px}
     .man-aside{position:static}
-    .man-cards{grid-template-columns:1fr;gap:24px}
   }
 
   /* ============ Servicios ============ */
@@ -607,26 +600,12 @@
   <div class="container man-grid">
     <div class="man-aside label reveal"><div class="rule"></div>01 — Manifesto</div>
     <div>
-      <h2 class="reveal">Enviamos tu producto.<br><em>Creamos deseos.</em></h2>
+      <h2 class="reveal">Enviamos tu producto.<br><em>Creamos conversaciones.</em></h2>
       <p class="man-lead reveal">
         No publicamos anuncios. No compramos likes. Curamos un círculo de creadores reales en Chile y LATAM,
         les enviamos tu producto en una caja que pide ser abierta, y dejamos que el contenido nazca solo.
         Eso es viralidad orgánica — y se nota.
       </p>
-      <div class="man-cards">
-        <div class="man-card reveal">
-          <h3>No vendemos alcance.</h3>
-          <p>Vendemos conversación. Cada envío vuelve en 4-7 días con piezas que tu marca puede reutilizar.</p>
-        </div>
-        <div class="man-card reveal">
-          <h3>No improvisamos.</h3>
-          <p>Cada cápsula tiene brief, selección manual y reporte. Lab → no agencia.</p>
-        </div>
-        <div class="man-card reveal">
-          <h3>No prometemos magia.</h3>
-          <p>Sembramos. Cuando el producto es bueno, el contenido explota solo.</p>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -736,7 +715,7 @@
         <label id="svc-label">Servicio de interés</label>
         <div class="service-pills" role="group" aria-labelledby="svc-label" id="servicePills">
           <button type="button" data-v="envios" aria-pressed="true">Envíos masivos</button>
-          <button type="button" data-v="ugc" aria-pressed="false">UGC + Contenido</button>
+          <button type="button" data-v="ugc" aria-pressed="false">UGC = Contenido</button>
           <button type="button" data-v="unboxings" aria-pressed="false">Unboxings &amp; PR</button>
           <button type="button" data-v="estrategia" aria-pressed="false">Estrategia</button>
         </div>
@@ -865,14 +844,14 @@ const SOCIAL_POSTS = [
 const SERVICIOS = [
   {
     tag:"S/01", title:"Envíos masivos", kicker:"seeding",
-    desc:"Mandamos tu producto a 30 – 300 creadores curados en una sola ola. Cada caja sale con copy, ficha de producto y CTA listos para Stories.",
-    includes:["Curación manual de creadores","Packaging brandeado","Logística punto a punto","Tracking en vivo"],
+    desc:"Mandamos tu producto a 30 – 300 creadores curados en una sola ola. Cada caja sale con brief, ficha de producto y CTA listos para Stories.",
+    includes:["Curatoría cuidada de creadores","Packaging","Logística punto a punto","Dashboard en tiempo real"],
     stat:"200+", statLabel:"creadores en red",
   },
   {
-    tag:"S/02", title:"UGC + Contenido orgánico", kicker:"content",
-    desc:"Recibimos el contenido que generan los creadores, lo curamos y te lo entregamos listo para reutilizar en tus canales y ads.",
-    includes:["Foto y video formato 9:16","Derechos de uso negociados","Edición y subtítulos","Drive organizado por creador"],
+    tag:"S/02", title:"UGC = Contenido orgánico", kicker:"content",
+    desc:"",
+    includes:["Contenido orgánico","Derechos de uso negociados","Contenido para la marca"],
     stat:"4-7d", statLabel:"primera entrega",
   },
   {
@@ -960,7 +939,7 @@ navMobile.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
         <span class="label" style="opacity:.5">cápsula activa</span>
       </div>
       <h3>${escapeHtml(s.title)}</h3>
-      <p class="desc">${escapeHtml(s.desc)}</p>
+      ${s.desc ? `<p class="desc">${escapeHtml(s.desc)}</p>` : ""}
       <div class="serv-includes">
         ${s.includes.map(it => `<div><span class="dot"></span>${escapeHtml(it)}</div>`).join("")}
       </div>
@@ -969,7 +948,7 @@ navMobile.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
           <div class="serv-stat-n">${escapeHtml(s.stat)}</div>
           <div class="serv-stat-l">${escapeHtml(s.statLabel)}</div>
         </div>
-        <a class="btn btn-primary" href="#contacto" style="padding:14px 24px;font-size:14px">Solicitar brief <span class="arrow">→</span></a>
+        <a class="btn btn-primary" href="#contacto" style="padding:14px 24px;font-size:14px">Cotizar campaña <span class="arrow">→</span></a>
       </div>`;
   }
   renderList(); renderCard();
