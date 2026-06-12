@@ -340,67 +340,6 @@
     .proc-timeline i{min-width:24px}
   }
 
-  /* ============ Novedades (redes sociales) ============ */
-  .novedades{padding:clamp(96px,12vw,140px) 0;background:var(--wine-deep)}
-  .nov-head{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap}
-  .nov-follow{display:flex;gap:10px;flex-wrap:wrap}
-  .nov-follow a{
-    display:inline-flex;align-items:center;gap:9px;
-    border:1px solid var(--line-strong);border-radius:999px;
-    padding:11px 20px;font-size:14px;font-weight:600;
-    transition:background .2s,color .2s,border-color .2s;
-  }
-  .nov-follow a:hover{background:var(--cream);color:var(--wine);border-color:var(--cream)}
-  .nov-follow svg{width:16px;height:16px;flex-shrink:0}
-  .nov-tabs{
-    margin-top:52px;display:flex;gap:8px;flex-wrap:wrap;
-    border-bottom:1px solid var(--line);padding-bottom:18px;
-  }
-  .nov-tab{
-    background:transparent;border:1px solid var(--line-strong);color:var(--cream);
-    border-radius:999px;padding:10px 22px;font-size:14px;font-weight:600;
-    cursor:pointer;letter-spacing:.02em;transition:all .2s;
-  }
-  .nov-tab:hover{border-color:var(--cream)}
-  .nov-tab[aria-selected="true"]{background:var(--cream);color:var(--wine);border-color:var(--cream)}
-  .nov-grid{margin-top:36px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-  .nov-card{
-    display:flex;flex-direction:column;gap:0;
-    background:var(--wine);border:1px solid var(--line);border-radius:8px;
-    padding:26px 26px 24px;transition:transform .25s ease,border-color .25s ease;
-  }
-  .nov-card:hover{transform:translateY(-4px);border-color:var(--line-strong)}
-  .nov-card-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
-  .nov-badge{
-    display:inline-flex;align-items:center;gap:8px;
-    font-size:12.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  }
-  .nov-badge svg{width:15px;height:15px}
-  .nov-badge.ig{color:#E5B8A0}
-  .nov-badge.tk{color:#A9D8CE}
-  .nov-badge.li{color:#A9C4E2}
-  .nov-date{font-size:12.5px;opacity:.6;font-weight:500;letter-spacing:.06em;flex-shrink:0}
-  .nov-card h3{
-    font-family:'Fraunces',serif;font-size:21px;font-weight:600;
-    line-height:1.25;letter-spacing:-.01em;color:var(--cream-paper);
-  }
-  .nov-card p{margin-top:12px;font-size:var(--fs-small);line-height:1.6;opacity:.82;flex:1}
-  .nov-card .nov-link{
-    margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
-    display:inline-flex;align-items:center;gap:8px;
-    font-size:13.5px;font-weight:600;letter-spacing:.04em;
-    color:var(--cream);transition:color .2s,gap .2s;
-  }
-  .nov-card .nov-link:hover{color:var(--cream-paper);gap:12px}
-  .nov-link .arrow{font-family:'Fraunces',serif;font-style:italic}
-  .nov-empty{
-    grid-column:1 / -1;text-align:center;padding:56px 20px;
-    border:1px dashed var(--line-strong);border-radius:8px;opacity:.7;font-size:15px;
-  }
-  .nov-note{margin-top:32px;font-size:13.5px;opacity:.6;text-align:center}
-  @media (max-width:980px){.nov-grid{grid-template-columns:1fr 1fr}}
-  @media (max-width:640px){.nov-grid{grid-template-columns:1fr}}
-
   /* ============ Contacto ============ */
   .contacto{padding:clamp(96px,12vw,150px) 0 clamp(80px,10vw,120px);background:var(--cream);color:var(--wine)}
   .contacto .label{opacity:.6}
@@ -533,7 +472,6 @@
     <nav class="nav-links" aria-label="Navegación principal">
       <a href="#servicios">Servicios</a>
       <a href="#proceso">Proceso</a>
-      <a href="#novedades">Novedades</a>
       <a href="#faq">FAQ</a>
       <a class="nav-cta" href="#contacto">Empieza tu campaña</a>
     </nav>
@@ -544,7 +482,6 @@
   <nav class="nav-mobile" id="navMobile" aria-label="Navegación móvil">
     <a href="#servicios">Servicios</a>
     <a href="#proceso">Proceso</a>
-    <a href="#novedades">Novedades</a>
     <a href="#faq">FAQ</a>
     <a href="#contacto">Empieza tu campaña →</a>
   </nav>
@@ -638,13 +575,13 @@
       <div class="proc-step reveal">
         <div class="proc-step-top"><span class="proc-n">01</span><span class="proc-arrow">→</span></div>
         <h3>Seleccionamos creadores</h3>
-        <p>Curamos manualmente una shortlist de creadores que ya hablan tu lenguaje y los reclutamos para tu marca. Sin bots, sin pago por post — coherencia primero.</p>
+        <p>Curamos manualmente una shortlist de creadores que ya hablan tu lenguaje y los reclutamos para tu marca, con pago o canje por post. Sin bots — coherencia primero.</p>
         <div class="proc-detail">Audiencia · Tono · Engagement real</div>
       </div>
       <div class="proc-step reveal">
         <div class="proc-step-top"><span class="proc-n">02</span><span class="proc-arrow">→</span></div>
         <h3>Enviamos tu producto</h3>
-        <p>Tu cápsula sale en caja brandeada con copy, ficha de uso y un detalle a mano. Cada paquete es una pequeña historia.</p>
+        <p>Nos encargamos de que tu seeding llegue a las manos de tus creadores con brief, referencias de contenido y fecha límite de publicación.</p>
         <div class="proc-detail">Packaging · Logística · Tracking</div>
       </div>
       <div class="proc-step reveal">
@@ -660,41 +597,23 @@
   </div>
 </section>
 
-<!-- ============ Novedades / Redes sociales ============ -->
-<section class="novedades" id="novedades">
-  <div class="container">
-    <div class="nov-head reveal">
-      <div class="section-head">
-        <span class="label">04 — Novedades</span>
-        <h2>Lo último <em style="color:var(--cream-paper)">del lab</em>.</h2>
-      </div>
-      <div class="nov-follow" id="novFollow"></div>
-    </div>
-    <div class="nov-tabs reveal" role="tablist" aria-label="Filtrar novedades por red social" id="novTabs"></div>
-    <div class="nov-grid" id="novGrid" aria-live="polite"></div>
-    <p class="nov-note">Síguenos para ver las campañas en tiempo real — publicamos cada cápsula que sale del lab.</p>
-  </div>
-</section>
-
 <!-- ============ Contacto ============ -->
 <section class="contacto" id="contacto">
   <div class="container cta-grid">
     <div class="reveal">
-      <span class="label">05 — Empieza tu campaña</span>
-      <h2 style="margin-top:18px">Sembremos <em>tu próxima</em> campaña.</h2>
+      <span class="label">04 — Empieza tu campaña</span>
+      <h2 style="margin-top:18px">Planifiquemos <em>tu próxima</em> campaña.</h2>
       <p class="cta-lead">
         Cuéntanos qué marca lideras y respondemos en menos de 24 horas con una propuesta inicial.
-        Sin compromiso, sin SDR insistente.
       </p>
       <div class="cta-channels">
-        <a href="mailto:hola@seedings.cl"><span class="label">Email</span>hola@seedings.cl</a>
-        <a href="https://instagram.com/seedings.lab" target="_blank" rel="noopener"><span class="label">Instagram</span>@seedings.lab</a>
-        <a href="https://wa.me/56987654321" target="_blank" rel="noopener"><span class="label">WhatsApp</span>+56 9 8765 4321</a>
+        <a href="mailto:hola@m.seedings.cl"><span class="label">Email</span>hola@m.seedings.cl</a>
+        <a href="https://instagram.com/seedings.cl" target="_blank" rel="noopener"><span class="label">Instagram</span>@seedings.cl</a>
+        <a href="https://wa.me/56922330699" target="_blank" rel="noopener"><span class="label">WhatsApp</span>+56 9 2233 0699</a>
         <a href="https://link.webgurux.com/widget/form/ewXDwMDGrEnRlknSl2Eo" target="_blank" rel="noopener"><span class="label">Creadores</span>¿Eres influencer? Únete a la red →</a>
       </div>
     </div>
     <form class="cta-form reveal" id="briefForm" novalidate>
-      <span class="label">Brief inicial</span>
       <div class="field">
         <label for="f-name">Nombre<span class="req">*</span></label>
         <input id="f-name" name="name" type="text" placeholder="María José" required autocomplete="name">
@@ -715,16 +634,14 @@
         <label id="svc-label">Servicio de interés</label>
         <div class="service-pills" role="group" aria-labelledby="svc-label" id="servicePills">
           <button type="button" data-v="envios" aria-pressed="true">Envíos masivos</button>
-          <button type="button" data-v="ugc" aria-pressed="false">UGC = Contenido</button>
-          <button type="button" data-v="unboxings" aria-pressed="false">Unboxings &amp; PR</button>
-          <button type="button" data-v="estrategia" aria-pressed="false">Estrategia</button>
+          <button type="button" data-v="estrategia" aria-pressed="false">Creación de estrategia</button>
         </div>
       </div>
       <div class="field">
         <label for="f-msg">Cuéntanos sobre tu marca</label>
         <textarea id="f-msg" name="message" rows="3" placeholder="¿Qué venden, qué buscan lograr, timing aproximado?"></textarea>
       </div>
-      <button class="cta-submit" id="submitBtn" type="submit">Enviar brief <span class="arrow" style="font-family:'Fraunces',serif;font-style:italic">→</span></button>
+      <button class="cta-submit" id="submitBtn" type="submit">Enviar <span class="arrow" style="font-family:'Fraunces',serif;font-style:italic">→</span></button>
       <p class="cta-privacy">Al enviar aceptas nuestra política de privacidad. No spameamos — la primera respuesta es humana.</p>
     </form>
   </div>
@@ -735,10 +652,10 @@
   <div class="container faq-grid">
     <div class="faq-aside reveal">
       <div class="section-head">
-        <span class="label">06 — FAQ</span>
+        <span class="label">05 — FAQ</span>
         <h2>Lo que <em style="color:var(--cream-paper)">siempre</em> preguntan.</h2>
       </div>
-      <p>¿No está aquí? Escríbenos a <a href="mailto:hola@seedings.cl">hola@seedings.cl</a> — respondemos rápido, prometido.</p>
+      <p>¿No está aquí? Escríbenos a <a href="mailto:hola@m.seedings.cl">hola@m.seedings.cl</a> — respondemos rápido, prometido.</p>
     </div>
     <div id="faqList" class="reveal"></div>
   </div>
@@ -759,7 +676,6 @@
         <ul>
           <li><a href="#servicios">Servicios</a></li>
           <li><a href="#proceso">Proceso</a></li>
-          <li><a href="#novedades">Novedades</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="#contacto">Contacto</a></li>
         </ul>
@@ -767,11 +683,10 @@
       <div class="foot-col">
         <span class="label">Conecta</span>
         <ul>
-          <li><a href="https://instagram.com/seedings.lab" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://instagram.com/seedings.cl" target="_blank" rel="noopener">Instagram</a></li>
           <li><a href="https://tiktok.com/@seedings.lab" target="_blank" rel="noopener">TikTok</a></li>
-          <li><a href="https://www.linkedin.com/company/seedings-lab" target="_blank" rel="noopener">LinkedIn</a></li>
-          <li><a href="mailto:hola@seedings.cl">hola@seedings.cl</a></li>
-          <li><a href="https://wa.me/56987654321" target="_blank" rel="noopener">WhatsApp</a></li>
+          <li><a href="mailto:hola@m.seedings.cl">hola@m.seedings.cl</a></li>
+          <li><a href="https://wa.me/56922330699" target="_blank" rel="noopener">WhatsApp</a></li>
         </ul>
       </div>
     </div>
@@ -788,57 +703,6 @@
 /* =====================================================================
    DATOS EDITABLES
    ===================================================================== */
-
-/* --- Redes sociales del lab (perfiles) --- */
-const SOCIAL_PROFILES = [
-  { id:"ig", name:"Instagram", handle:"@seedings.lab", url:"https://instagram.com/seedings.lab" },
-  { id:"tk", name:"TikTok",    handle:"@seedings.lab", url:"https://tiktok.com/@seedings.lab" },
-  { id:"li", name:"LinkedIn",  handle:"Seedings Lab",  url:"https://www.linkedin.com/company/seedings-lab" },
-];
-
-/* --- Últimas actualizaciones de redes sociales ---------------------
-   EDITA AQUÍ para sumar novedades: agrega un objeto al inicio del array.
-   platform: "ig" (Instagram) | "tk" (TikTok) | "li" (LinkedIn)
-   url: enlace directo a la publicación.
--------------------------------------------------------------------- */
-const SOCIAL_POSTS = [
-  {
-    platform:"ig", date:"2026-06-05",
-    title:"Cápsula 014 · lanzamiento skincare",
-    text:"38 creadoras recibieron la nueva línea facial. Primer unboxing al aire en menos de 48 horas — mira las stories destacadas.",
-    url:"https://instagram.com/seedings.lab",
-  },
-  {
-    platform:"tk", date:"2026-05-28",
-    title:"Detrás del lab: armado de cajas",
-    text:"Así se arma una cápsula burdeos: notas a mano, ficha de producto y un detalle que nadie espera. El video superó las 120K vistas.",
-    url:"https://tiktok.com/@seedings.lab",
-  },
-  {
-    platform:"li", date:"2026-05-20",
-    title:"Reporte abierto: qué funciona en seeding 2026",
-    text:"Publicamos los aprendizajes de nuestras últimas 10 campañas: formatos, tasas de publicación y el ROI real del UGC orgánico.",
-    url:"https://www.linkedin.com/company/seedings-lab",
-  },
-  {
-    platform:"ig", date:"2026-05-12",
-    title:"Antes y después: marca de café local",
-    text:"De 800 a 14.000 seguidores en 6 semanas con dos olas de envíos. El carrusel con los resultados completos ya está en el feed.",
-    url:"https://instagram.com/seedings.lab",
-  },
-  {
-    platform:"tk", date:"2026-05-02",
-    title:"Creadores reaccionan a la cápsula sorpresa",
-    text:"Compilado de los mejores unboxings del mes. Contenido 100% orgánico — ninguno fue pagado por publicar.",
-    url:"https://tiktok.com/@seedings.lab",
-  },
-  {
-    platform:"li", date:"2026-04-22",
-    title:"Estamos creciendo: nuevas geografías",
-    text:"Sumamos logística en México y Colombia. Si tu marca quiere sembrar fuera de Chile, ahora el camino es directo.",
-    url:"https://www.linkedin.com/company/seedings-lab",
-  },
-];
 
 /* --- Servicios --- */
 const SERVICIOS = [
@@ -870,11 +734,11 @@ const SERVICIOS = [
 
 /* --- FAQ --- */
 const FAQS = [
-  {q:"¿Cuánto tiempo toma una cápsula?", a:"Desde brief firmado, 14 a 21 días. Día 7 sale el envío, día 14 ya tienes el primer UGC, día 21 recibes reporte completo."},
+  {q:"¿Cuánto tiempo toma una campaña?", a:"Desde el brief aprobado, 21 a 30 días."},
   {q:"¿En qué países pueden hacer envíos?", a:"Hoy operamos en Chile, Argentina, México y Colombia. Si necesitas otra geografía, escríbenos y cotizamos según logística."},
-  {q:"¿Qué pasa si un creador no publica?", a:"Tenemos un acuerdo de entregable con cada uno. Si no publica, lo reemplazamos sin costo o ajustamos el reporte. Solo cobramos por contenido entregado."},
+  {q:"¿Qué pasa si un creador no publica?", a:"Tenemos un acuerdo de entregable con cada uno. Si no publica, lo reemplazamos sin costo o ajustamos el reporte."},
   {q:"¿Puedo usar el UGC en mis ads?", a:"Sí. Negociamos derechos de uso con cada creador al momento del seeding. Te entregamos la licencia firmada junto al material."},
-  {q:"¿Tienen mínimo de campaña?", a:"El plan Seed parte con 30 creadores / mes. Bajo eso, no logramos masa crítica para que la viralidad despegue."},
+  {q:"¿Tienen mínimo de campaña?", a:"El Plan Básico parte con 70 creadores. Bajo eso, no logramos masa crítica para que la viralidad despegue."},
 ];
 
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/Z8KrOIcAnVpsZzTBSBXf/webhook-trigger/a741a061-1f69-4370-b69c-af7b657d1fa5";
@@ -882,12 +746,6 @@ const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/Z8KrOIcAnVpsZzTB
 /* =====================================================================
    LÓGICA DE LA PÁGINA
    ===================================================================== */
-
-const PLATFORM_META = {
-  ig:{name:"Instagram", cls:"ig", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.6" cy="6.4" r="1.3" fill="currentColor" stroke="none"/></svg>'},
-  tk:{name:"TikTok", cls:"tk", icon:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 3c.4 2.2 1.8 3.7 4.1 3.9v3c-1.6 0-3-.5-4.1-1.3v6.2c0 3.6-2.5 6.2-6 6.2-3.3 0-5.8-2.4-5.8-5.6 0-3.3 2.7-5.7 6.2-5.5v3.1c-1.7-.3-3.1.7-3.1 2.3 0 1.5 1.1 2.6 2.7 2.6 1.7 0 2.9-1.2 2.9-3.2V3h3.1z"/></svg>'},
-  li:{name:"LinkedIn", cls:"li", icon:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.49 2.49 0 1 1 5 8.48a2.49 2.49 0 0 1-.02-4.98zM3 9.75h4v11H3v-11zm6.5 0h3.8v1.5h.05c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.78 2.65 4.78 6.1v6.46h-4v-5.73c0-1.37-.02-3.13-1.9-3.13-1.91 0-2.2 1.49-2.2 3.03v5.83h-4v-11z"/></svg>'},
-};
 
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -952,60 +810,6 @@ navMobile.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
       </div>`;
   }
   renderList(); renderCard();
-})();
-
-/* --- Novedades: perfiles + tabs + cards --- */
-(function(){
-  const follow = document.getElementById("novFollow");
-  const tabs = document.getElementById("novTabs");
-  const grid = document.getElementById("novGrid");
-  let filter = "all";
-
-  follow.innerHTML = SOCIAL_PROFILES.map(p => {
-    const m = PLATFORM_META[p.id];
-    return `<a href="${escapeHtml(p.url)}" target="_blank" rel="noopener" aria-label="${escapeHtml(p.name)}: ${escapeHtml(p.handle)}">${m.icon}${escapeHtml(p.handle)}</a>`;
-  }).join("");
-
-  const tabDefs = [{id:"all", name:"Todas"}, ...SOCIAL_PROFILES.map(p => ({id:p.id, name:p.name}))];
-
-  function renderTabs(){
-    tabs.innerHTML = tabDefs.map(t =>
-      `<button class="nov-tab" role="tab" aria-selected="${filter===t.id}" data-id="${t.id}">${escapeHtml(t.name)}</button>`
-    ).join("");
-    tabs.querySelectorAll(".nov-tab").forEach(btn => btn.addEventListener("click", () => {
-      filter = btn.dataset.id; renderTabs(); renderGrid();
-    }));
-  }
-
-  function fmtDate(iso){
-    const d = new Date(iso + "T12:00:00");
-    return d.toLocaleDateString("es-CL", {day:"2-digit", month:"short", year:"numeric"});
-  }
-
-  function renderGrid(){
-    const posts = SOCIAL_POSTS
-      .filter(p => filter === "all" || p.platform === filter)
-      .sort((a,b) => b.date.localeCompare(a.date));
-    if (!posts.length){
-      grid.innerHTML = `<div class="nov-empty">Aún no hay publicaciones en esta red — síguenos y sé el primero en verlas.</div>`;
-      return;
-    }
-    grid.innerHTML = posts.map(p => {
-      const m = PLATFORM_META[p.platform];
-      return `
-      <article class="nov-card">
-        <div class="nov-card-top">
-          <span class="nov-badge ${m.cls}">${m.icon}${escapeHtml(m.name)}</span>
-          <span class="nov-date">${fmtDate(p.date)}</span>
-        </div>
-        <h3>${escapeHtml(p.title)}</h3>
-        <p>${escapeHtml(p.text)}</p>
-        <a class="nov-link" href="${escapeHtml(p.url)}" target="_blank" rel="noopener">Ver publicación <span class="arrow">→</span></a>
-      </article>`;
-    }).join("");
-  }
-
-  renderTabs(); renderGrid();
 })();
 
 /* --- FAQ (acordeón) --- */
