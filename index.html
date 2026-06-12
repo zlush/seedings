@@ -4,1272 +4,1129 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seedings Lab — Hacemos virales a las marcas</title>
+<meta name="description" content="Lab de marketing y viralización en Santiago de Chile. Envíos masivos a creadores reales, UGC orgánico, unboxings y reportes con métricas verificables.">
+<link rel="icon" type="image/png" href="Imagenes/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,700;0,6..96,800;0,6..96,900;1,6..96,400;1,6..96,700;1,6..96,900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* ============ Tokens de marca ============ */
   :root{
-    --wine:#3D1B1E;
-    --wine-deep:#2A1214;
+    --wine:#3A1A1D;          /* burdeos profundo (caja) */
+    --wine-deep:#291113;
     --wine-soft:#4A2226;
-    --cream:#EBE4CC;
+    --cream:#EDE3C8;         /* crema del logo */
     --cream-warm:#E8DDC3;
-    --cream-paper:#F2ECD7;
-    --terra:#A04A3B;
-    --gold:#C39D5B;
-    --line:rgba(235,228,204,.18);
-    --line-strong:rgba(235,228,204,.32);
+    --cream-paper:#F5EEDC;
+    --terra:#A8503F;         /* acento terracota */
+    --gold:#C9A567;
+    --line:rgba(237,227,200,.20);
+    --line-strong:rgba(237,227,200,.34);
+    --line-dark:rgba(58,26,29,.18);
+    --line-dark-strong:rgba(58,26,29,.30);
+    /* tipografía fluida */
+    --fs-body:clamp(16px,1.05vw + 12px,18px);
+    --fs-small:clamp(14px,.85vw + 11px,15px);
+    --fs-label:12.5px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--wine);color:var(--cream);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-  body{overflow-x:hidden}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  }
+  body{
+    background:var(--wine);color:var(--cream);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:var(--fs-body);line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
   img{display:block;max-width:100%}
   a{color:inherit;text-decoration:none}
-  .serif{font-family:'Bodoni Moda',serif;font-weight:700;letter-spacing:-.01em}
-  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.04em}
-  .container{max-width:1440px;margin:0 auto;padding:0 56px}
-  @media (max-width:720px){.container{padding:0 22px}}
   ::selection{background:var(--cream);color:var(--wine)}
-  .ph{background:var(--wine-soft);position:relative;overflow:hidden;border-radius:2px}
-  .ph::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,transparent 0 14px,rgba(235,228,204,.04) 14px 15px)}
-  .ph-label{position:absolute;left:14px;top:14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--cream);opacity:.55;text-transform:uppercase}
-  .logo-mark{font-family:'Bodoni Moda',serif;font-weight:900;font-style:italic;line-height:.82;letter-spacing:-.04em}
+  button{font-family:inherit}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
+  section[id]{scroll-margin-top:84px}
+
+  .serif{font-family:'Fraunces',serif;font-optical-sizing:auto;font-weight:600;letter-spacing:-.01em}
+  .label{
+    font-family:'Inter',sans-serif;font-size:var(--fs-label);font-weight:600;
+    letter-spacing:.16em;text-transform:uppercase;opacity:.72;
+  }
+  .container{max-width:1380px;margin:0 auto;padding:0 56px}
+  @media (max-width:980px){.container{padding:0 32px}}
+  @media (max-width:640px){.container{padding:0 20px}}
+
+  .skip-link{
+    position:absolute;left:-9999px;top:0;z-index:200;
+    background:var(--cream);color:var(--wine);padding:12px 20px;font-weight:600;
+  }
+  .skip-link:focus{left:16px;top:16px}
+
+  /* ============ Animación de entrada ============ */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.visible{opacity:1;transform:none}
+
+  /* ============ Nav ============ */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:90;
+    transition:background .35s ease,border-color .35s ease;
+    border-bottom:1px solid transparent;
+  }
+  .nav.scrolled{
+    background:rgba(41,17,19,.85);
+    backdrop-filter:blur(18px) saturate(140%);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    border-bottom-color:var(--line);
+  }
+  .nav-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    height:92px;transition:height .35s ease;
+  }
+  .nav.scrolled .nav-inner{height:72px}
+  .nav-logo img{height:58px;width:auto;transition:height .35s ease}
+  .nav.scrolled .nav-logo img{height:46px}
+  .nav-links{display:flex;gap:34px;align-items:center}
+  .nav-links a{
+    font-size:15px;font-weight:500;letter-spacing:.02em;opacity:.85;
+    padding:6px 0;transition:opacity .2s;
+  }
+  .nav-links a:hover{opacity:1}
+  .nav-cta{
+    background:var(--cream);color:var(--wine) !important;opacity:1 !important;
+    padding:11px 22px !important;border-radius:999px;font-weight:600;
+  }
+  .nav-burger{
+    display:none;background:transparent;border:1px solid var(--line-strong);
+    border-radius:10px;width:46px;height:46px;cursor:pointer;
+    flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  }
+  .nav-burger span{display:block;width:20px;height:2px;background:var(--cream);transition:transform .25s,opacity .25s}
+  .nav-burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .nav-burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+  .nav-burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .nav-mobile{
+    display:none;background:rgba(41,17,19,.97);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-mobile.open{display:block}
+  .nav-mobile a{
+    display:block;padding:18px 32px;font-size:19px;font-weight:500;
+    border-top:1px solid var(--line);font-family:'Fraunces',serif;
+  }
+  @media (max-width:880px){
+    .nav-links{display:none}
+    .nav-burger{display:flex}
+  }
+  @media (max-width:640px){.nav-mobile a{padding:18px 20px}}
+
+  /* ============ Hero ============ */
+  .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:72px}
+  .hero-bg{
+    position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 60% 50% at 78% 28%, rgba(201,165,103,.10), transparent 70%),
+      radial-gradient(ellipse 70% 60% at 20% 80%, rgba(168,80,63,.14), transparent 70%);
+  }
+  .hero-strip{
+    position:relative;margin-top:92px;background:var(--wine-deep);
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  .hero-strip-inner{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding-top:13px;padding-bottom:13px;
+  }
+  .hero-strip-inner .label{font-size:12px;letter-spacing:.18em}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--terra);display:inline-block;flex-shrink:0}
+  .hero-main{
+    position:relative;width:100%;flex:1;display:flex;align-items:center;
+    padding-top:64px;padding-bottom:24px;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:72px;align-items:center;width:100%}
+  .hero h1{
+    font-family:'Fraunces',serif;font-optical-sizing:auto;
+    font-size:clamp(44px,5.4vw,82px);line-height:1.02;font-weight:600;
+    letter-spacing:-.02em;text-wrap:balance;
+  }
+  .hero h1 em{font-style:italic;font-weight:560;color:var(--cream-paper)}
+  .hero-sub{
+    margin-top:32px;font-size:clamp(17px,1.2vw,19px);line-height:1.65;
+    opacity:.9;max-width:500px;
+  }
+  .hero-sub em{font-family:'Fraunces',serif;font-style:italic;font-weight:500}
+  .hero-actions{margin-top:40px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;border-radius:999px;
+    padding:16px 28px;font-size:15.5px;font-weight:600;letter-spacing:.01em;
+    transition:transform .2s ease,background .2s ease,color .2s ease;cursor:pointer;border:none;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:var(--cream);color:var(--wine)}
+  .btn-primary:hover{background:var(--cream-paper)}
+  .btn-ghost{border:1px solid var(--line-strong);color:var(--cream);background:transparent}
+  .btn-ghost:hover{border-color:var(--cream)}
+  .btn .arrow{font-family:'Fraunces',serif;font-style:italic;font-weight:600}
+  .hero-stats{
+    margin-top:60px;padding-top:28px;border-top:1px solid var(--line);
+    display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+  }
+  .stat-n{font-family:'Fraunces',serif;font-size:clamp(32px,3vw,44px);line-height:1;font-weight:600;letter-spacing:-.02em}
+  .stat-l{font-size:12.5px;opacity:.75;margin-top:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+  .hero-img{
+    position:relative;aspect-ratio:4/5;border-radius:6px;overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.5);
+  }
+  .hero-img img{width:100%;height:100%;object-fit:cover}
+  .hero-img::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,transparent 55%,rgba(41,17,19,.55) 100%);
+  }
+  .hero-img-tag{
+    position:absolute;z-index:1;font-size:12px;font-weight:600;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--cream-paper);text-shadow:0 1px 8px rgba(0,0,0,.4);
+  }
+  .hero-img-tag.tl{left:20px;top:20px}
+  .hero-img-tag.bl{left:20px;bottom:18px}
+  .hero-img-tag.br{right:20px;bottom:18px}
+  @media (max-width:880px){
+    .hero-grid{grid-template-columns:1fr;gap:48px}
+    .hero-strip-inner .hide-m{display:none}
+    .hero-img{max-width:480px}
+  }
+  @media (max-width:640px){
+    .hero-stats{gap:16px}
+  }
+
+  /* ============ Marquee ============ */
+  .marquee{
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:22px 0;overflow:hidden;background:var(--wine-deep);
+  }
+  .marquee-track{
+    display:flex;gap:48px;white-space:nowrap;width:max-content;
+    animation:sd-marq 40s linear infinite;
+  }
+  .marquee:hover .marquee-track{animation-play-state:paused}
+  .marquee-track span{
+    display:inline-flex;align-items:center;gap:48px;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+    font-size:clamp(30px,3.4vw,46px);letter-spacing:-.02em;color:var(--cream);
+  }
+  .marquee-track span:nth-child(4n+2){color:var(--terra)}
+  .marquee-track span i{
+    width:10px;height:10px;border-radius:50%;background:var(--cream);
+    opacity:.4;flex-shrink:0;font-style:normal;
+  }
+  @keyframes sd-marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ============ Encabezados de sección ============ */
+  .section-head .label{margin-bottom:18px;display:block}
+  .section-head h2{
+    font-family:'Fraunces',serif;font-optical-sizing:auto;
+    font-size:clamp(38px,4.6vw,72px);line-height:1.04;font-weight:600;
+    letter-spacing:-.02em;text-wrap:balance;max-width:16ch;
+  }
+  .section-head h2 em{font-style:italic;font-weight:540}
+
+  /* ============ Manifesto ============ */
+  .manifesto{padding:clamp(96px,12vw,160px) 0 clamp(80px,10vw,120px);position:relative}
+  .man-grid{display:grid;grid-template-columns:200px 1fr;gap:64px;align-items:start}
+  .man-aside{position:sticky;top:120px}
+  .man-aside .rule{width:48px;height:1px;background:var(--cream);margin-bottom:14px;opacity:.6}
+  .manifesto h2{
+    font-family:'Fraunces',serif;font-size:clamp(38px,5vw,76px);line-height:1.04;
+    font-weight:600;letter-spacing:-.02em;max-width:15ch;text-wrap:balance;
+  }
+  .manifesto h2 em{color:var(--cream-paper);font-weight:540}
+  .man-lead{margin-top:44px;font-size:clamp(18px,1.5vw,21px);line-height:1.62;max-width:680px;opacity:.92}
+  .man-cards{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+  .man-card{padding-top:22px;border-top:1px solid var(--line-strong)}
+  .man-card h3{
+    font-family:'Fraunces',serif;font-size:clamp(22px,1.8vw,25px);font-weight:600;
+    font-style:italic;line-height:1.25;color:var(--cream-paper);
+  }
+  .man-card p{margin-top:14px;font-size:var(--fs-small);line-height:1.6;opacity:.82}
+  @media (max-width:880px){
+    .man-grid{grid-template-columns:1fr;gap:36px}
+    .man-aside{position:static}
+    .man-cards{grid-template-columns:1fr;gap:24px}
+  }
+
+  /* ============ Servicios ============ */
+  .servicios{padding:clamp(96px,12vw,140px) 0}
+  .serv-grid{margin-top:64px;display:grid;grid-template-columns:1fr 1.1fr;gap:64px;align-items:start}
+  .serv-list{display:flex;flex-direction:column}
+  .serv-item{
+    background:transparent;border:none;text-align:left;cursor:pointer;color:var(--cream);
+    padding:26px 0;border-bottom:1px solid var(--line-strong);
+    display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:20px;
+    transition:padding-left .25s ease;
+  }
+  .serv-item:first-child{border-top:1px solid var(--line-strong)}
+  .serv-item .tag{font-size:12.5px;font-weight:600;letter-spacing:.14em;opacity:.55}
+  .serv-item .name{
+    font-family:'Fraunces',serif;font-size:clamp(24px,2.6vw,34px);font-weight:600;
+    letter-spacing:-.015em;opacity:.85;transition:all .25s ease;
+  }
+  .serv-item .go{
+    font-family:'Fraunces',serif;font-style:italic;font-size:22px;
+    opacity:.35;transform:translateX(-8px);transition:all .25s ease;
+  }
+  .serv-item[aria-selected="true"]{padding-left:22px}
+  .serv-item[aria-selected="true"] .tag{opacity:1}
+  .serv-item[aria-selected="true"] .name{font-style:italic;color:var(--cream-paper);opacity:1}
+  .serv-item[aria-selected="true"] .go{opacity:1;transform:none;color:var(--terra)}
+  .serv-card{
+    position:sticky;top:110px;background:var(--wine-deep);
+    border:1px solid var(--line);border-radius:8px;padding:clamp(28px,3.4vw,42px);
+  }
+  .serv-card-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:22px}
+  .serv-card h3{
+    font-family:'Fraunces',serif;font-size:clamp(34px,3.8vw,56px);line-height:1.02;
+    font-weight:600;letter-spacing:-.02em;
+  }
+  .serv-card .desc{margin-top:24px;font-size:var(--fs-body);line-height:1.62;opacity:.88;max-width:520px}
+  .serv-includes{
+    margin-top:32px;padding-top:26px;border-top:1px solid var(--line);
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;
+  }
+  .serv-includes div{display:flex;align-items:center;gap:12px;font-size:14.5px;opacity:.9}
+  .serv-includes .dot{width:5px;height:5px}
+  .serv-card-bottom{
+    margin-top:32px;padding-top:26px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;
+  }
+  .serv-stat-n{font-family:'Fraunces',serif;font-size:clamp(40px,4vw,52px);font-weight:600;line-height:.95;color:var(--cream-paper)}
+  .serv-stat-l{font-size:12.5px;margin-top:8px;opacity:.7;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+  @media (max-width:980px){
+    .serv-grid{grid-template-columns:1fr;gap:40px}
+    .serv-card{position:static}
+    .serv-includes{grid-template-columns:1fr}
+  }
+
+  /* ============ Proceso ============ */
+  .proceso{padding:clamp(96px,12vw,140px) 0;background:var(--cream);color:var(--wine)}
+  .proceso .label{opacity:.6}
+  .proceso .section-head h2 em{color:var(--terra)}
+  .proc-head{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap}
+  .proc-duration{font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+  .proc-grid{
+    margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);
+    border-top:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark);
+  }
+  .proc-step{padding:52px 36px 44px;border-right:1px solid var(--line-dark)}
+  .proc-step:last-child{border-right:none}
+  .proc-step-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px}
+  .proc-n{font-family:'Fraunces',serif;font-size:clamp(64px,7vw,88px);line-height:.85;font-weight:600;font-style:italic}
+  .proc-arrow{
+    width:34px;height:34px;border-radius:50%;background:var(--wine);color:var(--cream);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-style:italic;font-size:18px;font-weight:600;flex-shrink:0;
+  }
+  .proc-step h3{
+    font-family:'Fraunces',serif;font-size:clamp(24px,2.4vw,29px);font-weight:600;
+    line-height:1.15;letter-spacing:-.015em;margin-bottom:16px;
+  }
+  .proc-step p{font-size:var(--fs-small);line-height:1.62;opacity:.85;margin-bottom:32px}
+  .proc-detail{
+    padding-top:16px;border-top:1px solid var(--line-dark);
+    font-size:12.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;opacity:.65;
+  }
+  .proc-timeline{
+    margin-top:44px;display:flex;align-items:center;gap:16px;
+    font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.65;
+  }
+  .proc-timeline i{flex:1;height:1px;background:var(--wine);opacity:.25;font-style:normal}
+  @media (max-width:880px){
+    .proc-grid{grid-template-columns:1fr}
+    .proc-step{border-right:none;border-bottom:1px solid var(--line-dark);padding:40px 0}
+    .proc-step:last-child{border-bottom:none}
+    .proc-timeline{flex-wrap:wrap;gap:10px}
+    .proc-timeline i{min-width:24px}
+  }
+
+  /* ============ Novedades (redes sociales) ============ */
+  .novedades{padding:clamp(96px,12vw,140px) 0;background:var(--wine-deep)}
+  .nov-head{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap}
+  .nov-follow{display:flex;gap:10px;flex-wrap:wrap}
+  .nov-follow a{
+    display:inline-flex;align-items:center;gap:9px;
+    border:1px solid var(--line-strong);border-radius:999px;
+    padding:11px 20px;font-size:14px;font-weight:600;
+    transition:background .2s,color .2s,border-color .2s;
+  }
+  .nov-follow a:hover{background:var(--cream);color:var(--wine);border-color:var(--cream)}
+  .nov-follow svg{width:16px;height:16px;flex-shrink:0}
+  .nov-tabs{
+    margin-top:52px;display:flex;gap:8px;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);padding-bottom:18px;
+  }
+  .nov-tab{
+    background:transparent;border:1px solid var(--line-strong);color:var(--cream);
+    border-radius:999px;padding:10px 22px;font-size:14px;font-weight:600;
+    cursor:pointer;letter-spacing:.02em;transition:all .2s;
+  }
+  .nov-tab:hover{border-color:var(--cream)}
+  .nov-tab[aria-selected="true"]{background:var(--cream);color:var(--wine);border-color:var(--cream)}
+  .nov-grid{margin-top:36px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .nov-card{
+    display:flex;flex-direction:column;gap:0;
+    background:var(--wine);border:1px solid var(--line);border-radius:8px;
+    padding:26px 26px 24px;transition:transform .25s ease,border-color .25s ease;
+  }
+  .nov-card:hover{transform:translateY(-4px);border-color:var(--line-strong)}
+  .nov-card-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+  .nov-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  }
+  .nov-badge svg{width:15px;height:15px}
+  .nov-badge.ig{color:#E5B8A0}
+  .nov-badge.tk{color:#A9D8CE}
+  .nov-badge.li{color:#A9C4E2}
+  .nov-date{font-size:12.5px;opacity:.6;font-weight:500;letter-spacing:.06em;flex-shrink:0}
+  .nov-card h3{
+    font-family:'Fraunces',serif;font-size:21px;font-weight:600;
+    line-height:1.25;letter-spacing:-.01em;color:var(--cream-paper);
+  }
+  .nov-card p{margin-top:12px;font-size:var(--fs-small);line-height:1.6;opacity:.82;flex:1}
+  .nov-card .nov-link{
+    margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13.5px;font-weight:600;letter-spacing:.04em;
+    color:var(--cream);transition:color .2s,gap .2s;
+  }
+  .nov-card .nov-link:hover{color:var(--cream-paper);gap:12px}
+  .nov-link .arrow{font-family:'Fraunces',serif;font-style:italic}
+  .nov-empty{
+    grid-column:1 / -1;text-align:center;padding:56px 20px;
+    border:1px dashed var(--line-strong);border-radius:8px;opacity:.7;font-size:15px;
+  }
+  .nov-note{margin-top:32px;font-size:13.5px;opacity:.6;text-align:center}
+  @media (max-width:980px){.nov-grid{grid-template-columns:1fr 1fr}}
+  @media (max-width:640px){.nov-grid{grid-template-columns:1fr}}
+
+  /* ============ Contacto ============ */
+  .contacto{padding:clamp(96px,12vw,150px) 0 clamp(80px,10vw,120px);background:var(--cream);color:var(--wine)}
+  .contacto .label{opacity:.6}
+  .cta-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:72px;align-items:start}
+  .contacto h2{
+    font-family:'Fraunces',serif;font-size:clamp(46px,6.4vw,104px);line-height:.96;
+    font-weight:600;letter-spacing:-.025em;max-width:11ch;text-wrap:balance;
+  }
+  .contacto h2 em{color:var(--terra);font-weight:540}
+  .cta-lead{margin-top:30px;font-size:clamp(16.5px,1.2vw,18px);line-height:1.62;opacity:.88;max-width:460px}
+  .cta-channels{margin-top:44px;display:flex;flex-direction:column;gap:0;font-size:15.5px;font-weight:500}
+  .cta-channels a{
+    display:flex;align-items:center;gap:16px;
+    border-bottom:1px solid var(--line-dark-strong);padding:16px 0;
+    transition:padding-left .2s ease;
+  }
+  .cta-channels a:hover{padding-left:8px}
+  .cta-channels .label{width:96px;flex-shrink:0;font-size:11.5px;opacity:.55}
+  .cta-form{
+    background:var(--wine);color:var(--cream);
+    padding:clamp(28px,3vw,42px) clamp(24px,2.6vw,38px);border-radius:10px;
+    display:flex;flex-direction:column;gap:22px;
+    box-shadow:0 30px 60px -30px rgba(58,26,29,.45);
+  }
+  .field label{
+    display:block;font-size:var(--fs-label);font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.7;margin-bottom:8px;
+  }
+  .field label .req{color:var(--gold);margin-left:5px}
+  .field input,.field textarea{
+    width:100%;background:transparent;border:none;
+    border-bottom:1px solid var(--line-strong);color:var(--cream);
+    font-size:17px;font-family:'Inter',sans-serif;font-weight:500;
+    padding:10px 0 12px;outline:none;border-radius:0;
+    transition:border-color .2s;
+  }
+  .field textarea{resize:vertical;line-height:1.55;font-weight:400;font-size:15.5px;min-height:84px}
+  .field input::placeholder,.field textarea::placeholder{color:var(--cream);opacity:.38}
+  .field input:focus,.field textarea:focus{border-bottom-color:var(--cream)}
+  .service-pills{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .service-pills button{
+    background:transparent;color:var(--cream);border:1px solid var(--line-strong);
+    padding:11px 14px;border-radius:999px;font-size:13.5px;font-weight:600;
+    cursor:pointer;letter-spacing:.02em;transition:all .2s;
+  }
+  .service-pills button[aria-pressed="true"]{background:var(--cream);color:var(--wine);border-color:var(--cream)}
+  .cta-submit{
+    margin-top:6px;background:var(--cream);color:var(--wine);border:none;
+    padding:17px 22px;border-radius:999px;font-size:15.5px;font-weight:600;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;
+  }
+  .cta-submit:hover{background:var(--cream-paper)}
+  .cta-submit:disabled{cursor:default;opacity:.85}
+  .cta-submit.sent{background:var(--terra);color:var(--cream-paper)}
+  .cta-submit.error{background:#B04848;color:var(--cream-paper)}
+  .cta-privacy{font-size:12.5px;opacity:.65;line-height:1.55}
+  @media (max-width:880px){.cta-grid{grid-template-columns:1fr;gap:48px}}
+  @media (max-width:420px){.service-pills{grid-template-columns:1fr}}
+
+  /* ============ FAQ ============ */
+  .faq{padding:clamp(96px,12vw,140px) 0 clamp(72px,9vw,100px)}
+  .faq-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:64px;align-items:start}
+  .faq-aside{position:sticky;top:120px}
+  .faq-aside p{margin-top:22px;font-size:var(--fs-small);opacity:.8;max-width:340px;line-height:1.6}
+  .faq-aside a{text-decoration:underline;text-underline-offset:3px}
+  .faq-item{border-bottom:1px solid var(--line-strong)}
+  .faq-item:first-child{border-top:1px solid var(--line-strong)}
+  .faq-q{
+    width:100%;background:transparent;border:none;color:var(--cream);
+    padding:26px 0;display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer;text-align:left;gap:24px;
+  }
+  .faq-q .q-text{
+    font-family:'Fraunces',serif;font-size:clamp(19px,2vw,26px);font-weight:600;
+    letter-spacing:-.012em;line-height:1.3;transition:color .2s;
+  }
+  .faq-q .q-icon{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:28px;
+    transition:transform .25s ease,color .25s ease;flex-shrink:0;line-height:1;
+  }
+  .faq-item.open .q-text{font-style:italic;color:var(--cream-paper)}
+  .faq-item.open .q-icon{transform:rotate(45deg);color:var(--terra)}
+  .faq-a{max-height:0;overflow:hidden;opacity:0;transition:max-height .35s ease,opacity .35s ease,padding .35s ease}
+  .faq-item.open .faq-a{max-height:280px;opacity:1;padding-bottom:26px}
+  .faq-a p{font-size:16px;line-height:1.65;opacity:.85;max-width:580px}
+  @media (max-width:880px){
+    .faq-grid{grid-template-columns:1fr;gap:40px}
+    .faq-aside{position:static}
+  }
+
+  /* ============ Footer ============ */
+  footer{background:var(--wine-deep);padding-top:80px;overflow:hidden}
+  .foot-cols{
+    display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;
+    padding-bottom:56px;border-bottom:1px solid var(--line);
+  }
+  .foot-brand img{height:76px;width:auto}
+  .foot-brand p{margin-top:24px;font-size:var(--fs-small);line-height:1.6;opacity:.8;max-width:380px}
+  .foot-col .label{margin-bottom:18px;display:block;font-size:11.5px}
+  .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:12px;font-size:15px}
+  .foot-col a{opacity:.9;transition:opacity .2s}
+  .foot-col a:hover{opacity:1;text-decoration:underline;text-underline-offset:3px}
+  .foot-legal{
+    padding:30px 0 26px;display:flex;justify-content:space-between;align-items:center;
+    font-size:13px;opacity:.7;flex-wrap:wrap;gap:14px;
+  }
+  .foot-word{
+    padding-top:24px;padding-bottom:20px;text-align:center;overflow:hidden;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:700;
+    font-size:clamp(96px,24vw,400px);line-height:.8;letter-spacing:-.05em;
+    color:var(--wine-soft);white-space:nowrap;user-select:none;
+  }
+  .foot-word b{color:var(--terra);font-weight:700}
+  @media (max-width:760px){
+    .foot-cols{grid-template-columns:1fr 1fr}
+    .foot-brand{grid-column:span 2}
+  }
 </style>
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 </head>
 <body>
-<div id="root"></div>
 
-<!-- tweaks-panel -->
-<script type="text/babel">
-const __TWEAKS_STYLE = `
-  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
-    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
-    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
-    background:rgba(250,249,247,.78);color:#29261b;
-    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
-    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
-    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
-    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
-  .twk-hd{display:flex;align-items:center;justify-content:space-between;
-    padding:10px 8px 10px 14px;cursor:move;user-select:none}
-  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
-  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
-    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
-  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
-  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
-    overflow-y:auto;overflow-x:hidden;min-height:0;
-    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
-  .twk-body::-webkit-scrollbar{width:8px}
-  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
-  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
-    border:2px solid transparent;background-clip:content-box}
-  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
-    border:2px solid transparent;background-clip:content-box}
-  .twk-row{display:flex;flex-direction:column;gap:5px}
-  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
-  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
-    color:rgba(41,38,27,.72)}
-  .twk-lbl>span:first-child{font-weight:500}
-  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
-  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-    color:rgba(41,38,27,.45);padding:10px 0 0}
-  .twk-sect:first-child{padding-top:0}
-  .twk-field{appearance:none;box-sizing:border-box;width:100%;min-width:0;height:26px;padding:0 8px;
-    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
-    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
-  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
-  select.twk-field{padding-right:22px;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
-    background-repeat:no-repeat;background-position:right 8px center}
-  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
-    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
-  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
-    width:14px;height:14px;border-radius:50%;background:#fff;
-    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
-  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
-    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
-  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
-    background:rgba(0,0,0,.06);user-select:none}
-  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
-    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
-    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
-  .twk-seg.dragging .twk-seg-thumb{transition:none}
-  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
-    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
-    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;overflow-wrap:anywhere}
-  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
-    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
-  .twk-toggle[data-on="1"]{background:#34c759}
-  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
-    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
-  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
-  .twk-chips{display:flex;gap:6px}
-  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
-    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
-    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
-    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
-  .twk-chip:hover{transform:translateY(-1px);box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
-  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.15)}
-  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
-    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
-  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
-  .twk-chip>span>i:first-child{box-shadow:none}
-  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
-    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
-  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
-    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
-    background:transparent;flex-shrink:0}
-  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
-  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
-  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
-  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
-    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
-  .twk-btn:hover{background:rgba(0,0,0,.88)}
-  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
-  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
-`;
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
 
-function useTweaks(defaults) {
-  const [values, setValues] = React.useState(defaults);
-  const setTweak = React.useCallback((keyOrEdits, val) => {
-    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
-      ? keyOrEdits : { [keyOrEdits]: val };
-    setValues((prev) => ({ ...prev, ...edits }));
-    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
-    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
-  }, []);
-  return [values, setTweak];
-}
+<!-- ============ Nav ============ -->
+<header class="nav" id="nav">
+  <div class="container nav-inner">
+    <a class="nav-logo" href="#" aria-label="Seedings Lab — inicio">
+      <img src="assets/seedings-logo.png" alt="Seedings Lab">
+    </a>
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a href="#servicios">Servicios</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#novedades">Novedades</a>
+      <a href="#faq">FAQ</a>
+      <a class="nav-cta" href="#contacto">Empieza tu campaña</a>
+    </nav>
+    <button class="nav-burger" id="burger" aria-expanded="false" aria-controls="navMobile" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <nav class="nav-mobile" id="navMobile" aria-label="Navegación móvil">
+    <a href="#servicios">Servicios</a>
+    <a href="#proceso">Proceso</a>
+    <a href="#novedades">Novedades</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contacto">Empieza tu campaña →</a>
+  </nav>
+</header>
 
-function TweaksPanel({ title = 'Tweaks', noDeckControls = false, children }) {
-  const [open, setOpen] = React.useState(false);
-  const dragRef = React.useRef(null);
-  const offsetRef = React.useRef({ x: 16, y: 16 });
-  const PAD = 16;
+<main id="contenido">
 
-  const clampToViewport = React.useCallback(() => {
-    const panel = dragRef.current;
-    if (!panel) return;
-    const w = panel.offsetWidth, h = panel.offsetHeight;
-    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
-    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
-    offsetRef.current = {
-      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
-      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
-    };
-    panel.style.right = offsetRef.current.x + 'px';
-    panel.style.bottom = offsetRef.current.y + 'px';
-  }, []);
-
-  React.useEffect(() => {
-    if (!open) return;
-    clampToViewport();
-    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(clampToViewport) : null;
-    if (ro) { ro.observe(document.documentElement); return () => ro.disconnect(); }
-    window.addEventListener('resize', clampToViewport);
-    return () => window.removeEventListener('resize', clampToViewport);
-  }, [open, clampToViewport]);
-
-  React.useEffect(() => {
-    const onMsg = (e) => {
-      const t = e?.data?.type;
-      if (t === '__activate_edit_mode') setOpen(true);
-      else if (t === '__deactivate_edit_mode') setOpen(false);
-    };
-    window.addEventListener('message', onMsg);
-    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
-    return () => window.removeEventListener('message', onMsg);
-  }, []);
-
-  const dismiss = () => {
-    setOpen(false);
-    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
-  };
-
-  const onDragStart = (e) => {
-    const panel = dragRef.current;
-    if (!panel) return;
-    const r = panel.getBoundingClientRect();
-    const sx = e.clientX, sy = e.clientY;
-    const startRight = window.innerWidth - r.right;
-    const startBottom = window.innerHeight - r.bottom;
-    const move = (ev) => {
-      offsetRef.current = { x: startRight - (ev.clientX - sx), y: startBottom - (ev.clientY - sy) };
-      clampToViewport();
-    };
-    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
-    window.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', up);
-  };
-
-  if (!open) return null;
-  return (
-    <>
-      <style>{__TWEAKS_STYLE}</style>
-      <div ref={dragRef} className="twk-panel" style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
-        <div className="twk-hd" onMouseDown={onDragStart}>
-          <b>{title}</b>
-          <button className="twk-x" onMouseDown={(e) => e.stopPropagation()} onClick={dismiss}>✕</button>
-        </div>
-        <div className="twk-body">{children}</div>
-      </div>
-    </>
-  );
-}
-
-function TweakSection({ label, children }) {
-  return (<><div className="twk-sect">{label}</div>{children}</>);
-}
-
-function TweakRow({ label, value, children, inline = false }) {
-  return (
-    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
-      <div className="twk-lbl">
-        <span>{label}</span>
-        {value != null && <span className="twk-val">{value}</span>}
-      </div>
-      {children}
+<!-- ============ Hero ============ -->
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-strip">
+    <div class="container hero-strip-inner">
+      <span class="label" style="display:inline-flex;align-items:center;gap:10px"><span class="dot"></span>Santiago · Chile</span>
+      <span class="label hide-m">Marketing &amp; Viralización</span>
+      <span class="label">Est. 2024</span>
     </div>
-  );
-}
-
-function TweakToggle({ label, value, onChange }) {
-  return (
-    <div className="twk-row twk-row-h">
-      <div className="twk-lbl"><span>{label}</span></div>
-      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
-              role="switch" aria-checked={!!value} onClick={() => onChange(!value)}><i /></button>
-    </div>
-  );
-}
-
-function TweakRadio({ label, value, options, onChange }) {
-  const trackRef = React.useRef(null);
-  const [dragging, setDragging] = React.useState(false);
-  const valueRef = React.useRef(value);
-  valueRef.current = value;
-
-  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
-  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
-  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
-
-  if (!fitsAsSegments) {
-    const resolve = (s) => {
-      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
-      return m === undefined ? s : typeof m === 'object' ? m.value : m;
-    };
-    return (
-      <TweakRow label={label}>
-        <select className="twk-field" value={value} onChange={(e) => onChange(resolve(e.target.value))}>
-          {options.map((o) => {
-            const v = typeof o === 'object' ? o.value : o;
-            const l = typeof o === 'object' ? o.label : o;
-            return <option key={v} value={v}>{l}</option>;
-          })}
-        </select>
-      </TweakRow>
-    );
-  }
-
-  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
-  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
-  const n = opts.length;
-
-  const segAt = (clientX) => {
-    const r = trackRef.current.getBoundingClientRect();
-    const inner = r.width - 4;
-    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
-    return opts[Math.max(0, Math.min(n - 1, i))].value;
-  };
-
-  const onPointerDown = (e) => {
-    setDragging(true);
-    const v0 = segAt(e.clientX);
-    if (v0 !== valueRef.current) onChange(v0);
-    const move = (ev) => { if (!trackRef.current) return; const v = segAt(ev.clientX); if (v !== valueRef.current) onChange(v); };
-    const up = () => { setDragging(false); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-  };
-
-  return (
-    <TweakRow label={label}>
-      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
-           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
-        <div className="twk-seg-thumb"
-             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`, width: `calc((100% - 4px) / ${n})` }} />
-        {opts.map((o) => (
-          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>{o.label}</button>
-        ))}
-      </div>
-    </TweakRow>
-  );
-}
-
-function __twkIsLight(hex) {
-  const h = String(hex).replace('#', '');
-  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
-  const n = parseInt(x.slice(0, 6), 16);
-  if (Number.isNaN(n)) return true;
-  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
-  return r * 299 + g * 587 + b * 114 > 148000;
-}
-
-const __TwkCheck = ({ light }) => (
-  <svg viewBox="0 0 14 14" aria-hidden="true">
-    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
-          strokeLinecap="round" strokeLinejoin="round" stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
-  </svg>
-);
-
-function TweakColor({ label, value, options, onChange }) {
-  if (!options || !options.length) {
-    return (
-      <div className="twk-row twk-row-h">
-        <div className="twk-lbl"><span>{label}</span></div>
-        <input type="color" className="twk-swatch" value={value} onChange={(e) => onChange(e.target.value)} />
-      </div>
-    );
-  }
-  const key = (o) => String(JSON.stringify(o)).toLowerCase();
-  const cur = key(value);
-  return (
-    <TweakRow label={label}>
-      <div className="twk-chips" role="radiogroup">
-        {options.map((o, i) => {
-          const colors = Array.isArray(o) ? o : [o];
-          const [hero, ...rest] = colors;
-          const sup = rest.slice(0, 4);
-          const on = key(o) === cur;
-          return (
-            <button key={i} type="button" className="twk-chip" role="radio"
-                    aria-checked={on} data-on={on ? '1' : '0'}
-                    aria-label={colors.join(', ')} title={colors.join(' · ')}
-                    style={{ background: hero }} onClick={() => onChange(o)}>
-              {sup.length > 0 && (<span>{sup.map((c, j) => <i key={j} style={{ background: c }} />)}</span>)}
-              {on && <__TwkCheck light={__twkIsLight(hero)} />}
-            </button>
-          );
-        })}
-      </div>
-    </TweakRow>
-  );
-}
-
-Object.assign(window, {
-  useTweaks, TweaksPanel, TweakSection, TweakRow,
-  TweakToggle, TweakRadio, TweakColor,
-});
-</script>
-
-<!-- Logo -->
-<script type="text/babel">
-function Logo({size = 56, color = "var(--cream)", showLab = true}) {
-  const s = size;
-  return (
-    <div style={{display:"inline-flex", alignItems:"flex-end", gap: s*0.06, color}}>
-      <div style={{
-        fontFamily:"'Bodoni Moda', serif", fontWeight: 900, fontStyle: "italic",
-        fontSize: s, lineHeight: 0.78, letterSpacing: "-0.045em",
-        display:"flex", flexDirection:"column",
-      }}>
-        <span style={{transform:"translateX(0.04em)"}}>See</span>
-        <span style={{transform:"translateX(-0.02em)"}}>drgs</span>
-      </div>
-      {showLab && (
-        <span style={{
-          fontFamily:"'Bodoni Moda', serif", fontWeight: 800, fontStyle:"italic",
-          fontSize: s*0.16, letterSpacing:"0.02em", paddingBottom: s*0.08,
-        }}>lab.</span>
-      )}
-    </div>
-  );
-}
-Object.assign(window, { Logo });
-</script>
-
-<!-- Nav -->
-<script type="text/babel">
-function Nav({onCTA}) {
-  const [scrolled, setScrolled] = React.useState(false);
-  React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  const items = [
-    ["Servicios", "#servicios"],
-    ["Proceso", "#proceso"],
-    ["FAQ", "#faq"],
-    ["Contacto", "#contacto"],
-  ];
-  return (
-    <header style={{
-      position:"fixed", top:0, left:0, right:0, zIndex:50,
-      transition:"all .35s ease",
-      background: scrolled ? "rgba(42,18,20,0.78)" : "transparent",
-      backdropFilter: scrolled ? "blur(18px) saturate(140%)" : "none",
-      WebkitBackdropFilter: scrolled ? "blur(18px) saturate(140%)" : "none",
-      borderBottom: scrolled ? "1px solid var(--line)" : "1px solid transparent",
-    }}>
-      <div className="container" style={{
-        display:"flex", alignItems:"center", justifyContent:"space-between",
-        height: scrolled ? 76 : 96, transition:"height .35s ease",
-      }}>
-        <nav style={{display:"flex", gap:32, alignItems:"center"}} className="navlinks">
-          {items.map(([label, href]) => (
-            <a key={href} href={href} style={{
-              fontSize:13, fontWeight:500, letterSpacing:".02em",
-              opacity:.78, transition:"opacity .2s",
-            }} onMouseEnter={e=>e.currentTarget.style.opacity=1}
-               onMouseLeave={e=>e.currentTarget.style.opacity=.78}>{label}</a>
-          ))}
-        </nav>
-        <a href="#" style={{display:"flex", alignItems:"center"}}>
-          <img src="assets/seedings-logo.png" alt="Seedings Lab"
-               style={{
-                 height: scrolled ? 48 : 64, width:"auto", display:"block",
-                 transition:"height .35s ease",
-               }}/>
-        </a>
-      </div>
-      <style>{`@media(max-width:820px){.navlinks{display:none !important}}`}</style>
-    </header>
-  );
-}
-Object.assign(window, { Nav });
-</script>
-
-<!-- Hero -->
-<script type="text/babel">
-function Hero() {
-  return (
-    <section style={{
-      position:"relative", minHeight:"100vh", paddingTop:0, paddingBottom:80,
-      overflow:"hidden", display:"flex", flexDirection:"column",
-    }}>
-      <div style={{
-        position:"absolute", inset:0, pointerEvents:"none",
-        background:"radial-gradient(ellipse 60% 50% at 78% 28%, rgba(195,157,91,.10), transparent 70%), radial-gradient(ellipse 70% 60% at 20% 80%, rgba(160,74,59,.14), transparent 70%)",
-      }}/>
-      <div style={{
-        position:"relative", marginTop:96,
-        background:"var(--wine-deep)",
-        borderTop:"1px solid var(--line)",
-        borderBottom:"1px solid var(--line)",
-      }}>
-        <div className="container hero-eyebrow" style={{
-          display:"flex", justifyContent:"space-between", alignItems:"center",
-          padding:"14px 56px", fontSize:11, letterSpacing:".18em",
-          textTransform:"uppercase", opacity:.62,
-          fontFamily:"'JetBrains Mono',monospace",
-        }}>
-          <span style={{display:"inline-flex", alignItems:"center", gap:10}}>
-            <span style={{width:6, height:6, borderRadius:"50%", background:"var(--terra)"}}/>
-            Santiago · Chile
-          </span>
-          <span>Marketing & Viralización</span>
-          <span>Est. 2024</span>
-        </div>
-      </div>
-
-      <div className="container" style={{position:"relative", width:"100%", flex:1, display:"flex", alignItems:"center", paddingTop:64, paddingBottom:24}}>
-        <div style={{
-          display:"grid", gridTemplateColumns:"1.15fr 1fr", gap:72, alignItems:"center", width:"100%",
-        }} className="hero-grid">
-          <div>
-            <h1 className="serif" style={{
-              fontSize:"clamp(36px, 4.2vw, 64px)", lineHeight:1.0, fontWeight:800,
-              letterSpacing:"-0.025em", textWrap:"balance", maxWidth:"14ch",
-            }}>
-              <span style={{display:"block"}}>Hacemos</span>
-              <span style={{display:"block", fontStyle:"italic", color:"var(--cream-paper)"}}>virales</span>
-              <span style={{display:"block"}}>
-                a las marcas<span style={{color:"var(--terra)"}}>.</span>
-              </span>
-            </h1>
-
-            <p style={{marginTop:36, fontSize:17, lineHeight:1.55, opacity:.85, maxWidth:480}}>
-              Lab donde elevamos tu presencia digital en <em style={{fontFamily:"'Bodoni Moda',serif", fontWeight:500}}>tiempo récord</em> y la hacemos explotar. Envíos masivos, creadores reales, contenido orgánico.
-            </p>
-
-            <div style={{marginTop:40, display:"flex", gap:14, flexWrap:"wrap"}}>
-              <a href="#contacto" style={{
-                background:"var(--cream)", color:"var(--wine)",
-                padding:"15px 26px", borderRadius:999, fontSize:14, fontWeight:600,
-                display:"inline-flex", alignItems:"center", gap:10, letterSpacing:".01em",
-              }}>
-                Empieza tu campaña
-                <span style={{fontFamily:"'Bodoni Moda',serif", fontStyle:"italic", fontWeight:700}}>→</span>
-              </a>
-              <a href="#proceso" style={{
-                padding:"15px 26px", borderRadius:999, fontSize:14, fontWeight:500,
-                border:"1px solid var(--line-strong)",
-                display:"inline-flex", alignItems:"center", gap:10, opacity:.9,
-              }}>
-                Ver cómo funciona
-              </a>
-            </div>
-
-            <div style={{
-              marginTop:64, paddingTop:28, borderTop:"1px solid var(--line)",
-              display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:24,
-            }}>
-              <Stat n="48h" label="primera entrega" />
-              <Stat n="+200" label="creadores activos" />
-              <Stat n="3.4M" label="impresiones / mes" />
-            </div>
-          </div>
-
-          <div style={{
-            position:"relative", aspectRatio:"4/5", borderRadius:4, overflow:"hidden",
-            boxShadow:"0 30px 60px -20px rgba(0,0,0,.5)",
-          }} className="hero-img">
-            <img src="assets/hero-unboxing-sm.png" alt="Cápsula Seedings Lab"
-              style={{width:"100%", height:"100%", objectFit:"cover", display:"block"}}
-              onError={(e)=>{ e.currentTarget.style.opacity='0'; }}
-              />
-            <div style={{
-              position:"absolute", inset:0,
-              background:"linear-gradient(180deg, transparent 55%, rgba(42,18,20,.55) 100%)",
-              pointerEvents:"none",
-            }}/>
-            <div style={{position:"absolute", left:20, top:20, fontFamily:"'JetBrains Mono',monospace", fontSize:10, letterSpacing:".14em", textTransform:"uppercase", color:"var(--cream)", opacity:.85}}>
-              SDL — 001 / unboxing
-            </div>
-            <div style={{position:"absolute", left:20, bottom:20, right:20, display:"flex", justifyContent:"space-between", fontFamily:"'JetBrains Mono',monospace", fontSize:10, opacity:.85, letterSpacing:".12em", color:"var(--cream)"}}>
-              <span>cápsula · burdeos</span>
-              <span>4:5 / film</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <style>{`
-        @media(max-width:880px){
-          .hero-grid{grid-template-columns:1fr !important; gap:48px !important}
-          .hero-eyebrow span:nth-child(2){display:none}
-        }
-      `}</style>
-    </section>
-  );
-}
-
-function Stat({n, label}) {
-  return (
-    <div>
-      <div className="serif" style={{fontSize:40, lineHeight:0.95, fontWeight:700, letterSpacing:"-.02em"}}>{n}</div>
-      <div style={{fontSize:11, opacity:.6, marginTop:6, letterSpacing:".08em", textTransform:"uppercase"}}>{label}</div>
-    </div>
-  );
-}
-Object.assign(window, { Hero, Stat });
-</script>
-
-<!-- Marquee -->
-<script type="text/babel">
-function Marquee() {
-  const words = [
-    "envíos masivos", "ugc real", "unboxings", "creadores ↓ chile",
-    "presencia 360", "campañas relámpago", "contenido orgánico", "brand seeding",
-  ];
-  const row = [...words, ...words];
-  return (
-    <div style={{
-      borderTop:"1px solid var(--line)", borderBottom:"1px solid var(--line)",
-      padding:"24px 0", overflow:"hidden", background:"var(--wine-deep)",
-    }}>
-      <div style={{
-        display:"flex", gap:48, whiteSpace:"nowrap",
-        animation:"sd-marq 38s linear infinite", width:"max-content",
-      }}>
-        {row.map((w,i)=>(
-          <span key={i} style={{
-            display:"inline-flex", alignItems:"center", gap:48,
-            fontFamily:"'Bodoni Moda',serif", fontStyle:"italic",
-            fontWeight:700, fontSize:46, letterSpacing:"-.02em",
-            color: i%4===1 ? "var(--terra)" : "var(--cream)",
-          }}>
-            {w}
-            <span style={{width:10, height:10, borderRadius:"50%", background:"var(--cream)", opacity:.4, flexShrink:0}}/>
-          </span>
-        ))}
-      </div>
-      <style>{`@keyframes sd-marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
-    </div>
-  );
-}
-Object.assign(window, { Marquee });
-</script>
-
-<!-- Manifesto -->
-<script type="text/babel">
-function Manifesto() {
-  return (
-    <section style={{padding:"160px 0 120px", background:"var(--wine)", position:"relative"}}>
-      <div className="container">
-        <div style={{display:"grid", gridTemplateColumns:"auto 1fr", gap:80, alignItems:"start"}} className="man-grid">
-          <div style={{
-            fontFamily:"'JetBrains Mono',monospace", fontSize:11,
-            letterSpacing:".18em", opacity:.6, textTransform:"uppercase",
-            position:"sticky", top:120, writingMode:"horizontal-tb",
-          }}>
-            <div style={{width:48, height:1, background:"var(--cream)", marginBottom:14, opacity:.6}}/>
-            01 — Manifesto
-          </div>
-          <div>
-            <h2 className="serif" style={{
-              fontSize:"clamp(40px, 5.4vw, 80px)", lineHeight:1.02, fontWeight:700,
-              letterSpacing:"-.025em", maxWidth:"15ch", textWrap:"balance",
-            }}>
-              Enviamos tu producto.<br/>
-              <em style={{color:"var(--cream-paper)"}}>Creamos deseos.</em>
-            </h2>
-            <p style={{marginTop:48, fontSize:20, lineHeight:1.55, maxWidth:680, opacity:.85}}>
-              No publicamos anuncios. No compramos likes. Curamos un círculo de creadores reales en Chile y LATAM, les enviamos tu producto en una caja que pide ser abierta, y dejamos que el contenido nazca solo. Eso es viralidad orgánica — y se nota.
-            </p>
-            <div style={{
-              marginTop:72, display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:32,
-            }} className="man-cards">
-              {[
-                ["No vendemos alcance.","Vendemos conversación. Cada envío vuelve en 4-7 días con piezas que tu marca puede reutilizar."],
-                ["No improvisamos.","Cada cápsula tiene brief, selección manual y reporte. Lab → no agencia."],
-                ["No prometemos magia.","Sembramos. Cuando el producto es bueno, el contenido explota solo."],
-              ].map(([t,d],i)=>(
-                <div key={i} style={{paddingTop:22, borderTop:"1px solid var(--line-strong)"}}>
-                  <div className="serif" style={{
-                    fontSize:24, fontWeight:700, fontStyle:"italic", lineHeight:1.2, color:"var(--cream-paper)",
-                  }}>{t}</div>
-                  <p style={{marginTop:14, fontSize:14, lineHeight:1.55, opacity:.72}}>{d}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-      <style>{`
-        @media(max-width:820px){
-          .man-grid{grid-template-columns:1fr !important; gap:40px !important}
-          .man-cards{grid-template-columns:1fr !important}
-        }
-      `}</style>
-    </section>
-  );
-}
-Object.assign(window, { Manifesto });
-</script>
-
-<!-- Servicios -->
-<script type="text/babel">
-function Servicios() {
-  const [active, setActive] = React.useState(0);
-  const servicios = [
-    {
-      tag: "S/01", title: "Envíos masivos", kicker: "seeding",
-      desc: "Mandamos tu producto a 30 – 300 creadores curados en una sola ola. Cada caja sale con copy, ficha de producto y CTA listos para Stories.",
-      includes: ["Curación manual de creadores", "Packaging brandeado", "Logística punto a punto", "Tracking en vivo"],
-      stat: "200+", statLabel: "creadores en red"
-    },
-    {
-      tag: "S/02", title: "UGC + Contenido orgánico", kicker: "content",
-      desc: "Recibimos el contenido que generan los creadores, lo curamos y te lo entregamos listo para reutilizar en tus canales y ads.",
-      includes: ["Foto y video formato 9:16", "Derechos de uso negociados", "Edición y subtítulos", "Drive organizado por creador"],
-      stat: "4-7d", statLabel: "primera entrega"
-    },
-    {
-      tag: "S/03", title: "Unboxings & PR", kicker: "moments",
-      desc: "Cápsulas PR con producción de cajas, regalos personalizados y notas escritas a mano. Para lanzamientos que necesitan un momento.",
-      includes: ["Diseño de caja exclusiva", "Set selección creadores top", "Notas y dedicatorias", "Cobertura post-evento"],
-      stat: "01", statLabel: "lanzamiento / mes"
-    },
-    {
-      tag: "S/04", title: "Estrategia & Reporting", kicker: "strategy",
-      desc: "Antes de sembrar, planeamos. Brief, segmentación, calendario y al cierre un reporte con métricas reales (no impresiones infladas).",
-      includes: ["Brief de campaña", "Mapa de creadores", "Reporte de métricas", "Aprendizajes para la siguiente"],
-      stat: "100%", statLabel: "datos verificables"
-    },
-  ];
-  const s = servicios[active];
-
-  return (
-    <section id="servicios" style={{padding:"140px 0 140px"}}>
-      <div className="container">
-        <SectionHeader index="02" label="Servicios" title={<>Cuatro <em style={{color:"var(--cream-paper)"}}>cápsulas</em> de servicio</>} />
-        <div style={{
-          marginTop:80, display:"grid", gridTemplateColumns:"1fr 1.1fr", gap:80, alignItems:"start",
-        }} className="serv-grid">
-          <div style={{display:"flex", flexDirection:"column"}}>
-            {servicios.map((srv, i) => (
-              <button key={i} onClick={()=>setActive(i)} style={{
-                background:"transparent", border:"none", textAlign:"left",
-                padding:"28px 0", cursor:"pointer", color:"var(--cream)",
-                borderTop: i===0 ? "1px solid var(--line-strong)" : "none",
-                borderBottom:"1px solid var(--line-strong)",
-                display:"grid", gridTemplateColumns:"60px 1fr auto", alignItems:"center", gap:24,
-                transition:"padding .25s ease", paddingLeft: active===i ? 24 : 0,
-              }}>
-                <span className="mono" style={{fontSize:11, opacity: active===i ? 1 : .5, letterSpacing:".14em"}}>{srv.tag}</span>
-                <span className="serif" style={{
-                  fontSize:36, fontWeight:700, fontStyle: active===i ? "italic" : "normal",
-                  color: active===i ? "var(--cream-paper)" : "var(--cream)",
-                  opacity: active===i ? 1 : .82, letterSpacing:"-.02em", transition:"all .25s ease",
-                }}>{srv.title}</span>
-                <span style={{
-                  fontFamily:"'Bodoni Moda',serif", fontStyle:"italic", fontSize:22,
-                  opacity: active===i ? 1 : .35,
-                  transform: active===i ? "translateX(0)" : "translateX(-8px)",
-                  transition:"all .25s ease",
-                }}>→</span>
-              </button>
-            ))}
-          </div>
-
-          <div style={{
-            position:"sticky", top:120, background:"var(--wine-deep)",
-            border:"1px solid var(--line)", borderRadius:6, padding:40,
-          }} className="serv-card">
-            <div style={{display:"flex", justifyContent:"space-between", alignItems:"baseline", marginBottom:24}}>
-              <span className="mono" style={{fontSize:11, opacity:.6, letterSpacing:".16em", textTransform:"uppercase"}}>{s.tag} / {s.kicker}</span>
-              <span className="mono" style={{fontSize:11, opacity:.5}}>cápsula activa</span>
-            </div>
-            <h3 className="serif" style={{
-              fontSize:"clamp(40px, 4.6vw, 64px)", lineHeight:.98, fontWeight:800,
-              letterSpacing:"-.025em", maxWidth:"12ch",
-            }}>{s.title}</h3>
-            <p style={{marginTop:28, fontSize:16, lineHeight:1.55, opacity:.82, maxWidth:520}}>{s.desc}</p>
-            <div style={{
-              marginTop:36, paddingTop:28, borderTop:"1px solid var(--line)",
-              display:"grid", gridTemplateColumns:"1fr 1fr", gap:14,
-            }}>
-              {s.includes.map((it,i)=>(
-                <div key={i} style={{display:"flex", alignItems:"center", gap:12, fontSize:13, opacity:.85}}>
-                  <span style={{width:5, height:5, borderRadius:"50%", background:"var(--terra)", flexShrink:0}}/>
-                  {it}
-                </div>
-              ))}
-            </div>
-            <div style={{
-              marginTop:36, paddingTop:28, borderTop:"1px solid var(--line)",
-              display:"flex", justifyContent:"space-between", alignItems:"flex-end",
-            }}>
-              <div>
-                <div className="serif" style={{fontSize:54, fontWeight:800, lineHeight:.9, color:"var(--cream-paper)"}}>{s.stat}</div>
-                <div style={{fontSize:11, marginTop:6, opacity:.55, letterSpacing:".08em", textTransform:"uppercase"}}>{s.statLabel}</div>
-              </div>
-              <a href="#contacto" style={{
-                background:"var(--cream)", color:"var(--wine)", border:"none",
-                padding:"14px 24px", borderRadius:999, fontSize:13, fontWeight:600,
-                cursor:"pointer", display:"inline-flex", alignItems:"center", gap:10,
-              }}>
-                Solicitar brief
-                <span style={{fontFamily:"'Bodoni Moda',serif",fontStyle:"italic"}}>→</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <style>{`
-        @media(max-width:980px){
-          .serv-grid{grid-template-columns:1fr !important; gap:48px !important}
-          .serv-card{position:static !important}
-        }
-      `}</style>
-    </section>
-  );
-}
-
-function SectionHeader({index, label, title}) {
-  return (
-    <div style={{display:"flex", alignItems:"flex-end", justifyContent:"space-between", gap:32, flexWrap:"wrap"}}>
+  </div>
+  <div class="container hero-main">
+    <div class="hero-grid">
       <div>
-        <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".18em", textTransform:"uppercase", marginBottom:18}}>
-          {index} — {label}
+        <h1>Hacemos <em>virales</em> a las marcas<span style="color:var(--terra)">.</span></h1>
+        <p class="hero-sub">
+          Lab donde elevamos tu presencia digital en <em>tiempo récord</em> y la hacemos explotar.
+          Envíos masivos, creadores reales, contenido orgánico.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#contacto">Empieza tu campaña <span class="arrow">→</span></a>
+          <a class="btn btn-ghost" href="#proceso">Ver cómo funciona</a>
         </div>
-        <h2 className="serif" style={{
-          fontSize:"clamp(40px, 5vw, 76px)", lineHeight:1.0, fontWeight:700,
-          letterSpacing:"-.025em", textWrap:"balance", maxWidth:"14ch",
-        }}>{title}</h2>
+        <div class="hero-stats">
+          <div><div class="stat-n serif">48h</div><div class="stat-l">primera entrega</div></div>
+          <div><div class="stat-n serif">+200</div><div class="stat-l">creadores activos</div></div>
+          <div><div class="stat-n serif">3.4M</div><div class="stat-l">impresiones / mes</div></div>
+        </div>
+      </div>
+      <div class="hero-img">
+        <img src="assets/hero-unboxing-sm.png" alt="Cápsula de unboxing Seedings Lab: caja burdeos con producto y nota personalizada">
+        <span class="hero-img-tag tl">SDL — 001 / unboxing</span>
+        <span class="hero-img-tag bl">cápsula · burdeos</span>
+        <span class="hero-img-tag br">4:5 / film</span>
       </div>
     </div>
-  );
-}
-Object.assign(window, { Servicios, SectionHeader });
-</script>
+  </div>
+</section>
 
-<!-- Proceso -->
-<script type="text/babel">
-function Proceso() {
-  const steps = [
-    {
-      n:"01", title:"Seleccionamos creadores",
-      desc:"Curamos manualmente una shortlist de creadores que ya hablan tu lenguaje y los reclutamos para tu marca. Sin bots, sin pago por post — coherencia primero.",
-      detail:"Audiencia · Tono · Engagement real",
-    },
-    {
-      n:"02", title:"Enviamos tu producto",
-      desc:"Tu cápsula sale en caja brandeada con copy, ficha de uso y un detalle a mano. Cada paquete es una pequeña historia.",
-      detail:"Packaging · Logística · Tracking",
-    },
-    {
-      n:"03", title:"Medimos el impacto",
-      desc:"El contenido lo crean los creadores en sus propias stories. Nosotros recolectamos las métricas de cada uno — alcance, engagement, vistas — y te entregamos un reporte con la performance real de la campaña.",
-      detail:"Métricas · Reporte · Performance",
-    },
-  ];
+<!-- ============ Marquee ============ -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="marqueeTrack"></div>
+</div>
 
-  return (
-    <section id="proceso" style={{padding:"140px 0", background:"var(--cream)", color:"var(--wine)"}}>
-      <div className="container">
-        <div style={{display:"flex", alignItems:"flex-end", justifyContent:"space-between", gap:32, flexWrap:"wrap"}}>
-          <div>
-            <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".18em", textTransform:"uppercase", marginBottom:18, color:"var(--wine)"}}>
-              03 — Proceso
-            </div>
-            <h2 className="serif" style={{
-              fontSize:"clamp(40px, 5vw, 76px)", lineHeight:1.0, fontWeight:700,
-              letterSpacing:"-.025em", maxWidth:"16ch", color:"var(--wine)",
-            }}>De brief a viral en <em style={{color:"var(--terra)"}}>tres pasos</em>.</h2>
-          </div>
-          <div style={{fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:".14em", textTransform:"uppercase", opacity:.55}}>
-            duración promedio · 14 – 21 días
-          </div>
+<!-- ============ Manifesto ============ -->
+<section class="manifesto">
+  <div class="container man-grid">
+    <div class="man-aside label reveal"><div class="rule"></div>01 — Manifesto</div>
+    <div>
+      <h2 class="reveal">Enviamos tu producto.<br><em>Creamos deseos.</em></h2>
+      <p class="man-lead reveal">
+        No publicamos anuncios. No compramos likes. Curamos un círculo de creadores reales en Chile y LATAM,
+        les enviamos tu producto en una caja que pide ser abierta, y dejamos que el contenido nazca solo.
+        Eso es viralidad orgánica — y se nota.
+      </p>
+      <div class="man-cards">
+        <div class="man-card reveal">
+          <h3>No vendemos alcance.</h3>
+          <p>Vendemos conversación. Cada envío vuelve en 4-7 días con piezas que tu marca puede reutilizar.</p>
         </div>
-
-        <div style={{
-          marginTop:80, display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:0,
-          borderTop:"1px solid rgba(61,27,30,.18)", borderBottom:"1px solid rgba(61,27,30,.18)",
-        }} className="proc-grid">
-          {steps.map((st,i)=>(
-            <div key={i} style={{
-              padding:"56px 36px 48px",
-              borderRight: i<steps.length-1 ? "1px solid rgba(61,27,30,.18)" : "none",
-              position:"relative",
-            }}>
-              <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:48}}>
-                <span className="serif" style={{fontSize:88, lineHeight:.8, fontWeight:800, fontStyle:"italic", color:"var(--wine)"}}>{st.n}</span>
-                <span style={{
-                  width:32, height:32, borderRadius:"50%",
-                  background:"var(--wine)", color:"var(--cream)",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  fontFamily:"'Bodoni Moda',serif", fontStyle:"italic", fontSize:18, fontWeight:700,
-                }}>→</span>
-              </div>
-              <h3 className="serif" style={{fontSize:30, fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:"var(--wine)", marginBottom:18}}>{st.title}</h3>
-              <p style={{fontSize:15, lineHeight:1.55, color:"var(--wine)", opacity:.78, marginBottom:36}}>{st.desc}</p>
-              <div style={{
-                paddingTop:18, borderTop:"1px solid rgba(61,27,30,.18)",
-                fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:".1em",
-                textTransform:"uppercase", opacity:.62,
-              }}>{st.detail}</div>
-            </div>
-          ))}
+        <div class="man-card reveal">
+          <h3>No improvisamos.</h3>
+          <p>Cada cápsula tiene brief, selección manual y reporte. Lab → no agencia.</p>
         </div>
-
-        <div style={{
-          marginTop:48, display:"flex", alignItems:"center", gap:18,
-          fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:".12em",
-          textTransform:"uppercase", opacity:.6,
-        }}>
-          <span style={{flexShrink:0}}>Día 01</span>
-          <span style={{flex:1, height:1, background:"var(--wine)", opacity:.25}}/>
-          <span style={{flexShrink:0}}>Día 07 · envío</span>
-          <span style={{flex:1, height:1, background:"var(--wine)", opacity:.25}}/>
-          <span style={{flexShrink:0}}>Día 14 · UGC</span>
-          <span style={{flex:1, height:1, background:"var(--wine)", opacity:.25}}/>
-          <span style={{flexShrink:0}}>Día 21 · reporte</span>
+        <div class="man-card reveal">
+          <h3>No prometemos magia.</h3>
+          <p>Sembramos. Cuando el producto es bueno, el contenido explota solo.</p>
         </div>
       </div>
-      <style>{`
-        @media(max-width:820px){
-          .proc-grid{grid-template-columns:1fr !important}
-          .proc-grid > div{border-right:none !important; border-bottom:1px solid rgba(61,27,30,.18)}
-          .proc-grid > div:last-child{border-bottom:none !important}
-        }
-      `}</style>
-    </section>
-  );
-}
-Object.assign(window, { Proceso });
-</script>
+    </div>
+  </div>
+</section>
 
-<!-- CTA / Contact form -->
-<script type="text/babel">
+<!-- ============ Servicios ============ -->
+<section class="servicios" id="servicios">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="label">02 — Servicios</span>
+      <h2>Cuatro <em style="color:var(--cream-paper)">cápsulas</em> de servicio</h2>
+    </div>
+    <div class="serv-grid">
+      <div class="serv-list reveal" role="tablist" aria-label="Servicios" id="servList"></div>
+      <div class="serv-card reveal" id="servCard" role="tabpanel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Proceso ============ -->
+<section class="proceso" id="proceso">
+  <div class="container">
+    <div class="proc-head reveal">
+      <div class="section-head">
+        <span class="label">03 — Proceso</span>
+        <h2>De brief a viral en <em>tres pasos</em>.</h2>
+      </div>
+      <div class="proc-duration">duración promedio · 14 – 21 días</div>
+    </div>
+    <div class="proc-grid">
+      <div class="proc-step reveal">
+        <div class="proc-step-top"><span class="proc-n">01</span><span class="proc-arrow">→</span></div>
+        <h3>Seleccionamos creadores</h3>
+        <p>Curamos manualmente una shortlist de creadores que ya hablan tu lenguaje y los reclutamos para tu marca. Sin bots, sin pago por post — coherencia primero.</p>
+        <div class="proc-detail">Audiencia · Tono · Engagement real</div>
+      </div>
+      <div class="proc-step reveal">
+        <div class="proc-step-top"><span class="proc-n">02</span><span class="proc-arrow">→</span></div>
+        <h3>Enviamos tu producto</h3>
+        <p>Tu cápsula sale en caja brandeada con copy, ficha de uso y un detalle a mano. Cada paquete es una pequeña historia.</p>
+        <div class="proc-detail">Packaging · Logística · Tracking</div>
+      </div>
+      <div class="proc-step reveal">
+        <div class="proc-step-top"><span class="proc-n">03</span><span class="proc-arrow">→</span></div>
+        <h3>Medimos el impacto</h3>
+        <p>El contenido lo crean los creadores en sus propias stories. Nosotros recolectamos las métricas de cada uno — alcance, engagement, vistas — y te entregamos un reporte con la performance real de la campaña.</p>
+        <div class="proc-detail">Métricas · Reporte · Performance</div>
+      </div>
+    </div>
+    <div class="proc-timeline reveal" aria-hidden="true">
+      <span>Día 01</span><i></i><span>Día 07 · envío</span><i></i><span>Día 14 · UGC</span><i></i><span>Día 21 · reporte</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Novedades / Redes sociales ============ -->
+<section class="novedades" id="novedades">
+  <div class="container">
+    <div class="nov-head reveal">
+      <div class="section-head">
+        <span class="label">04 — Novedades</span>
+        <h2>Lo último <em style="color:var(--cream-paper)">del lab</em>.</h2>
+      </div>
+      <div class="nov-follow" id="novFollow"></div>
+    </div>
+    <div class="nov-tabs reveal" role="tablist" aria-label="Filtrar novedades por red social" id="novTabs"></div>
+    <div class="nov-grid" id="novGrid" aria-live="polite"></div>
+    <p class="nov-note">Síguenos para ver las campañas en tiempo real — publicamos cada cápsula que sale del lab.</p>
+  </div>
+</section>
+
+<!-- ============ Contacto ============ -->
+<section class="contacto" id="contacto">
+  <div class="container cta-grid">
+    <div class="reveal">
+      <span class="label">05 — Empieza tu campaña</span>
+      <h2 style="margin-top:18px">Sembremos <em>tu próxima</em> campaña.</h2>
+      <p class="cta-lead">
+        Cuéntanos qué marca lideras y respondemos en menos de 24 horas con una propuesta inicial.
+        Sin compromiso, sin SDR insistente.
+      </p>
+      <div class="cta-channels">
+        <a href="mailto:hola@seedings.cl"><span class="label">Email</span>hola@seedings.cl</a>
+        <a href="https://instagram.com/seedings.lab" target="_blank" rel="noopener"><span class="label">Instagram</span>@seedings.lab</a>
+        <a href="https://wa.me/56987654321" target="_blank" rel="noopener"><span class="label">WhatsApp</span>+56 9 8765 4321</a>
+        <a href="https://link.webgurux.com/widget/form/ewXDwMDGrEnRlknSl2Eo" target="_blank" rel="noopener"><span class="label">Creadores</span>¿Eres influencer? Únete a la red →</a>
+      </div>
+    </div>
+    <form class="cta-form reveal" id="briefForm" novalidate>
+      <span class="label">Brief inicial</span>
+      <div class="field">
+        <label for="f-name">Nombre<span class="req">*</span></label>
+        <input id="f-name" name="name" type="text" placeholder="María José" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="f-brand">Marca</label>
+        <input id="f-brand" name="brand" type="text" placeholder="Olea Skin" autocomplete="organization">
+      </div>
+      <div class="field">
+        <label for="f-email">Email<span class="req">*</span></label>
+        <input id="f-email" name="email" type="email" placeholder="hola@marca.cl" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="f-phone">Teléfono / WhatsApp</label>
+        <input id="f-phone" name="phone" type="tel" placeholder="+56 9 ..." autocomplete="tel">
+      </div>
+      <div class="field">
+        <label id="svc-label">Servicio de interés</label>
+        <div class="service-pills" role="group" aria-labelledby="svc-label" id="servicePills">
+          <button type="button" data-v="envios" aria-pressed="true">Envíos masivos</button>
+          <button type="button" data-v="ugc" aria-pressed="false">UGC + Contenido</button>
+          <button type="button" data-v="unboxings" aria-pressed="false">Unboxings &amp; PR</button>
+          <button type="button" data-v="estrategia" aria-pressed="false">Estrategia</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-msg">Cuéntanos sobre tu marca</label>
+        <textarea id="f-msg" name="message" rows="3" placeholder="¿Qué venden, qué buscan lograr, timing aproximado?"></textarea>
+      </div>
+      <button class="cta-submit" id="submitBtn" type="submit">Enviar brief <span class="arrow" style="font-family:'Fraunces',serif;font-style:italic">→</span></button>
+      <p class="cta-privacy">Al enviar aceptas nuestra política de privacidad. No spameamos — la primera respuesta es humana.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <div class="container faq-grid">
+    <div class="faq-aside reveal">
+      <div class="section-head">
+        <span class="label">06 — FAQ</span>
+        <h2>Lo que <em style="color:var(--cream-paper)">siempre</em> preguntan.</h2>
+      </div>
+      <p>¿No está aquí? Escríbenos a <a href="mailto:hola@seedings.cl">hola@seedings.cl</a> — respondemos rápido, prometido.</p>
+    </div>
+    <div id="faqList" class="reveal"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ Footer ============ -->
+<footer>
+  <div class="container">
+    <div class="foot-cols">
+      <div class="foot-brand">
+        <img src="assets/seedings-logo.png" alt="Seedings Lab">
+        <p>Lab de marketing y viralización. Sembramos marcas que florecen rápido.</p>
+      </div>
+      <div class="foot-col">
+        <span class="label">Lab</span>
+        <ul>
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#proceso">Proceso</a></li>
+          <li><a href="#novedades">Novedades</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <span class="label">Conecta</span>
+        <ul>
+          <li><a href="https://instagram.com/seedings.lab" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://tiktok.com/@seedings.lab" target="_blank" rel="noopener">TikTok</a></li>
+          <li><a href="https://www.linkedin.com/company/seedings-lab" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="mailto:hola@seedings.cl">hola@seedings.cl</a></li>
+          <li><a href="https://wa.me/56987654321" target="_blank" rel="noopener">WhatsApp</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-legal">
+      <span>© 2026 Seedings Lab · Santiago, Chile</span>
+      <span class="label" style="font-size:11.5px">marketing &amp; viralización</span>
+      <span>Términos · Privacidad</span>
+    </div>
+  </div>
+  <div class="foot-word" aria-hidden="true">Seedings<b>.</b></div>
+</footer>
+
+<script>
+/* =====================================================================
+   DATOS EDITABLES
+   ===================================================================== */
+
+/* --- Redes sociales del lab (perfiles) --- */
+const SOCIAL_PROFILES = [
+  { id:"ig", name:"Instagram", handle:"@seedings.lab", url:"https://instagram.com/seedings.lab" },
+  { id:"tk", name:"TikTok",    handle:"@seedings.lab", url:"https://tiktok.com/@seedings.lab" },
+  { id:"li", name:"LinkedIn",  handle:"Seedings Lab",  url:"https://www.linkedin.com/company/seedings-lab" },
+];
+
+/* --- Últimas actualizaciones de redes sociales ---------------------
+   EDITA AQUÍ para sumar novedades: agrega un objeto al inicio del array.
+   platform: "ig" (Instagram) | "tk" (TikTok) | "li" (LinkedIn)
+   url: enlace directo a la publicación.
+-------------------------------------------------------------------- */
+const SOCIAL_POSTS = [
+  {
+    platform:"ig", date:"2026-06-05",
+    title:"Cápsula 014 · lanzamiento skincare",
+    text:"38 creadoras recibieron la nueva línea facial. Primer unboxing al aire en menos de 48 horas — mira las stories destacadas.",
+    url:"https://instagram.com/seedings.lab",
+  },
+  {
+    platform:"tk", date:"2026-05-28",
+    title:"Detrás del lab: armado de cajas",
+    text:"Así se arma una cápsula burdeos: notas a mano, ficha de producto y un detalle que nadie espera. El video superó las 120K vistas.",
+    url:"https://tiktok.com/@seedings.lab",
+  },
+  {
+    platform:"li", date:"2026-05-20",
+    title:"Reporte abierto: qué funciona en seeding 2026",
+    text:"Publicamos los aprendizajes de nuestras últimas 10 campañas: formatos, tasas de publicación y el ROI real del UGC orgánico.",
+    url:"https://www.linkedin.com/company/seedings-lab",
+  },
+  {
+    platform:"ig", date:"2026-05-12",
+    title:"Antes y después: marca de café local",
+    text:"De 800 a 14.000 seguidores en 6 semanas con dos olas de envíos. El carrusel con los resultados completos ya está en el feed.",
+    url:"https://instagram.com/seedings.lab",
+  },
+  {
+    platform:"tk", date:"2026-05-02",
+    title:"Creadores reaccionan a la cápsula sorpresa",
+    text:"Compilado de los mejores unboxings del mes. Contenido 100% orgánico — ninguno fue pagado por publicar.",
+    url:"https://tiktok.com/@seedings.lab",
+  },
+  {
+    platform:"li", date:"2026-04-22",
+    title:"Estamos creciendo: nuevas geografías",
+    text:"Sumamos logística en México y Colombia. Si tu marca quiere sembrar fuera de Chile, ahora el camino es directo.",
+    url:"https://www.linkedin.com/company/seedings-lab",
+  },
+];
+
+/* --- Servicios --- */
+const SERVICIOS = [
+  {
+    tag:"S/01", title:"Envíos masivos", kicker:"seeding",
+    desc:"Mandamos tu producto a 30 – 300 creadores curados en una sola ola. Cada caja sale con copy, ficha de producto y CTA listos para Stories.",
+    includes:["Curación manual de creadores","Packaging brandeado","Logística punto a punto","Tracking en vivo"],
+    stat:"200+", statLabel:"creadores en red",
+  },
+  {
+    tag:"S/02", title:"UGC + Contenido orgánico", kicker:"content",
+    desc:"Recibimos el contenido que generan los creadores, lo curamos y te lo entregamos listo para reutilizar en tus canales y ads.",
+    includes:["Foto y video formato 9:16","Derechos de uso negociados","Edición y subtítulos","Drive organizado por creador"],
+    stat:"4-7d", statLabel:"primera entrega",
+  },
+  {
+    tag:"S/03", title:"Unboxings & PR", kicker:"moments",
+    desc:"Cápsulas PR con producción de cajas, regalos personalizados y notas escritas a mano. Para lanzamientos que necesitan un momento.",
+    includes:["Diseño de caja exclusiva","Set selección creadores top","Notas y dedicatorias","Cobertura post-evento"],
+    stat:"01", statLabel:"lanzamiento / mes",
+  },
+  {
+    tag:"S/04", title:"Estrategia & Reporting", kicker:"strategy",
+    desc:"Antes de sembrar, planeamos. Brief, segmentación, calendario y al cierre un reporte con métricas reales (no impresiones infladas).",
+    includes:["Brief de campaña","Mapa de creadores","Reporte de métricas","Aprendizajes para la siguiente"],
+    stat:"100%", statLabel:"datos verificables",
+  },
+];
+
+/* --- FAQ --- */
+const FAQS = [
+  {q:"¿Cuánto tiempo toma una cápsula?", a:"Desde brief firmado, 14 a 21 días. Día 7 sale el envío, día 14 ya tienes el primer UGC, día 21 recibes reporte completo."},
+  {q:"¿En qué países pueden hacer envíos?", a:"Hoy operamos en Chile, Argentina, México y Colombia. Si necesitas otra geografía, escríbenos y cotizamos según logística."},
+  {q:"¿Qué pasa si un creador no publica?", a:"Tenemos un acuerdo de entregable con cada uno. Si no publica, lo reemplazamos sin costo o ajustamos el reporte. Solo cobramos por contenido entregado."},
+  {q:"¿Puedo usar el UGC en mis ads?", a:"Sí. Negociamos derechos de uso con cada creador al momento del seeding. Te entregamos la licencia firmada junto al material."},
+  {q:"¿Tienen mínimo de campaña?", a:"El plan Seed parte con 30 creadores / mes. Bajo eso, no logramos masa crítica para que la viralidad despegue."},
+];
+
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/Z8KrOIcAnVpsZzTBSBXf/webhook-trigger/a741a061-1f69-4370-b69c-af7b657d1fa5";
 
-function CTA() {
-  const [name, setName] = React.useState("");
-  const [brand, setBrand] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [phone, setPhone] = React.useState("");
-  const [service, setService] = React.useState("envios");
-  const [message, setMessage] = React.useState("");
-  const [status, setStatus] = React.useState("idle");
+/* =====================================================================
+   LÓGICA DE LA PÁGINA
+   ===================================================================== */
 
-  async function handleSubmit(e) {
+const PLATFORM_META = {
+  ig:{name:"Instagram", cls:"ig", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.6" cy="6.4" r="1.3" fill="currentColor" stroke="none"/></svg>'},
+  tk:{name:"TikTok", cls:"tk", icon:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 3c.4 2.2 1.8 3.7 4.1 3.9v3c-1.6 0-3-.5-4.1-1.3v6.2c0 3.6-2.5 6.2-6 6.2-3.3 0-5.8-2.4-5.8-5.6 0-3.3 2.7-5.7 6.2-5.5v3.1c-1.7-.3-3.1.7-3.1 2.3 0 1.5 1.1 2.6 2.7 2.6 1.7 0 2.9-1.2 2.9-3.2V3h3.1z"/></svg>'},
+  li:{name:"LinkedIn", cls:"li", icon:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.49 2.49 0 1 1 5 8.48a2.49 2.49 0 0 1-.02-4.98zM3 9.75h4v11H3v-11zm6.5 0h3.8v1.5h.05c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.78 2.65 4.78 6.1v6.46h-4v-5.73c0-1.37-.02-3.13-1.9-3.13-1.91 0-2.2 1.49-2.2 3.03v5.83h-4v-11z"/></svg>'},
+};
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* --- Nav: scroll + menú móvil --- */
+const nav = document.getElementById("nav");
+const burger = document.getElementById("burger");
+const navMobile = document.getElementById("navMobile");
+window.addEventListener("scroll", () => nav.classList.toggle("scrolled", window.scrollY > 40), {passive:true});
+burger.addEventListener("click", () => {
+  const open = navMobile.classList.toggle("open");
+  burger.setAttribute("aria-expanded", open);
+  burger.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+});
+navMobile.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+  navMobile.classList.remove("open");
+  burger.setAttribute("aria-expanded", "false");
+}));
+
+/* --- Marquee --- */
+(function(){
+  const words = ["envíos masivos","ugc real","unboxings","creadores · chile","presencia 360","campañas relámpago","contenido orgánico","brand seeding"];
+  const track = document.getElementById("marqueeTrack");
+  track.innerHTML = [...words, ...words].map(w => `<span>${escapeHtml(w)}<i></i></span>`).join("");
+})();
+
+/* --- Servicios (tabs) --- */
+(function(){
+  const list = document.getElementById("servList");
+  const card = document.getElementById("servCard");
+  let active = 0;
+
+  function renderList(){
+    list.innerHTML = SERVICIOS.map((s,i) => `
+      <button class="serv-item" role="tab" id="serv-tab-${i}" aria-selected="${i===active}" aria-controls="servCard">
+        <span class="tag">${escapeHtml(s.tag)}</span>
+        <span class="name">${escapeHtml(s.title)}</span>
+        <span class="go" aria-hidden="true">→</span>
+      </button>`).join("");
+    list.querySelectorAll(".serv-item").forEach((btn,i) => btn.addEventListener("click", () => { active = i; renderList(); renderCard(); }));
+  }
+  function renderCard(){
+    const s = SERVICIOS[active];
+    card.setAttribute("aria-labelledby", `serv-tab-${active}`);
+    card.innerHTML = `
+      <div class="serv-card-top">
+        <span class="label">${escapeHtml(s.tag)} / ${escapeHtml(s.kicker)}</span>
+        <span class="label" style="opacity:.5">cápsula activa</span>
+      </div>
+      <h3>${escapeHtml(s.title)}</h3>
+      <p class="desc">${escapeHtml(s.desc)}</p>
+      <div class="serv-includes">
+        ${s.includes.map(it => `<div><span class="dot"></span>${escapeHtml(it)}</div>`).join("")}
+      </div>
+      <div class="serv-card-bottom">
+        <div>
+          <div class="serv-stat-n">${escapeHtml(s.stat)}</div>
+          <div class="serv-stat-l">${escapeHtml(s.statLabel)}</div>
+        </div>
+        <a class="btn btn-primary" href="#contacto" style="padding:14px 24px;font-size:14px">Solicitar brief <span class="arrow">→</span></a>
+      </div>`;
+  }
+  renderList(); renderCard();
+})();
+
+/* --- Novedades: perfiles + tabs + cards --- */
+(function(){
+  const follow = document.getElementById("novFollow");
+  const tabs = document.getElementById("novTabs");
+  const grid = document.getElementById("novGrid");
+  let filter = "all";
+
+  follow.innerHTML = SOCIAL_PROFILES.map(p => {
+    const m = PLATFORM_META[p.id];
+    return `<a href="${escapeHtml(p.url)}" target="_blank" rel="noopener" aria-label="${escapeHtml(p.name)}: ${escapeHtml(p.handle)}">${m.icon}${escapeHtml(p.handle)}</a>`;
+  }).join("");
+
+  const tabDefs = [{id:"all", name:"Todas"}, ...SOCIAL_PROFILES.map(p => ({id:p.id, name:p.name}))];
+
+  function renderTabs(){
+    tabs.innerHTML = tabDefs.map(t =>
+      `<button class="nov-tab" role="tab" aria-selected="${filter===t.id}" data-id="${t.id}">${escapeHtml(t.name)}</button>`
+    ).join("");
+    tabs.querySelectorAll(".nov-tab").forEach(btn => btn.addEventListener("click", () => {
+      filter = btn.dataset.id; renderTabs(); renderGrid();
+    }));
+  }
+
+  function fmtDate(iso){
+    const d = new Date(iso + "T12:00:00");
+    return d.toLocaleDateString("es-CL", {day:"2-digit", month:"short", year:"numeric"});
+  }
+
+  function renderGrid(){
+    const posts = SOCIAL_POSTS
+      .filter(p => filter === "all" || p.platform === filter)
+      .sort((a,b) => b.date.localeCompare(a.date));
+    if (!posts.length){
+      grid.innerHTML = `<div class="nov-empty">Aún no hay publicaciones en esta red — síguenos y sé el primero en verlas.</div>`;
+      return;
+    }
+    grid.innerHTML = posts.map(p => {
+      const m = PLATFORM_META[p.platform];
+      return `
+      <article class="nov-card">
+        <div class="nov-card-top">
+          <span class="nov-badge ${m.cls}">${m.icon}${escapeHtml(m.name)}</span>
+          <span class="nov-date">${fmtDate(p.date)}</span>
+        </div>
+        <h3>${escapeHtml(p.title)}</h3>
+        <p>${escapeHtml(p.text)}</p>
+        <a class="nov-link" href="${escapeHtml(p.url)}" target="_blank" rel="noopener">Ver publicación <span class="arrow">→</span></a>
+      </article>`;
+    }).join("");
+  }
+
+  renderTabs(); renderGrid();
+})();
+
+/* --- FAQ (acordeón) --- */
+(function(){
+  const list = document.getElementById("faqList");
+  list.innerHTML = FAQS.map((f,i) => `
+    <div class="faq-item">
+      <button class="faq-q" aria-expanded="false" aria-controls="faq-a-${i}">
+        <span class="q-text">${escapeHtml(f.q)}</span>
+        <span class="q-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-a" id="faq-a-${i}" role="region"><p>${escapeHtml(f.a)}</p></div>
+    </div>`).join("");
+  list.querySelectorAll(".faq-item").forEach(item => {
+    const btn = item.querySelector(".faq-q");
+    btn.addEventListener("click", () => {
+      const wasOpen = item.classList.contains("open");
+      list.querySelectorAll(".faq-item.open").forEach(o => {
+        o.classList.remove("open");
+        o.querySelector(".faq-q").setAttribute("aria-expanded", "false");
+      });
+      if (!wasOpen){
+        item.classList.add("open");
+        btn.setAttribute("aria-expanded", "true");
+      }
+    });
+  });
+})();
+
+/* --- Formulario de contacto (webhook) --- */
+(function(){
+  const form = document.getElementById("briefForm");
+  const submitBtn = document.getElementById("submitBtn");
+  const pills = document.getElementById("servicePills");
+  const idleHtml = submitBtn.innerHTML;
+  let service = "envios";
+  let status = "idle";
+
+  pills.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => {
+    service = btn.dataset.v;
+    pills.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b === btn));
+  }));
+
+  function setStatus(s, text){
+    status = s;
+    submitBtn.classList.remove("sent","error");
+    submitBtn.disabled = (s === "sending" || s === "sent");
+    if (s === "idle"){ submitBtn.innerHTML = idleHtml; return; }
+    if (s === "sent") submitBtn.classList.add("sent");
+    if (s === "error") submitBtn.classList.add("error");
+    submitBtn.textContent = text;
+  }
+
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!name || !email || status==="sending") return;
-    setStatus("sending");
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    if (!name || !email || status === "sending"){ form.reportValidity(); return; }
+    setStatus("sending", "Enviando…");
     const payload = {
-      name, brand, email, phone, service, message,
+      name, email, service,
+      brand: form.brand.value.trim(),
+      phone: form.phone.value.trim(),
+      message: form.message.value.trim(),
       source: "seedings.cl", page: "landing",
       submitted_at: new Date().toISOString(),
-      url: typeof window !== "undefined" ? window.location.href : "",
-      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+      url: window.location.href,
+      user_agent: navigator.userAgent,
     };
     try {
       const res = await fetch(WEBHOOK_URL, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
-      setStatus("sent");
-      setTimeout(() => {
-        setName(""); setBrand(""); setEmail(""); setPhone(""); setMessage("");
-        setService("envios"); setStatus("idle");
+      setStatus("sent", "✓ Brief enviado — te respondemos en 24h");
+      setTimeout(() => { form.reset(); service = "envios";
+        pills.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === "envios"));
+        setStatus("idle");
       }, 5000);
-    } catch (err) {
+    } catch (err){
       console.error("Webhook submission failed:", err);
-      setStatus("error");
+      setStatus("error", "Algo falló — vuelve a intentar");
       setTimeout(() => setStatus("idle"), 4000);
     }
+  });
+})();
+
+/* --- Animación de entrada --- */
+(function(){
+  const els = document.querySelectorAll(".reveal");
+  if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    els.forEach(el => el.classList.add("visible"));
+    return;
   }
-
-  const services = [
-    { v:"envios", label:"Envíos masivos" },
-    { v:"ugc", label:"UGC + Contenido" },
-    { v:"unboxings", label:"Unboxings & PR" },
-    { v:"estrategia", label:"Estrategia" },
-  ];
-
-  return (
-    <section id="contacto" style={{padding:"160px 0 120px", background:"var(--cream)", color:"var(--wine)"}}>
-      <div className="container">
-        <div style={{display:"grid", gridTemplateColumns:"1.1fr 1fr", gap:80, alignItems:"start"}} className="cta-grid">
-          <div>
-            <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".18em", textTransform:"uppercase", marginBottom:18}}>
-              06 — Empieza tu campaña
-            </div>
-            <h2 className="serif" style={{
-              fontSize:"clamp(48px, 7vw, 120px)", lineHeight:.92, fontWeight:800,
-              letterSpacing:"-.03em", maxWidth:"11ch", textWrap:"balance",
-            }}>
-              Sembremos<br/>
-              <em style={{color:"var(--terra)"}}>tu próxima</em><br/>
-              campaña.
-            </h2>
-            <p style={{marginTop:32, fontSize:17, lineHeight:1.55, opacity:.82, maxWidth:440}}>
-              Cuéntanos qué marca lideras y respondemos en menos de 24 horas con una propuesta inicial. Sin compromiso, sin SDR insistente.
-            </p>
-            <div style={{marginTop:48, display:"flex", flexDirection:"column", gap:14, fontSize:14, opacity:.85}}>
-              <a href="mailto:hola@seedings.cl" style={{display:"flex", alignItems:"center", gap:14, borderBottom:"1px solid rgba(61,27,30,.2)", paddingBottom:14}}>
-                <span className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".12em", width:80}}>EMAIL</span>
-                hola@seedings.cl
-              </a>
-              <a href="https://instagram.com/seedings.lab" target="_blank" rel="noopener" style={{display:"flex", alignItems:"center", gap:14, borderBottom:"1px solid rgba(61,27,30,.2)", paddingBottom:14}}>
-                <span className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".12em", width:80}}>IG</span>
-                @seedings.lab
-              </a>
-              <a href="https://wa.me/56987654321" target="_blank" rel="noopener" style={{display:"flex", alignItems:"center", gap:14, borderBottom:"1px solid rgba(61,27,30,.2)", paddingBottom:14}}>
-                <span className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".12em", width:80}}>WHATSAPP</span>
-                +56 9 8765 4321
-              </a>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} style={{
-            background:"var(--wine)", color:"var(--cream)",
-            padding:"40px 36px", borderRadius:6, display:"flex", flexDirection:"column", gap:20,
-          }}>
-            <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".16em", textTransform:"uppercase"}}>brief inicial</div>
-            <FormField label="Nombre" value={name} onChange={setName} placeholder="María José" required />
-            <FormField label="Marca" value={brand} onChange={setBrand} placeholder="Olea Skin" />
-            <FormField label="Email" type="email" value={email} onChange={setEmail} placeholder="hola@marca.cl" required />
-            <FormField label="Teléfono / WhatsApp" type="tel" value={phone} onChange={setPhone} placeholder="+56 9 ..." />
-            <div>
-              <label className="mono" style={{display:"block", fontSize:11, opacity:.55, letterSpacing:".12em", textTransform:"uppercase", marginBottom:10}}>Servicio de interés</label>
-              <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8}}>
-                {services.map(s=>(
-                  <button type="button" key={s.v} onClick={()=>setService(s.v)} style={{
-                    background: service===s.v ? "var(--cream)" : "transparent",
-                    color: service===s.v ? "var(--wine)" : "var(--cream)",
-                    border:"1px solid var(--line-strong)",
-                    padding:"10px 14px", borderRadius:999, fontSize:12, fontWeight:600,
-                    cursor:"pointer", letterSpacing:".02em", transition:"all .2s",
-                  }}>{s.label}</button>
-                ))}
-              </div>
-            </div>
-            <FormTextarea label="Cuéntanos sobre tu marca" value={message} onChange={setMessage}
-                          placeholder="¿Qué venden, qué buscan lograr, timing aproximado?" />
-            <button type="submit" disabled={status==="sending" || status==="sent"} style={{
-              marginTop:8,
-              background: status==="sent" ? "var(--terra)" : status==="error" ? "#b94a4a" : "var(--cream)",
-              color: (status==="sent" || status==="error") ? "var(--cream)" : "var(--wine)",
-              border:"none", padding:"16px 22px", borderRadius:999, fontSize:14, fontWeight:600,
-              cursor: (status==="sending" || status==="sent") ? "default" : "pointer",
-              display:"flex", alignItems:"center", justifyContent:"center", gap:10,
-              transition:"all .25s", opacity: status==="sending" ? .8 : 1,
-            }}>
-              {status==="sending" && <>Enviando…</>}
-              {status==="sent" && "✓ Brief enviado — te respondemos en 24h"}
-              {status==="error" && "Algo falló — vuelve a intentar"}
-              {status==="idle" && (<>Enviar brief <span style={{fontFamily:"'Bodoni Moda',serif",fontStyle:"italic"}}>→</span></>)}
-            </button>
-            <div style={{fontSize:11, opacity:.55, lineHeight:1.5}}>
-              Al enviar aceptas nuestra política de privacidad. No spameamos — la primera respuesta es humana.
-            </div>
-          </form>
-        </div>
-      </div>
-      <style>{`@media(max-width:880px){.cta-grid{grid-template-columns:1fr !important; gap:48px !important}}`}</style>
-    </section>
-  );
-}
-
-function FormField({label, value, onChange, placeholder, type="text", required}) {
-  return (
-    <div>
-      <label className="mono" style={{display:"block", fontSize:11, opacity:.55, letterSpacing:".12em", textTransform:"uppercase", marginBottom:8}}>
-        {label}{required && <span style={{color:"var(--terra)", marginLeft:6}}>*</span>}
-      </label>
-      <input type={type} value={value} required={required} placeholder={placeholder}
-        onChange={(e)=>onChange(e.target.value)}
-        style={{
-          width:"100%", background:"transparent", border:"none",
-          borderBottom:"1px solid var(--line-strong)", color:"var(--cream)",
-          fontSize:18, fontFamily:"'Bodoni Moda',serif", fontWeight:500,
-          padding:"10px 0 12px", outline:"none",
-        }}
-        onFocus={e=>e.target.style.borderBottomColor="var(--cream)"}
-        onBlur={e=>e.target.style.borderBottomColor="var(--line-strong)"}
-      />
-    </div>
-  );
-}
-
-function FormTextarea({label, value, onChange, placeholder}) {
-  return (
-    <div>
-      <label className="mono" style={{display:"block", fontSize:11, opacity:.55, letterSpacing:".12em", textTransform:"uppercase", marginBottom:8}}>{label}</label>
-      <textarea value={value} placeholder={placeholder} rows={3} onChange={(e)=>onChange(e.target.value)}
-        style={{
-          width:"100%", background:"transparent", resize:"vertical", border:"none",
-          borderBottom:"1px solid var(--line-strong)", color:"var(--cream)",
-          fontSize:15, fontFamily:"'Inter',sans-serif", fontWeight:400,
-          padding:"10px 0 12px", outline:"none", lineHeight:1.5,
-        }}
-        onFocus={e=>e.target.style.borderBottomColor="var(--cream)"}
-        onBlur={e=>e.target.style.borderBottomColor="var(--line-strong)"}
-      />
-    </div>
-  );
-}
-Object.assign(window, { CTA, FormField, FormTextarea });
-</script>
-
-<!-- Footer (includes FAQ) -->
-<script type="text/babel">
-function Footer() {
-  const [open, setOpen] = React.useState(-1);
-  const faqs = [
-    {q:"¿Cuánto tiempo toma una cápsula?", a:"Desde brief firmado, 14 a 21 días. Día 7 sale el envío, día 14 ya tienes el primer UGC, día 21 recibes reporte completo."},
-    {q:"¿En qué países pueden hacer envíos?", a:"Hoy operamos en Chile, Argentina, México y Colombia. Si necesitas otra geografía, escríbenos y cotizamos según logística."},
-    {q:"¿Qué pasa si un creador no publica?", a:"Tenemos un acuerdo de entregable con cada uno. Si no publica, lo reemplazamos sin costo o ajustamos el reporte. Solo cobramos por contenido entregado."},
-    {q:"¿Puedo usar el UGC en mis ads?", a:"Sí. Negociamos derechos de uso con cada creador al momento del seeding. Te entregamos la licencia firmada junto al material."},
-    {q:"¿Tienen mínimo de campaña?", a:"El plan Seed parte con 30 creadores / mes. Bajo eso, no logramos masa crítica para que la viralidad despegue."},
-  ];
-
-  return (
-    <>
-      <section id="faq" style={{padding:"140px 0 100px", background:"var(--wine)"}}>
-        <div className="container">
-          <div style={{display:"grid", gridTemplateColumns:"1fr 1.4fr", gap:80, alignItems:"start"}} className="faq-grid">
-            <div style={{position:"sticky", top:120}}>
-              <div className="mono" style={{fontSize:11, opacity:.55, letterSpacing:".18em", textTransform:"uppercase", marginBottom:18}}>07 — FAQ</div>
-              <h2 className="serif" style={{
-                fontSize:"clamp(40px, 5vw, 76px)", lineHeight:1.0, fontWeight:700,
-                letterSpacing:"-.025em", maxWidth:"12ch",
-              }}>
-                Lo que <em style={{color:"var(--cream-paper)"}}>siempre</em> preguntan.
-              </h2>
-              <p style={{marginTop:24, fontSize:15, opacity:.7, maxWidth:340, lineHeight:1.55}}>
-                ¿No está aquí? Escríbenos a hola@seedings.cl — respondemos rápido, prometido.
-              </p>
-            </div>
-            <div>
-              {faqs.map((f,i)=>{
-                const isOpen = open===i;
-                return (
-                  <div key={i} style={{
-                    borderTop: i===0 ? "1px solid var(--line-strong)" : "none",
-                    borderBottom:"1px solid var(--line-strong)",
-                  }}>
-                    <button onClick={()=>setOpen(isOpen ? -1 : i)} style={{
-                      width:"100%", background:"transparent", border:"none", color:"var(--cream)",
-                      padding:"28px 0", display:"flex", justifyContent:"space-between", alignItems:"center",
-                      cursor:"pointer", textAlign:"left",
-                    }}>
-                      <span className="serif" style={{
-                        fontSize:"clamp(20px, 2.2vw, 28px)", fontWeight:700,
-                        fontStyle: isOpen ? "italic" : "normal",
-                        color: isOpen ? "var(--cream-paper)" : "var(--cream)",
-                        letterSpacing:"-.015em", lineHeight:1.2, transition:"all .2s",
-                      }}>{f.q}</span>
-                      <span style={{
-                        fontFamily:"'Bodoni Moda',serif", fontStyle:"italic", fontWeight:700,
-                        fontSize:28, transform: isOpen ? "rotate(45deg)" : "rotate(0)",
-                        transition:"transform .25s ease", flexShrink:0, marginLeft:24,
-                        color: isOpen ? "var(--terra)" : "var(--cream)",
-                      }}>+</span>
-                    </button>
-                    <div style={{
-                      maxHeight: isOpen ? 200 : 0, overflow:"hidden",
-                      transition:"max-height .35s ease, padding .35s ease, opacity .35s ease",
-                      opacity: isOpen ? 1 : 0, paddingBottom: isOpen ? 28 : 0,
-                    }}>
-                      <p style={{fontSize:16, lineHeight:1.6, opacity:.78, maxWidth:560}}>{f.a}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        <style>{`
-          @media(max-width:880px){
-            .faq-grid{grid-template-columns:1fr !important; gap:48px !important}
-            .faq-grid > div:first-child{position:static !important}
-          }
-        `}</style>
-      </section>
-
-      <footer style={{background:"var(--wine-deep)", paddingTop:80, overflow:"hidden"}}>
-        <div className="container">
-          <div style={{
-            display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:48,
-            paddingBottom:60, borderBottom:"1px solid var(--line)",
-          }} className="foot-cols">
-            <div style={{gridColumn:"span 2"}}>
-              <img src="assets/seedings-logo.png" alt="Seedings Lab" style={{height:80, width:"auto", display:"block"}}/>
-              <p style={{marginTop:24, fontSize:14, lineHeight:1.6, opacity:.7, maxWidth:380}}>
-                Lab de marketing y viralización. Sembramos marcas que florecen rápido.
-              </p>
-            </div>
-            <div>
-              <div className="mono" style={{fontSize:11, opacity:.5, letterSpacing:".14em", textTransform:"uppercase", marginBottom:18}}>Lab</div>
-              <ul style={{listStyle:"none", display:"flex", flexDirection:"column", gap:10, fontSize:14, opacity:.85}}>
-                <li><a href="#servicios">Servicios</a></li>
-                <li><a href="#proceso">Proceso</a></li>
-                <li><a href="#faq">FAQ</a></li>
-                <li><a href="#contacto">Contacto</a></li>
-              </ul>
-            </div>
-            <div>
-              <div className="mono" style={{fontSize:11, opacity:.5, letterSpacing:".14em", textTransform:"uppercase", marginBottom:18}}>Conecta</div>
-              <ul style={{listStyle:"none", display:"flex", flexDirection:"column", gap:10, fontSize:14, opacity:.85}}>
-                <li><a href="https://instagram.com/seedings.lab" target="_blank" rel="noopener">Instagram</a></li>
-                <li><a href="https://tiktok.com/@seedings.lab" target="_blank" rel="noopener">TikTok</a></li>
-                <li><a href="mailto:hola@seedings.cl">hola@seedings.cl</a></li>
-                <li><a href="https://wa.me/56987654321" target="_blank" rel="noopener">WhatsApp</a></li>
-              </ul>
-            </div>
-          </div>
-          <div style={{
-            padding:"32px 0 28px", display:"flex", justifyContent:"space-between", alignItems:"center",
-            fontSize:12, opacity:.6, flexWrap:"wrap", gap:16,
-          }}>
-            <span>© 2026 Seedings Lab · Santiago, Chile</span>
-            <span className="mono" style={{letterSpacing:".14em", textTransform:"uppercase"}}>marketing & viralización</span>
-            <span>Términos · Privacidad</span>
-          </div>
-        </div>
-        <div style={{paddingTop:32, paddingBottom:24, textAlign:"center", overflow:"hidden"}}>
-          <div className="serif" style={{
-            fontSize:"clamp(120px, 28vw, 460px)", lineHeight:.78, fontWeight:900, fontStyle:"italic",
-            letterSpacing:"-.06em", color:"var(--wine-soft)", whiteSpace:"nowrap",
-          }}>
-            Seedings<span style={{color:"var(--terra)"}}>.</span>
-          </div>
-        </div>
-        <style>{`
-          @media(max-width:880px){
-            .foot-cols{grid-template-columns:1fr 1fr !important}
-            .foot-cols > div:first-child{grid-column:span 2}
-          }
-        `}</style>
-      </footer>
-    </>
-  );
-}
-Object.assign(window, { Footer });
-</script>
-
-<!-- App -->
-<script type="text/babel">
-function App() {
-  const TWEAK_DEFAULTS = {
-    "palette": "wine",
-    "accent": "#A04A3B",
-    "showMarquee": true
-  };
-
-  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
-
-  React.useEffect(()=>{
-    const palettes = {
-      wine: { wine:"#3D1B1E", wineDeep:"#2A1214", wineSoft:"#4A2226", cream:"#EBE4CC", creamPaper:"#F2ECD7" },
-      warm: { wine:"#4A2620", wineDeep:"#321712", wineSoft:"#5A302A", cream:"#EFE6CB", creamPaper:"#F5EDD4" },
-      midnight: { wine:"#1F1F2A", wineDeep:"#13131C", wineSoft:"#2A2A38", cream:"#EBE4CC", creamPaper:"#F2ECD7" },
-      forest: { wine:"#1F2A22", wineDeep:"#131C16", wineSoft:"#2A382E", cream:"#EBE4CC", creamPaper:"#F2ECD7" },
-    };
-    const p = palettes[tweaks.palette] || palettes.wine;
-    const root = document.documentElement;
-    root.style.setProperty("--wine", p.wine);
-    root.style.setProperty("--wine-deep", p.wineDeep);
-    root.style.setProperty("--wine-soft", p.wineSoft);
-    root.style.setProperty("--cream", p.cream);
-    root.style.setProperty("--cream-paper", p.creamPaper);
-    root.style.setProperty("--terra", tweaks.accent || "#A04A3B");
-  }, [tweaks.palette, tweaks.accent]);
-
-  function scrollToContact() {
-    document.getElementById("contacto")?.scrollIntoView({behavior:"smooth", block:"start"});
-  }
-
-  return (
-    <>
-      <Nav onCTA={scrollToContact} />
-      <Hero />
-      {tweaks.showMarquee && <Marquee />}
-      <Manifesto />
-      <Servicios />
-      <Proceso />
-      <CTA />
-      <Footer />
-
-      <TweaksPanel>
-        <TweakSection label="Paleta" />
-        <TweakRadio
-          label="Tema"
-          value={tweaks.palette}
-          options={["wine","warm","midnight","forest"]}
-          onChange={v=>setTweak("palette", v)} />
-        <TweakColor
-          label="Acento"
-          value={tweaks.accent}
-          options={["#A04A3B","#C39D5B","#C97E6F","#8A6B3E"]}
-          onChange={v=>setTweak("accent", v)} />
-        <TweakSection label="Layout" />
-        <TweakToggle label="Mostrar marquee" value={tweaks.showMarquee} onChange={v=>setTweak("showMarquee", v)} />
-      </TweaksPanel>
-    </>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => { if (en.isIntersecting){ en.target.classList.add("visible"); io.unobserve(en.target); } });
+  }, {threshold:.12, rootMargin:"0px 0px -40px 0px"});
+  els.forEach(el => io.observe(el));
+})();
 </script>
 
 <script src="https://widgets.leadconnectorhq.com/loader.js" data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js" data-widget-id="69c6af0b54ae4edede180582"></script>
