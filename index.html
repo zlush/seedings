@@ -244,13 +244,20 @@
   .servicios{padding:clamp(96px,12vw,140px) 0}
   .serv-grid{margin-top:64px;display:grid;grid-template-columns:1fr 1.1fr;gap:64px;align-items:start}
   .serv-list{display:flex;flex-direction:column}
-  .serv-item{
-    background:transparent;border:none;text-align:left;cursor:pointer;color:var(--cream);
-    padding:26px 0;border-bottom:1px solid var(--line-strong);
-    display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:20px;
-    transition:padding-left .25s ease;
+  .serv-hint{
+    display:flex;align-items:center;gap:12px;
+    font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    opacity:.6;padding-bottom:16px;
   }
-  .serv-item:first-child{border-top:1px solid var(--line-strong)}
+  .serv-hint::before{content:"";width:26px;height:1px;background:var(--cream);opacity:.6;flex-shrink:0}
+  .serv-row{border-bottom:1px solid var(--line-strong)}
+  .serv-row:first-of-type{border-top:1px solid var(--line-strong)}
+  .serv-item{
+    width:100%;background:transparent;border:none;text-align:left;cursor:pointer;color:var(--cream);
+    padding:26px 12px 26px 0;
+    display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:20px;
+    transition:padding-left .25s ease,background .25s ease,box-shadow .25s ease;
+  }
   .serv-item .tag{font-size:12.5px;font-weight:600;letter-spacing:.14em;opacity:.55}
   .serv-item .name{
     font-family:'Fraunces',serif;font-size:clamp(24px,2.6vw,34px);font-weight:600;
@@ -260,10 +267,18 @@
     font-family:'Fraunces',serif;font-style:italic;font-size:22px;
     opacity:.35;transform:translateX(-8px);transition:all .25s ease;
   }
-  .serv-item[aria-selected="true"]{padding-left:22px}
-  .serv-item[aria-selected="true"] .tag{opacity:1}
+  .serv-item:hover{padding-left:12px;background:linear-gradient(90deg,rgba(237,227,200,.04),transparent 65%)}
+  .serv-item:hover .name{opacity:1}
+  .serv-item:hover .go{opacity:.65;transform:translateX(-3px)}
+  .serv-item[aria-selected="true"]{
+    padding-left:22px;
+    background:linear-gradient(90deg,rgba(237,227,200,.07),transparent 65%);
+    box-shadow:inset 3px 0 0 var(--terra);
+  }
+  .serv-item[aria-selected="true"] .tag{opacity:1;color:var(--terra)}
   .serv-item[aria-selected="true"] .name{font-style:italic;color:var(--cream-paper);opacity:1}
   .serv-item[aria-selected="true"] .go{opacity:1;transform:none;color:var(--terra)}
+  .serv-inline{display:none}
   .serv-card{
     position:sticky;top:110px;background:var(--wine-deep);
     border:1px solid var(--line);border-radius:8px;padding:clamp(28px,3.4vw,42px);
@@ -287,8 +302,17 @@
   .serv-stat-n{font-family:'Fraunces',serif;font-size:clamp(40px,4vw,52px);font-weight:600;line-height:.95;color:var(--cream-paper)}
   .serv-stat-l{font-size:12.5px;margin-top:8px;opacity:.7;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
   @media (max-width:980px){
-    .serv-grid{grid-template-columns:1fr;gap:40px}
-    .serv-card{position:static}
+    /* En móvil el detalle se abre como acordeón bajo el servicio elegido */
+    .serv-grid{grid-template-columns:1fr;gap:0;margin-top:48px}
+    .serv-card{display:none}
+    .serv-item{padding-top:22px;padding-bottom:22px}
+    .serv-row.open .serv-inline{display:block;padding:4px 0 26px}
+    .serv-panel{
+      background:var(--wine-deep);border:1px solid var(--line);
+      border-radius:8px;padding:26px 22px;
+    }
+    .serv-panel h3{font-size:clamp(26px,6.4vw,34px)}
+    .serv-panel .serv-stat-n{font-size:36px}
     .serv-includes{grid-template-columns:1fr}
   }
 
@@ -769,19 +793,8 @@ navMobile.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
   const card = document.getElementById("servCard");
   let active = 0;
 
-  function renderList(){
-    list.innerHTML = SERVICIOS.map((s,i) => `
-      <button class="serv-item" role="tab" id="serv-tab-${i}" aria-selected="${i===active}" aria-controls="servCard">
-        <span class="tag">${escapeHtml(s.tag)}</span>
-        <span class="name">${escapeHtml(s.title)}</span>
-        <span class="go" aria-hidden="true">→</span>
-      </button>`).join("");
-    list.querySelectorAll(".serv-item").forEach((btn,i) => btn.addEventListener("click", () => { active = i; renderList(); renderCard(); }));
-  }
-  function renderCard(){
-    const s = SERVICIOS[active];
-    card.setAttribute("aria-labelledby", `serv-tab-${active}`);
-    card.innerHTML = `
+  function cardHTML(s){
+    return `
       <div class="serv-card-top">
         <span class="label">${escapeHtml(s.tag)} / ${escapeHtml(s.kicker)}</span>
         <span class="label" style="opacity:.5">cápsula activa</span>
@@ -798,6 +811,24 @@ navMobile.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
         </div>
         <a class="btn btn-primary" href="#contacto" style="padding:14px 24px;font-size:14px">Cotizar campaña <span class="arrow">→</span></a>
       </div>`;
+  }
+
+  function renderList(){
+    list.innerHTML = `<div class="serv-hint">Selecciona una cápsula para ver el detalle</div>` +
+      SERVICIOS.map((s,i) => `
+      <div class="serv-row${i===active ? " open" : ""}">
+        <button class="serv-item" role="tab" id="serv-tab-${i}" aria-selected="${i===active}" aria-controls="servCard">
+          <span class="tag">${escapeHtml(s.tag)}</span>
+          <span class="name">${escapeHtml(s.title)}</span>
+          <span class="go" aria-hidden="true">→</span>
+        </button>
+        <div class="serv-inline">${i===active ? `<div class="serv-panel">${cardHTML(s)}</div>` : ""}</div>
+      </div>`).join("");
+    list.querySelectorAll(".serv-item").forEach((btn,i) => btn.addEventListener("click", () => { active = i; renderList(); renderCard(); }));
+  }
+  function renderCard(){
+    card.setAttribute("aria-labelledby", `serv-tab-${active}`);
+    card.innerHTML = cardHTML(SERVICIOS[active]);
   }
   renderList(); renderCard();
 })();
