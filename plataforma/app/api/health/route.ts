@@ -1,0 +1,14 @@
+import { NextResponse } from "next/server";
+import { ghlEnabled } from "@/lib/ghl.server";
+
+// Salud de la configuración (solo booleanos — nunca valores).
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    supabase: !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    meta: !!process.env.FB_APP_ID && !!process.env.FB_APP_SECRET,
+    ghl: ghlEnabled(),
+    cron: !!process.env.CRON_SECRET,
+    encryption: !!process.env.SECRET_ENCRYPTION_KEY,
+  });
+}
