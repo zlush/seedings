@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { PublicarBoton } from "./publicar-boton";
+import { SubirStory } from "./subir-story";
 
 export const dynamic = "force-dynamic";
 
@@ -192,6 +193,7 @@ export default async function CampanaPage() {
       {/* Acción principal */}
       <section className="mt-7">
         <PublicarBoton />
+        <SubirStory />
       </section>
 
       {/* Métricas — patrón hero-stats del sitio: numeral Fraunces sobre hairline */}
@@ -261,7 +263,20 @@ export default async function CampanaPage() {
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return <main className="mx-auto min-h-screen w-full max-w-lg px-6 py-12">{children}</main>;
+  return (
+    <main className="mx-auto min-h-screen w-full max-w-lg px-6 py-12">
+      {children}
+      <footer className="mt-12 border-t border-cream/15 pt-5 text-sm text-cream/50">
+        <Link href="/ajustes" className="underline underline-offset-4 hover:text-cream">
+          Ajustes · contraseña
+        </Link>
+        <span className="mx-2">·</span>
+        <Link href="/campanas" className="underline underline-offset-4 hover:text-cream">
+          Campañas abiertas
+        </Link>
+      </footer>
+    </main>
+  );
 }
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
