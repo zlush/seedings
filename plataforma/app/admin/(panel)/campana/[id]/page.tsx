@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/server";
 import { Invitar } from "./invitar";
+import { AsignarCreador, RevisarPostulacion } from "./postulaciones";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,9 @@ export default async function CampanaDetalle({
     .eq("campaign_id", id)
     .order("created_at", { ascending: false });
 
-  const rows = assignments ?? [];
+  const all = assignments ?? [];
+  const applied = all.filter((r) => r.status === "applied");
+  const rows = all.filter((r) => !["applied", "rejected"].includes(r.status));
   const total = rows.length;
   const publicados = rows.filter((r) => ["published", "metrics_ready"].includes(r.status)).length;
 
@@ -67,6 +70,34 @@ export default async function CampanaDetalle({
       )}
 
       <Invitar campaignId={campaign.id} />
+      <AsignarCreador campaignId={campaign.id} />
+
+      {/* Postulaciones pendientes */}
+      {applied.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-gold">
+            Postulaciones ({applied.length})
+          </h2>
+          <div className="mt-4 flex flex-col gap-3">
+            {applied.map((r) => {
+              const creator = r.creators as unknown as { instagram_username: string | null } | null;
+              return (
+                <div
+                  key={r.id}
+                  className="flex items-center justify-between rounded-md border border-gold/40 bg-gold/5 p-4"
+                >
+                  <p className="font-semibold">
+                    {creator?.instagram_username
+                      ? `@${creator.instagram_username}`
+                      : "Creador (sin IG conectado)"}
+                  </p>
+                  <RevisarPostulacion assignmentId={r.id} />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Creadores */}
       <section className="mt-8">

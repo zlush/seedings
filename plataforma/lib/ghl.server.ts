@@ -38,12 +38,13 @@ async function ghl<T = unknown>(
   method: string,
   path: string,
   body?: unknown,
+  version = "2021-07-28",
 ): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     method,
     headers: {
       Authorization: `Bearer ${process.env.GHL_API_TOKEN}`,
-      Version: "2021-07-28",
+      Version: version,
       Accept: "application/json",
       ...(body ? { "Content-Type": "application/json" } : {}),
     },
@@ -52,6 +53,20 @@ async function ghl<T = unknown>(
   const json = (await res.json().catch(() => ({}))) as T & { message?: string };
   if (!res.ok) throw new Error(`GHL ${method} ${path}: ${json?.message ?? res.status}`);
   return json;
+}
+
+// Envía un correo transaccional al contacto vía LeadConnector (dominio m.seedings.cl).
+export async function sendGhlEmail(
+  contactId: string,
+  subject: string,
+  html: string,
+): Promise<void> {
+  await ghl(
+    "POST",
+    "/conversations/messages",
+    { type: "Email", contactId, subject, html },
+    "2021-04-15",
+  );
 }
 
 // ---- Custom fields (cache de nombre → id) -----------------------------------

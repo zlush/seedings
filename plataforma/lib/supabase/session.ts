@@ -29,6 +29,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+  // /campana, /campanas y /onboarding requieren sesión ("/campana" cubre ambas).
   const isProtected = path.startsWith("/campana") || path.startsWith("/onboarding");
 
   if (!user && isProtected) {

@@ -15,12 +15,20 @@ export default function Home() {
         Conecta tu Instagram, revisa el brief de tu campaña y publica. Nosotros medimos tus
         Stories y le mostramos a la marca lo que lograste.
       </p>
-      <Link
-        href="/login"
-        className="mt-9 inline-flex items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
-      >
-        Entrar <span className="font-display italic">→</span>
-      </Link>
+      <div className="mt-9 flex flex-col gap-3">
+        <Link
+          href="/registro"
+          className="inline-flex items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
+        >
+          Únete a la red <span className="font-display italic">→</span>
+        </Link>
+        <Link
+          href="/login"
+          className="inline-flex items-center justify-center gap-2.5 rounded-full border border-cream/40 px-7 py-4 font-semibold text-cream transition hover:border-cream"
+        >
+          Ya tengo cuenta
+        </Link>
+      </div>
       <p className="mt-5 text-sm text-cream/60">
         ¿Recibiste una invitación? Abre el enlace que te enviamos por correo.
       </p>

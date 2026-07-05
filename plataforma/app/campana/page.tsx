@@ -57,6 +57,7 @@ export default async function CampanaPage() {
     .from("campaign_creators")
     .select("id, status, campaigns(name, brief, brief_images, deadline, brands:brand_id(name))")
     .eq("creator_id", creator.id)
+    .not("status", "in", "(rejected)")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -69,8 +70,37 @@ export default async function CampanaPage() {
           Aún nada sembrado
         </h1>
         <p className="mt-5 leading-relaxed text-cream/80">
-          No tienes una campaña asignada todavía. Cuando Seedings te sume a una, aparecerá aquí.
+          No tienes una campaña asignada todavía. Mira las campañas abiertas y postula.
         </p>
+        <Link
+          href="/campanas"
+          className="mt-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
+        >
+          Ver campañas abiertas <span className="font-display italic">→</span>
+        </Link>
+      </Shell>
+    );
+  }
+
+  // Postulación aún en revisión.
+  if (assignment.status === "applied") {
+    const applied = assignment.campaigns as unknown as { name: string } | null;
+    return (
+      <Shell>
+        <Eyebrow>Mi campaña</Eyebrow>
+        <h1 className="font-display mt-4 text-3xl font-semibold tracking-tight">
+          Postulación enviada
+        </h1>
+        <p className="mt-5 leading-relaxed text-cream/80">
+          Postulaste a <b className="text-paper">{applied?.name}</b>. El equipo de Seedings la
+          está revisando — te avisaremos apenas haya novedades.
+        </p>
+        <Link
+          href="/campanas"
+          className="mt-6 inline-flex items-center gap-2.5 font-semibold underline underline-offset-4"
+        >
+          Ver otras campañas <span className="font-display italic">→</span>
+        </Link>
       </Shell>
     );
   }
