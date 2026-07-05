@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* ============ Tokens de marca (mismos del sitio seedings.cl) ============ */
+@theme inline {
+  --color-wine: #3a1a1d;
+  --color-wine-deep: #291113;
+  --color-wine-soft: #4a2226;
+  --color-cream: #ede3c8;
+  --color-cream-warm: #e8ddc3;
+  --color-paper: #f5eedc;
+  --color-terra: #a8503f;
+  --color-gold: #c9a567;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+}
+
+body {
+  background: var(--color-wine);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-cream);
+  color: var(--color-wine);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
