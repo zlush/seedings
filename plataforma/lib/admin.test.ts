@@ -21,4 +21,12 @@ describe("isAdmin", () => {
     expect(isAdmin(undefined)).toBe(false);
     expect(isAdmin("")).toBe(false);
   });
+
+  it("sin ADMIN_EMAILS usa el equipo por defecto", () => {
+    delete process.env.ADMIN_EMAILS;
+    expect(isAdmin("alfredo@seedings.cl")).toBe(true);
+    expect(isAdmin("andrea@seedings.cl")).toBe(true);
+    expect(isAdmin("fernanda@seedings.cl")).toBe(true);
+    expect(isAdmin("random@gmail.com")).toBe(false);
+  });
 });
