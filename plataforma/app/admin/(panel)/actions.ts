@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
+import { ghlEnabled, pushInviteToGhl, GHL_INVITE_TAG } from "@/lib/ghl.server";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -51,7 +52,7 @@ export async function createCampaign(formData: FormData) {
 export async function createInviteLink(
   campaignId: string,
   email: string,
-): Promise<{ link?: string; error?: string }> {
+): Promise<{ link?: string; error?: string; ghl?: string }> {
   await requireAdmin();
   const clean = email.trim().toLowerCase();
   if (!clean) return { error: "Falta el correo." };
@@ -75,7 +76,19 @@ export async function createInviteLink(
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://seedings-app.vercel.app";
   const next = encodeURIComponent(`/invitacion/${token}`);
   const link = `${base}/auth/confirm?token_hash=${data.properties.hashed_token}&type=magiclink&next=${next}`;
-  return { link };
+
+  // Sincronizar al CRM (best-effort): link en el contacto + tag para el workflow de envío.
+  let ghl: string | undefined;
+  if (ghlEnabled()) {
+    try {
+      await pushInviteToGhl(clean, link);
+      ghl = `Guardado en el CRM con el tag "${GHL_INVITE_TAG}".`;
+    } catch (e) {
+      ghl = `CRM no sincronizado: ${e instanceof Error ? e.message : "error"}`;
+    }
+  }
+
+  return { link, ghl };
 }
 
 // Cambia la contraseña del admin actual.

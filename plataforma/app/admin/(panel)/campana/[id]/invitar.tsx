@@ -6,6 +6,7 @@ import { createInviteLink } from "../../actions";
 export function Invitar({ campaignId }: { campaignId: string }) {
   const [email, setEmail] = useState("");
   const [link, setLink] = useState("");
+  const [ghl, setGhl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -15,10 +16,14 @@ export function Invitar({ campaignId }: { campaignId: string }) {
     setLoading(true);
     setError("");
     setLink("");
+    setGhl("");
     const res = await createInviteLink(campaignId, email);
     setLoading(false);
     if (res.error) setError(res.error);
-    else if (res.link) setLink(res.link);
+    else if (res.link) {
+      setLink(res.link);
+      setGhl(res.ghl ?? "");
+    }
   }
 
   function copiar() {
@@ -77,6 +82,7 @@ export function Invitar({ campaignId }: { campaignId: string }) {
               Enviar por WhatsApp
             </a>
           </div>
+          {ghl && <p className="mt-3 text-xs text-cream/60">CRM · {ghl}</p>}
         </div>
       )}
     </section>

@@ -2,6 +2,8 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
 import { decrypt } from "@/lib/crypto";
 import { graphGet, flattenInsights, storyBackupFilename, STORY_METRICS, type InsightEntry } from "@/lib/graph";
+import { computeCampaignTotals } from "@/lib/ghl";
+import { ghlEnabled, pushMetricsToGhl } from "@/lib/ghl.server";
 
 type IgStory = {
   id: string;
@@ -24,6 +26,7 @@ export async function captureStoriesForCreator(creator: {
   id: string;
   ig_user_id: string;
   page_token_encrypted: string;
+  user_id?: string;
 }): Promise<CaptureResult> {
   const db = createAdminClient();
   const token = decrypt(creator.page_token_encrypted);
@@ -123,6 +126,24 @@ export async function captureStoriesForCreator(creator: {
   // Si capturamos al menos una Story, la asignación pasa a 'published'.
   if (result.found > 0 && ["pending", "shipped"].includes(assignment.status)) {
     await db.from("campaign_creators").update({ status: "published" }).eq("id", assignment.id);
+  }
+
+  // Sync al CRM (best-effort): totales al contacto + mover oportunidad.
+  if (result.found > 0 && ghlEnabled() && creator.user_id) {
+    try {
+      const { data: user } = await db.auth.admin.getUserById(creator.user_id);
+      const email = user?.user?.email;
+      if (email) {
+        const { data: withMetrics } = await db
+          .from("stories")
+          .select("story_metrics(reach, total_interactions, snapshot_at)")
+          .eq("campaign_creator_id", assignment.id);
+        const totals = computeCampaignTotals(withMetrics ?? []);
+        await pushMetricsToGhl(email, totals);
+      }
+    } catch (e) {
+      result.errors.push(`ghl: ${e instanceof Error ? e.message : "sync falló"}`);
+    }
   }
 
   return result;
