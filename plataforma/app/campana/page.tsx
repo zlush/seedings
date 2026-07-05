@@ -212,7 +212,10 @@ export default async function CampanaPage() {
                   ))}
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-cream/60">Aún sin métricas.</p>
+                <p className="mt-3 text-sm leading-relaxed text-cream/60">
+                  Instagram aún no libera las métricas de esta Story — las muestra cuando tiene
+                  suficientes visualizaciones. Se actualizará solo mientras esté activa.
+                </p>
               )}
             </div>
           );

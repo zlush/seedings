@@ -29,6 +29,12 @@ export function PublicarBoton() {
           kind: "warn",
           text: "No encontramos Stories vivas en tu cuenta. Publica tu Story en Instagram y vuelve a tocar el botón.",
         });
+      } else if ((data.snapshots ?? 0) === 0) {
+        setMsg({
+          kind: "warn",
+          text: `Detectamos ${data.found} Story(s) y las guardamos. Instagram libera las métricas cuando tu Story tenga suficientes visualizaciones — las capturaremos solos cada pocas horas.`,
+        });
+        router.refresh();
       } else {
         setMsg({
           kind: "ok",
