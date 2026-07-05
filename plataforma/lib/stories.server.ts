@@ -5,7 +5,14 @@ import { graphGet, flattenInsights, storyBackupFilename, STORY_METRICS, type Ins
 import { computeCampaignTotals } from "@/lib/ghl";
 import { ghlEnabled, pushMetricsToGhl } from "@/lib/ghl.server";
 
-type IgStory = {
+type Creator = {
+  id: string;
+  ig_user_id: string;
+  page_token_encrypted: string;
+  user_id?: string;
+};
+
+export type IgStory = {
   id: string;
   media_type: string;
   media_url?: string;
@@ -20,14 +27,23 @@ export type CaptureResult = {
   errors: string[];
 };
 
-// Lee las Stories vivas del creador, respalda la media y guarda snapshot de métricas.
-// Idempotente: Stories ya conocidas solo reciben un snapshot nuevo.
-export async function captureStoriesForCreator(creator: {
-  id: string;
-  ig_user_id: string;
-  page_token_encrypted: string;
-  user_id?: string;
-}): Promise<CaptureResult> {
+// Lista las Stories vivas del creador (para que elija cuál es la de la campaña).
+export async function listLiveStories(creator: Creator): Promise<IgStory[]> {
+  const token = decrypt(creator.page_token_encrypted);
+  const live = await graphGet<{ data: IgStory[] }>(`/${creator.ig_user_id}/stories`, {
+    access_token: token,
+    fields: "id,media_type,media_url,permalink,timestamp",
+  });
+  return live.data ?? [];
+}
+
+// Captura Stories específicas: respalda media y guarda snapshot de métricas.
+// - onlyStoryIds: solo estas (selección del creador).
+// - onlyKnown: solo Stories que YA registramos (para el cron: refresca, no descubre).
+export async function captureStoriesForCreator(
+  creator: Creator,
+  opts: { onlyStoryIds?: string[]; onlyKnown?: boolean } = {},
+): Promise<CaptureResult> {
   const db = createAdminClient();
   const token = decrypt(creator.page_token_encrypted);
   const result: CaptureResult = { found: 0, new: 0, snapshots: 0, errors: [] };
@@ -46,16 +62,24 @@ export async function captureStoriesForCreator(creator: {
   }
 
   // Stories vivas en Instagram.
-  const live = await graphGet<{ data: IgStory[] }>(`/${creator.ig_user_id}/stories`, {
-    access_token: token,
-    fields: "id,media_type,media_url,permalink,timestamp",
-  });
-  const items = live.data ?? [];
+  let items = await listLiveStories(creator);
+
+  // Filtrado según el modo.
+  if (opts.onlyStoryIds) {
+    const set = new Set(opts.onlyStoryIds);
+    items = items.filter((s) => set.has(s.id));
+  } else if (opts.onlyKnown) {
+    const { data: known } = await db
+      .from("stories")
+      .select("ig_media_id")
+      .eq("campaign_creator_id", assignment.id);
+    const set = new Set((known ?? []).map((k) => k.ig_media_id));
+    items = items.filter((s) => set.has(s.id));
+  }
   result.found = items.length;
 
   for (const s of items) {
     try {
-      // ¿Ya la conocemos?
       const { data: existing } = await db
         .from("stories")
         .select("id")

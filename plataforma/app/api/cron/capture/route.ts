@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
   const captures: Record<string, unknown> = {};
   for (const [id, creator] of creators) {
     try {
-      captures[id] = await captureStoriesForCreator(creator);
+      // El cron solo refresca métricas de Stories ya elegidas, no descubre nuevas.
+      captures[id] = await captureStoriesForCreator(creator, { onlyKnown: true });
     } catch (e) {
       captures[id] = { error: e instanceof Error ? e.message : "error" };
     }
