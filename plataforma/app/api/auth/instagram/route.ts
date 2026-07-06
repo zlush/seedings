@@ -2,12 +2,13 @@ import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
 
 const API_VERSION = "v23.0";
+// Solo los 4 permisos imprescindibles — menos permisos = App Review más simple.
+// (business_management se quitó: no es necesario para leer stories vía página.)
 const SCOPES = [
   "instagram_basic",
   "instagram_manage_insights",
   "pages_show_list",
   "pages_read_engagement",
-  "business_management",
 ].join(",");
 
 // Inicia el OAuth de Facebook Login para conectar Instagram.
