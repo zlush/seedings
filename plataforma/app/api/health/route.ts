@@ -10,5 +10,6 @@ export async function GET() {
     ghl: ghlEnabled(),
     cron: !!process.env.CRON_SECRET,
     encryption: !!process.env.SECRET_ENCRYPTION_KEY,
+    push: !!process.env.VAPID_PRIVATE_KEY,
   });
 }
