@@ -12,6 +12,7 @@ export async function GET() {
     cron: !!process.env.CRON_SECRET,
     encryption: !!process.env.SECRET_ENCRYPTION_KEY,
     push: !!process.env.VAPID_PRIVATE_KEY,
+    igLogin: !!process.env.INSTAGRAM_APP_SECRET,
     site: siteUrl(),
   });
 }
