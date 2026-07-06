@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ghlEnabled, findContactByEmail } from "@/lib/ghl.server";
 import { RegistroBoton } from "./registro-boton";
+import { LogoutButton } from "../logout-button";
 
 export const dynamic = "force-dynamic";
 
@@ -80,6 +81,9 @@ export default async function OnboardingPage({
         <div className="mt-6">
           <RegistroBoton />
         </div>
+        <p className="mt-6 text-sm text-cream/50">
+          ¿No eres tú ({user?.email})? <LogoutButton />
+        </p>
       </main>
     );
   }
@@ -137,6 +141,9 @@ export default async function OnboardingPage({
           </p>
         </>
       )}
+      <p className="mt-8 text-sm text-cream/50">
+        ¿No eres tú ({user?.email})? <LogoutButton />
+      </p>
     </main>
   );
 }

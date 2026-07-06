@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { PublicarBoton } from "./publicar-boton";
 import { SubirStory } from "./subir-story";
 import { ActivarAvisos } from "./activar-avisos";
+import { LogoutButton } from "../logout-button";
 
 export const dynamic = "force-dynamic";
 
@@ -276,6 +277,8 @@ function Shell({ children }: { children: React.ReactNode }) {
         <Link href="/campanas" className="underline underline-offset-4 hover:text-cream">
           Campañas abiertas
         </Link>
+        <span className="mx-2">·</span>
+        <LogoutButton />
       </footer>
     </main>
   );
