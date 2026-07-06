@@ -27,7 +27,13 @@ export function SubirStory() {
   const [media, setMedia] = useState<File | null>(null);
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [publishedAt, setPublishedAt] = useState("");
-  const [metrics, setMetrics] = useState({ reach: "", replies: "", total_interactions: "", shares: "" });
+  const [metrics, setMetrics] = useState({
+    reach: "",
+    views: "",
+    replies: "",
+    total_interactions: "",
+    shares: "",
+  });
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -128,8 +134,9 @@ export function SubirStory() {
         {(
           [
             ["reach", "Alcance"],
-            ["replies", "Respuestas"],
+            ["views", "Reproducciones"],
             ["total_interactions", "Interacciones"],
+            ["replies", "Respuestas"],
             ["shares", "Compartidas"],
           ] as const
         ).map(([key, label]) => (

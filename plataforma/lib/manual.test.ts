@@ -27,6 +27,10 @@ describe("parseManualMetrics", () => {
     });
   });
 
+  it("acepta reproducciones (views)", () => {
+    expect(parseManualMetrics({ views: "2657" })).toEqual({ views: 2657 });
+  });
+
   it("rechaza negativos y basura", () => {
     expect(parseManualMetrics({ reach: "-5", replies: "abc" })).toEqual({});
   });

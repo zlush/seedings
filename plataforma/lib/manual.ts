@@ -11,7 +11,13 @@ export function allowedUploadMime(mime: string): boolean {
   return VIDEO_MIMES.has(mime) || IMAGE_MIMES.has(mime);
 }
 
-export const MANUAL_METRIC_KEYS = ["reach", "replies", "total_interactions", "shares"] as const;
+export const MANUAL_METRIC_KEYS = [
+  "reach",
+  "replies",
+  "total_interactions",
+  "shares",
+  "views",
+] as const;
 
 // Convierte los campos de texto del formulario a números válidos (omite vacíos/basura).
 export function parseManualMetrics(

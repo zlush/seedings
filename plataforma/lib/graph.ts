@@ -10,6 +10,7 @@ export const STORY_METRICS = [
   "follows",
   "profile_visits",
   "shares",
+  "views",
 ] as const;
 
 export type StoryMetrics = Record<(typeof STORY_METRICS)[number], number>;

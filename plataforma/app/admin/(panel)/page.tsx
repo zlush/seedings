@@ -20,7 +20,15 @@ export default async function AdminHome() {
 
   return (
     <>
-      <h1 className="font-display mt-8 text-3xl font-semibold tracking-tight">Campañas</h1>
+      <div className="mt-8 flex items-end justify-between">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Campañas</h1>
+        <Link
+          href="/admin/reporte"
+          className="rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold transition hover:border-cream"
+        >
+          Reporte en vivo →
+        </Link>
+      </div>
 
       {/* Lista */}
       <div className="mt-6 flex flex-col gap-3">

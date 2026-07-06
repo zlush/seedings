@@ -9,10 +9,11 @@ const apiResponse = [
   { name: "follows", period: "lifetime", values: [{ value: 1 }] },
   { name: "profile_visits", period: "lifetime", values: [{ value: 4 }] },
   { name: "shares", period: "lifetime", values: [{ value: 2 }] },
+  { name: "views", period: "lifetime", values: [{ value: 210 }] },
 ];
 
 describe("flattenInsights", () => {
-  it("mapea la respuesta del API al shape de story_metrics", () => {
+  it("mapea la respuesta del API al shape de story_metrics (con reproducciones)", () => {
     expect(flattenInsights(apiResponse)).toEqual({
       reach: 152,
       replies: 3,
@@ -20,6 +21,7 @@ describe("flattenInsights", () => {
       follows: 1,
       profile_visits: 4,
       shares: 2,
+      views: 210,
     });
   });
 
@@ -32,6 +34,7 @@ describe("flattenInsights", () => {
       follows: 0,
       profile_visits: 0,
       shares: 0,
+      views: 0,
     });
   });
 

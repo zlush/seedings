@@ -14,11 +14,11 @@ const PIPELINE = [
 
 const METRIC_LABELS: Record<string, string> = {
   reach: "Alcance",
-  replies: "Respuestas",
+  views: "Reproducciones",
   total_interactions: "Interacciones",
-  follows: "Seguidores",
-  profile_visits: "Visitas perfil",
+  replies: "Respuestas",
   shares: "Compartidas",
+  profile_visits: "Visitas perfil",
 };
 
 export default async function CampanaPage() {
@@ -125,7 +125,7 @@ export default async function CampanaPage() {
   // Stories capturadas + último snapshot de métricas de cada una.
   const { data: stories } = await supabase
     .from("stories")
-    .select("id, permalink, media_type, published_at, story_metrics(reach, replies, total_interactions, follows, profile_visits, shares, snapshot_at)")
+    .select("id, permalink, media_type, published_at, story_metrics(reach, replies, total_interactions, follows, profile_visits, shares, views, snapshot_at)")
     .eq("campaign_creator_id", assignment.id)
     .order("published_at", { ascending: false });
 
