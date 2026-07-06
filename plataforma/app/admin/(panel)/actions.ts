@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
 import { ghlEnabled, pushInviteToGhl, sendGhlEmail } from "@/lib/ghl.server";
+import { sendPushToUsers, pushEnabled } from "@/lib/push.server";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -131,6 +132,38 @@ export async function assignCreator(
     );
   revalidatePath(`/admin/campana/${campaignId}`);
   return { ok: true };
+}
+
+// Envía un recordatorio push a los creadores activos de la campaña.
+export async function sendReminder(
+  campaignId: string,
+): Promise<{ sent?: number; error?: string }> {
+  await requireAdmin();
+  if (!pushEnabled()) return { error: "Push no configurado (falta VAPID_PRIVATE_KEY)." };
+
+  const db = createAdminClient();
+  const { data: campaign } = await db
+    .from("campaigns")
+    .select("name")
+    .eq("id", campaignId)
+    .maybeSingle();
+
+  const { data: assignments } = await db
+    .from("campaign_creators")
+    .select("status, creators(user_id)")
+    .eq("campaign_id", campaignId)
+    .in("status", ["pending", "shipped", "published"]);
+
+  const userIds = (assignments ?? [])
+    .map((a) => (a.creators as unknown as { user_id: string } | null)?.user_id)
+    .filter((id): id is string => !!id);
+
+  const sent = await sendPushToUsers(userIds, {
+    title: "Seedings 🌱",
+    body: `Recuerda tu Story de "${campaign?.name ?? "tu campaña"}" — entra y súbela.`,
+    url: "/campana",
+  });
+  return { sent };
 }
 
 // Aprueba o rechaza una postulación.

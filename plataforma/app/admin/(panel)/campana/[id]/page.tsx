@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/server";
 import { Invitar } from "./invitar";
 import { AsignarCreador, RevisarPostulacion } from "./postulaciones";
+import { Recordatorio } from "./recordatorio";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +72,7 @@ export default async function CampanaDetalle({
 
       <Invitar campaignId={campaign.id} />
       <AsignarCreador campaignId={campaign.id} />
+      <Recordatorio campaignId={campaign.id} />
 
       {/* Postulaciones pendientes */}
       {applied.length > 0 && (

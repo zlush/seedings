@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import { SwRegister } from "./sw-register";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -16,6 +17,18 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Seedings — Creadores",
   description: "Plataforma de creadores de Seedings Lab.",
+  appleWebApp: {
+    capable: true,
+    title: "Seedings",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    apple: "/icons/icon-192.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#3A1A1D",
 };
 
 export default function RootLayout({
@@ -26,6 +39,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${fraunces.variable} ${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <SwRegister />
         {children}
       </body>
     </html>

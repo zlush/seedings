@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { PublicarBoton } from "./publicar-boton";
 import { SubirStory } from "./subir-story";
+import { ActivarAvisos } from "./activar-avisos";
 
 export const dynamic = "force-dynamic";
 
@@ -194,6 +195,7 @@ export default async function CampanaPage() {
       <section className="mt-7">
         <PublicarBoton />
         <SubirStory />
+        <ActivarAvisos />
       </section>
 
       {/* Métricas — patrón hero-stats del sitio: numeral Fraunces sobre hairline */}
