@@ -14,6 +14,10 @@ const ERRORS: Record<string, string> = {
   "no-ig": "No encontramos una cuenta de Instagram profesional vinculada a una página de Facebook. Convierte tu cuenta a Business/Creator y conéctala a una página, luego reintenta.",
   save: "No pudimos guardar la conexión. Reintenta.",
   graph: "Instagram rechazó la conexión. Reintenta.",
+  "ig-denied": "Cancelaste la conexión con Instagram. Cuando quieras, reintenta.",
+  "ig-token": "Instagram no aceptó la conexión. Reintenta en un momento.",
+  "ig-profile": "No pudimos leer tu perfil de Instagram. Reintenta.",
+  "ig-config": "La conexión con Instagram no está configurada todavía. Avísanos por WhatsApp.",
 };
 
 export default async function OnboardingPage({
@@ -88,59 +92,107 @@ export default async function OnboardingPage({
     );
   }
 
-  // ---- Paso 2 · Conectar Instagram ----------------------------------------------
+  // ---- Paso 2 · Conecta tus redes -------------------------------------------------
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6">
-      <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
-        Paso 2 de 2 · Conexión
+      {/* Barra de progreso */}
+      <div className="h-[3px] w-full rounded-full bg-cream/15">
+        <div className="h-[3px] w-[85%] rounded-full bg-terra" />
+      </div>
+      <p className="mt-5 text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
+        Paso 2 de 2
       </p>
-      <h1 className="font-display mt-4 text-3xl font-semibold tracking-tight">
-        Conecta tu Instagram
+      <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight">
+        Conecta tus redes sociales
       </h1>
+      <p className="mt-3 leading-relaxed text-cream/70">
+        Vincula tus cuentas para que midamos tus Stories automáticamente. Entras con tu clave de
+        Instagram — nosotros nunca la vemos.
+      </p>
 
-      {isConnected ? (
-        <>
-          <div className="mt-7 flex items-center gap-3 rounded-md border border-gold/50 bg-gold/10 p-5">
-            <span className="inline-block h-[7px] w-[7px] flex-shrink-0 rounded-full bg-gold" />
-            <p>
-              Conectado como <b className="text-paper">@{creator!.instagram_username}</b>
-            </p>
-          </div>
-          <Link
-            href="/campana"
-            className="mt-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
+      {connected && !isConnected && (
+        <p className="mt-5 rounded-md border border-gold/50 bg-gold/10 p-4 text-sm">
+          Se completó la autorización pero no quedó registrada. Reintenta.
+        </p>
+      )}
+      {error && ERRORS[error] && (
+        <p className="mt-5 rounded-md border border-terra/60 bg-terra/15 p-4 text-sm leading-relaxed">
+          {ERRORS[error]}
+        </p>
+      )}
+
+      {/* Card Instagram */}
+      <div className="mt-7 flex items-center gap-4 rounded-md border border-cream/20 bg-wine-deep/50 p-5">
+        <span className="text-3xl" aria-hidden>
+          📸
+        </span>
+        <div className="flex-1">
+          <p className="font-semibold">Instagram</p>
+          <p className="text-sm text-cream/60">
+            {isConnected
+              ? `Conectado como @${creator!.instagram_username}`
+              : "Conecta tu cuenta de Instagram"}
+          </p>
+        </div>
+        {isConnected ? (
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gold text-lg font-bold text-wine">
+            ✓
+          </span>
+        ) : (
+          <a
+            href="/api/auth/ig"
+            className="rounded-full bg-cream px-5 py-2.5 text-sm font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
           >
-            Ir a mi campaña <span className="font-display italic">→</span>
-          </Link>
-        </>
+            Conectar
+          </a>
+        )}
+      </div>
+
+      {/* Card TikTok (próximamente) */}
+      <div className="mt-3 flex items-center gap-4 rounded-md border border-cream/10 bg-wine-deep/30 p-5 opacity-60">
+        <span className="text-3xl" aria-hidden>
+          🎵
+        </span>
+        <div className="flex-1">
+          <p className="font-semibold">TikTok</p>
+          <p className="text-sm text-cream/60">Conecta tu cuenta de TikTok</p>
+        </div>
+        <span className="rounded-full border border-cream/30 px-4 py-2 text-xs font-semibold text-cream/60">
+          Próximamente
+        </span>
+      </div>
+
+      {/* Siguiente / Omitir */}
+      {isConnected ? (
+        <Link
+          href="/campana"
+          className="mt-8 inline-flex items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
+        >
+          Siguiente <span className="font-display italic">→</span>
+        </Link>
       ) : (
         <>
-          <p className="mt-5 leading-relaxed text-cream/80">
-            Para medir tus Stories automáticamente necesitamos conectar tu cuenta profesional de
-            Instagram. No te pedimos tu contraseña — autorizas el acceso y puedes revocarlo cuando
-            quieras.
-          </p>
-          {connected && !isConnected && (
-            <p className="mt-5 rounded-md border border-gold/50 bg-gold/10 p-4 text-sm">
-              Se completó la autorización pero no quedó registrada. Reintenta.
-            </p>
-          )}
-          {error && ERRORS[error] && (
-            <p className="mt-5 rounded-md border border-terra/60 bg-terra/15 p-4 text-sm leading-relaxed">
-              {ERRORS[error]}
-            </p>
-          )}
-          <a
-            href="/api/auth/instagram"
-            className="mt-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
+          <span className="mt-8 inline-flex cursor-not-allowed items-center justify-center rounded-full bg-cream/20 px-7 py-4 font-semibold text-cream/40">
+            Siguiente
+          </span>
+          <Link
+            href="/campana"
+            className="mt-4 text-center text-sm text-cream/60 underline underline-offset-4 hover:text-cream"
           >
-            Conectar mi Instagram <span className="font-display italic">→</span>
-          </a>
-          <p className="mt-5 text-sm text-cream/60">
-            Requisito: cuenta Business o Creator, vinculada a una página de Facebook.
-          </p>
+            Omitir por ahora
+          </Link>
         </>
       )}
+
+      {!isConnected && (
+        <p className="mt-6 text-xs leading-relaxed text-cream/40">
+          ¿Tu cuenta está vinculada a una página de Facebook y prefieres ese camino?{" "}
+          <a href="/api/auth/instagram" className="underline underline-offset-4 hover:text-cream/70">
+            Conectar vía Facebook
+          </a>
+        </p>
+      )}
+
       <p className="mt-8 text-sm text-cream/50">
         ¿No eres tú ({user?.email})? <LogoutButton />
       </p>

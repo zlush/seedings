@@ -1,6 +1,9 @@
-// Helper para la Graph API de Facebook/Instagram (camino Facebook Login).
+// Helper para la Graph API de Meta. Dos hosts según cómo conectó el creador:
+// - graph.facebook.com  → camino Facebook Login (cuenta IG vía página de FB)
+// - graph.instagram.com → camino Instagram Login directo (sin Facebook)
 export const API_VERSION = "v23.0";
 export const GRAPH = `https://graph.facebook.com/${API_VERSION}`;
+export const IG_GRAPH = `https://graph.instagram.com/${API_VERSION}`;
 
 // Métricas válidas para media tipo STORY (post julio 2024; `impressions` obsoleto).
 export const STORY_METRICS = [
@@ -42,8 +45,9 @@ export function storyBackupFilename(
 export async function graphGet<T = unknown>(
   path: string,
   params: Record<string, string>,
+  host: string = GRAPH,
 ): Promise<T> {
-  const url = new URL(`${GRAPH}${path}`);
+  const url = new URL(`${host}${path}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
   const res = await fetch(url);
   const json = await res.json();

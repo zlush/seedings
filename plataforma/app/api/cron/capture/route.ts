@@ -24,11 +24,17 @@ export async function GET(request: NextRequest) {
   const { data: recent } = await db
     .from("stories")
     .select(
-      "campaign_creator_id, campaign_creators(creator_id, creators(id, user_id, ig_user_id, page_token_encrypted))",
+      "campaign_creator_id, campaign_creators(creator_id, creators(id, user_id, ig_user_id, page_token_encrypted, fb_page_id))",
     )
     .gte("published_at", windowStart);
 
-  type CreatorRow = { id: string; user_id: string; ig_user_id: string; page_token_encrypted: string };
+  type CreatorRow = {
+    id: string;
+    user_id: string;
+    ig_user_id: string;
+    page_token_encrypted: string;
+    fb_page_id: string | null;
+  };
   const creators = new Map<string, CreatorRow>();
   for (const row of recent ?? []) {
     const cc = row.campaign_creators as unknown as {

@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
 import { decrypt } from "@/lib/crypto";
-import { graphGet, flattenInsights, storyBackupFilename, STORY_METRICS, type InsightEntry } from "@/lib/graph";
+import { graphGet, flattenInsights, storyBackupFilename, STORY_METRICS, GRAPH, IG_GRAPH, type InsightEntry } from "@/lib/graph";
 import { computeCampaignTotals } from "@/lib/ghl";
 import { ghlEnabled, pushMetricsToGhl } from "@/lib/ghl.server";
 
@@ -10,7 +10,13 @@ type Creator = {
   ig_user_id: string;
   page_token_encrypted: string;
   user_id?: string;
+  fb_page_id?: string | null;
 };
+
+// fb_page_id presente → conectó vía Facebook Login; null → Instagram Login directo.
+function hostFor(creator: Creator): string {
+  return creator.fb_page_id ? GRAPH : IG_GRAPH;
+}
 
 export type IgStory = {
   id: string;
@@ -30,10 +36,14 @@ export type CaptureResult = {
 // Lista las Stories vivas del creador (para que elija cuál es la de la campaña).
 export async function listLiveStories(creator: Creator): Promise<IgStory[]> {
   const token = decrypt(creator.page_token_encrypted);
-  const live = await graphGet<{ data: IgStory[] }>(`/${creator.ig_user_id}/stories`, {
-    access_token: token,
-    fields: "id,media_type,media_url,permalink,timestamp",
-  });
+  const live = await graphGet<{ data: IgStory[] }>(
+    `/${creator.ig_user_id}/stories`,
+    {
+      access_token: token,
+      fields: "id,media_type,media_url,permalink,timestamp",
+    },
+    hostFor(creator),
+  );
   return live.data ?? [];
 }
 
@@ -130,10 +140,14 @@ export async function captureStoriesForCreator(
       }
 
       // Snapshot de métricas.
-      const ins = await graphGet<{ data: InsightEntry[] }>(`/${s.id}/insights`, {
-        access_token: token,
-        metric: STORY_METRICS.join(","),
-      });
+      const ins = await graphGet<{ data: InsightEntry[] }>(
+        `/${s.id}/insights`,
+        {
+          access_token: token,
+          metric: STORY_METRICS.join(","),
+        },
+        hostFor(creator),
+      );
       const flat = flattenInsights(ins.data ?? []);
       const { error: mErr } = await db.from("story_metrics").insert({
         story_id: storyId,

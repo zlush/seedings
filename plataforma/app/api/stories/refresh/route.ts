@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   const db = createAdminClient();
   const { data: creator } = await db
     .from("creators")
-    .select("id, user_id, ig_user_id, page_token_encrypted")
+    .select("id, user_id, ig_user_id, page_token_encrypted, fb_page_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
