@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ghlEnabled } from "@/lib/ghl.server";
+import { siteUrl } from "@/lib/site-url";
 
 // Salud de la configuración (solo booleanos — nunca valores).
 export async function GET() {
@@ -11,5 +12,6 @@ export async function GET() {
     cron: !!process.env.CRON_SECRET,
     encryption: !!process.env.SECRET_ENCRYPTION_KEY,
     push: !!process.env.VAPID_PRIVATE_KEY,
+    site: siteUrl(),
   });
 }

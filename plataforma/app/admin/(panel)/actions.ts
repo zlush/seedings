@@ -6,6 +6,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
 import { ghlEnabled, pushInviteToGhl, sendGhlEmail } from "@/lib/ghl.server";
 import { sendPushToUsers, pushEnabled } from "@/lib/push.server";
+import { siteUrl } from "@/lib/site-url";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -74,7 +75,7 @@ export async function createInviteLink(
   const { data, error } = await db.auth.admin.generateLink({ type: "magiclink", email: clean });
   if (error || !data.properties) return { error: error?.message ?? "No se pudo generar el link" };
 
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://seedings-app.vercel.app";
+  const base = siteUrl();
   const next = encodeURIComponent(`/invitacion/${token}`);
   const link = `${base}/auth/confirm?token_hash=${data.properties.hashed_token}&type=magiclink&next=${next}`;
 

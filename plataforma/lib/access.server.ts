@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
 import { ghlEnabled, upsertContactFields, sendGhlEmail } from "@/lib/ghl.server";
+import { siteUrl } from "@/lib/site-url";
 
 // ============================================================================
 // Acceso por correo SIN SMTP de Supabase: generamos el magic link nosotros
@@ -46,7 +47,7 @@ export async function sendAccessEmail(
   const { data, error } = await db.auth.admin.generateLink({ type: "magiclink", email: clean });
   if (error || !data.properties) return { error: "No pudimos generar tu acceso. Reintenta." };
 
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://seedings-app.vercel.app";
+  const base = siteUrl();
   const next = encodeURIComponent(opts.next ?? "/onboarding");
   const link = `${base}/auth/confirm?token_hash=${data.properties.hashed_token}&type=magiclink&next=${next}`;
 
