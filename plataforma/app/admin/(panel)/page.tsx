@@ -5,6 +5,12 @@ import { CambiarPassword } from "./cambiar-password";
 
 export const dynamic = "force-dynamic";
 
+async function brandConnection() {
+  const db = createAdminClient();
+  const { data } = await db.from("brand_accounts").select("username").limit(1).maybeSingle();
+  return data?.username ?? null;
+}
+
 const STATUS_LABEL: Record<string, string> = {
   active: "Activa",
   closed: "Cerrada",
@@ -18,6 +24,8 @@ export default async function AdminHome() {
     .select("id, name, status, deadline, brands:brand_id(name), campaign_creators(count)")
     .order("created_at", { ascending: false });
 
+  const brandUsername = await brandConnection();
+
   return (
     <>
       <div className="mt-8 flex items-end justify-between">
@@ -28,6 +36,33 @@ export default async function AdminHome() {
         >
           Reporte en vivo →
         </Link>
+      </div>
+
+      {/* Automatización por mención: cuenta de marca conectada */}
+      <div className="mt-5 flex items-center justify-between rounded-md border border-cream/20 bg-wine-deep/50 p-4">
+        <div>
+          <p className="text-[11px] uppercase tracking-[.14em] text-cream/60">
+            Captura por mención
+          </p>
+          <p className="mt-1 text-sm">
+            {brandUsername ? (
+              <>
+                Cuenta de marca conectada:{" "}
+                <b className="font-display text-paper">@{brandUsername}</b>
+              </>
+            ) : (
+              <span className="text-cream/70">
+                Conecta la cuenta de la marca para capturar stories que te etiqueten.
+              </span>
+            )}
+          </p>
+        </div>
+        <a
+          href="/api/auth/ig?brand=1"
+          className="shrink-0 rounded-full border border-cream/40 px-4 py-2 text-sm font-semibold transition hover:border-cream"
+        >
+          {brandUsername ? "Reconectar" : "Conectar marca"}
+        </a>
       </div>
 
       {/* Lista */}

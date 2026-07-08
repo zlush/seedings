@@ -13,6 +13,7 @@ export async function GET() {
     encryption: !!process.env.SECRET_ENCRYPTION_KEY,
     push: !!process.env.VAPID_PRIVATE_KEY,
     igLogin: !!process.env.INSTAGRAM_APP_SECRET,
+    webhook: !!process.env.IG_WEBHOOK_VERIFY_TOKEN,
     site: siteUrl(),
   });
 }

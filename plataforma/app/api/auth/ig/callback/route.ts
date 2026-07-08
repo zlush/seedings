@@ -59,8 +59,27 @@ export async function GET(request: NextRequest) {
     const igUserId = String(me.user_id ?? me.id ?? "");
     if (!igUserId) return back("ig-profile");
 
-    // 4) guardar (fb_page_id = null marca que es camino Instagram Login)
     const db = createAdminClient();
+    const expiresAt = new Date(Date.now() + expiresInSec * 1000).toISOString();
+
+    // Conexión de la cuenta de MARCA (@seedings.cl) → recibe las menciones.
+    if (request.cookies.get("ig_connect_brand")?.value === "1") {
+      const { error } = await db.from("brand_accounts").upsert(
+        {
+          ig_user_id: igUserId,
+          username: me.username ?? null,
+          token_encrypted: encrypt(token),
+          token_expires_at: expiresAt,
+        },
+        { onConflict: "ig_user_id" },
+      );
+      const res = NextResponse.redirect(`${origin}/admin?brand=${error ? "error" : "ok"}`);
+      res.cookies.delete("ig_biz_state");
+      res.cookies.delete("ig_connect_brand");
+      return res;
+    }
+
+    // Conexión de un CREADOR (fb_page_id = null marca camino Instagram Login).
     const { error } = await db.from("creators").upsert(
       {
         user_id: user.id,
@@ -68,7 +87,7 @@ export async function GET(request: NextRequest) {
         ig_user_id: igUserId,
         fb_page_id: null,
         page_token_encrypted: encrypt(token),
-        token_expires_at: new Date(Date.now() + expiresInSec * 1000).toISOString(),
+        token_expires_at: expiresAt,
       },
       { onConflict: "user_id" },
     );
