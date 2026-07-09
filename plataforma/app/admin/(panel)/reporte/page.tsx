@@ -1,19 +1,23 @@
 import Link from "next/link";
 import { fetchReportRows } from "@/lib/reporte.server";
+import { FilaToggle } from "./fila-toggle";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReportePage() {
   const rows = await fetchReportRows();
 
-  const totals = rows.reduce(
-    (acc, r) => ({
-      alcance: acc.alcance + r.alcance,
-      reproducciones: acc.reproducciones + r.reproducciones,
-      interacciones: acc.interacciones + r.interacciones,
-    }),
-    { alcance: 0, reproducciones: 0, interacciones: 0 },
-  );
+  // Los totales solo suman las historias incluidas.
+  const totals = rows
+    .filter((r) => !r.excluded)
+    .reduce(
+      (acc, r) => ({
+        alcance: acc.alcance + r.alcance,
+        reproducciones: acc.reproducciones + r.reproducciones,
+        interacciones: acc.interacciones + r.interacciones,
+      }),
+      { alcance: 0, reproducciones: 0, interacciones: 0 },
+    );
 
   const fmt = (n: number) => n.toLocaleString("es-CL");
 
@@ -59,7 +63,7 @@ export default async function ReportePage() {
         <table className="w-full min-w-[720px] text-sm">
           <thead>
             <tr className="border-b border-cream/20 bg-wine-deep/60 text-left">
-              {["Fecha", "Campaña", "Marca", "IG", "Alcance", "Reprod.", "Interac.", "Resp.", "Comp.", "Origen"].map(
+              {["Fecha", "Campaña", "Marca", "IG", "Alcance", "Reprod.", "Interac.", "Resp.", "Comp.", "Origen", "Reporte"].map(
                 (h) => (
                   <th
                     key={h}
@@ -72,8 +76,11 @@ export default async function ReportePage() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => (
-              <tr key={i} className="border-b border-cream/10 hover:bg-wine-deep/40">
+            {rows.map((r) => (
+              <tr
+                key={r.storyId}
+                className={`border-b border-cream/10 hover:bg-wine-deep/40 ${r.excluded ? "opacity-40" : ""}`}
+              >
                 <td className="px-3 py-2.5 whitespace-nowrap text-cream/70">{r.fecha}</td>
                 <td className="px-3 py-2.5">{r.campana}</td>
                 <td className="px-3 py-2.5 text-cream/70">{r.marca}</td>
@@ -92,11 +99,14 @@ export default async function ReportePage() {
                     {r.origen}
                   </span>
                 </td>
+                <td className="px-3 py-2.5">
+                  <FilaToggle storyId={r.storyId} excluded={r.excluded} />
+                </td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={10} className="px-3 py-8 text-center text-cream/50">
+                <td colSpan={11} className="px-3 py-8 text-center text-cream/50">
                   Aún no hay stories medidas. Aparecerán aquí en cuanto los creadores publiquen.
                 </td>
               </tr>

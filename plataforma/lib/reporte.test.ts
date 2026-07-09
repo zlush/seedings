@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { toCsv, type ReportRow } from "./reporte";
 
 const row: ReportRow = {
+  storyId: "s1",
+  excluded: false,
   fecha: "2026-07-05",
   campana: "Día de la madre",
   marca: "Spot Escence",

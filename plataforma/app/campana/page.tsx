@@ -70,14 +70,16 @@ export default async function CampanaPage() {
       <Shell>
         <Eyebrow>Mi campaña</Eyebrow>
         <h1 className="font-display mt-4 text-3xl font-semibold tracking-tight">
-          Aún nada sembrado
+          Instagram conectado ✓
         </h1>
         <p className="mt-5 leading-relaxed text-cream/80">
-          No tienes una campaña asignada todavía. Mira las campañas abiertas y postula.
+          Ya estás en la red de Seedings. Cuando te sumemos a una campaña, aparecerá aquí con su
+          brief — y al publicar tu historia, <b className="text-paper">medimos sus resultados
+          solos a las 24h</b>. No tienes que hacer nada más.
         </p>
         <Link
           href="/campanas"
-          className="mt-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
+          className="mt-6 inline-flex items-center gap-2.5 text-sm font-semibold underline underline-offset-4"
         >
           Ver campañas abiertas <span className="font-display italic">→</span>
         </Link>
@@ -192,10 +194,22 @@ export default async function CampanaPage() {
         )}
       </section>
 
-      {/* Acción principal */}
+      {/* Captura automática */}
       <section className="mt-7">
-        <PublicarBoton />
-        <SubirStory />
+        <div className="rounded-md border border-gold/40 bg-gold/10 p-4 text-sm leading-relaxed">
+          🌱 <b className="text-paper">Publica tu historia de la campaña</b> — la detectamos y
+          medimos sus resultados <b className="text-paper">solos a las 24h</b>. No tienes que hacer
+          nada más.
+        </div>
+        <details className="mt-3">
+          <summary className="cursor-pointer text-sm text-cream/60 hover:text-cream">
+            ¿Quieres adelantar la medición o subir una historia vieja?
+          </summary>
+          <div className="mt-3">
+            <PublicarBoton />
+            <SubirStory />
+          </div>
+        </details>
         <ActivarAvisos />
       </section>
 

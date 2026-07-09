@@ -13,7 +13,7 @@ export async function GET() {
   if (!user || !isAdmin(user.email))
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-  const rows = await fetchReportRows();
+  const rows = (await fetchReportRows()).filter((r) => !r.excluded);
   const csv = String.fromCharCode(0xfeff) + toCsv(rows); // BOM para que Excel respete acentos
 
   const fecha = new Date().toISOString().slice(0, 10);

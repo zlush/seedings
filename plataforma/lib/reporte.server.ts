@@ -17,7 +17,7 @@ export async function fetchReportRows(): Promise<ReportRow[]> {
   const { data } = await db
     .from("stories")
     .select(
-      `id, published_at, source,
+      `id, published_at, source, excluded,
        campaign_creators(
          creators(instagram_username),
          campaigns(name, brands:brand_id(name))
@@ -35,6 +35,8 @@ export async function fetchReportRows(): Promise<ReportRow[]> {
       b.snapshot_at.localeCompare(a.snapshot_at),
     )[0];
     return {
+      storyId: s.id,
+      excluded: !!s.excluded,
       fecha: s.published_at ? String(s.published_at).slice(0, 10) : "",
       campana: cc?.campaigns?.name ?? "",
       marca: cc?.campaigns?.brands?.name ?? "",

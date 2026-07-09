@@ -1,6 +1,8 @@
 // Reporte del equipo (filas estilo planilla) — helpers puros, testeables.
 
 export type ReportRow = {
+  storyId: string;
+  excluded: boolean;
   fecha: string;
   campana: string;
   marca: string;
@@ -10,7 +12,7 @@ export type ReportRow = {
   interacciones: number;
   respuestas: number;
   compartidas: number;
-  origen: string; // 'api' | 'manual'
+  origen: string; // 'api' | 'manual' | 'mention'
 };
 
 const HEADERS = [

@@ -17,16 +17,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const db = createAdminClient();
-  const windowStart = new Date(Date.now() - 26 * 3600 * 1000).toISOString();
   const dayAgo = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
-
-  // Creadores con Stories dentro de la ventana de captura.
-  const { data: recent } = await db
-    .from("stories")
-    .select(
-      "campaign_creator_id, campaign_creators(creator_id, creators(id, user_id, ig_user_id, page_token_encrypted, fb_page_id))",
-    )
-    .gte("published_at", windowStart);
 
   type CreatorRow = {
     id: string;
@@ -35,20 +26,27 @@ export async function GET(request: NextRequest) {
     page_token_encrypted: string;
     fb_page_id: string | null;
   };
+
+  // TODOS los creadores con una campaña activa y su IG conectado.
+  // Descubrimos y capturamos automáticamente sus historias vivas (sin que el
+  // creador tenga que seleccionar nada). El equipo excluye después las que no
+  // sean de campaña.
+  const { data: active } = await db
+    .from("campaign_creators")
+    .select("creators(id, user_id, ig_user_id, page_token_encrypted, fb_page_id)")
+    .in("status", ["pending", "shipped", "published"]);
+
   const creators = new Map<string, CreatorRow>();
-  for (const row of recent ?? []) {
-    const cc = row.campaign_creators as unknown as {
-      creators: (Partial<CreatorRow> & { ig_user_id: string | null }) | null;
-    } | null;
-    const c = cc?.creators;
+  for (const row of active ?? []) {
+    const c = row.creators as unknown as (Partial<CreatorRow> & { ig_user_id: string | null }) | null;
     if (c?.ig_user_id && c.page_token_encrypted) creators.set(c.id!, c as CreatorRow);
   }
 
   const captures: Record<string, unknown> = {};
   for (const [id, creator] of creators) {
     try {
-      // El cron solo refresca métricas de Stories ya elegidas, no descubre nuevas.
-      captures[id] = await captureStoriesForCreator(creator, { onlyKnown: true });
+      // Sin filtro: descubre y captura TODAS las historias vivas del creador.
+      captures[id] = await captureStoriesForCreator(creator, {});
     } catch (e) {
       captures[id] = { error: e instanceof Error ? e.message : "error" };
     }
