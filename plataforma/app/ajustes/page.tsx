@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { PasswordInput } from "../password-input";
 
 export default function AjustesPage() {
   const [password, setPassword] = useState("");
@@ -37,14 +38,11 @@ export default function AjustesPage() {
         Crea una contraseña para entrar directo la próxima vez, sin esperar el correo.
       </p>
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
-        <input
-          type="password"
-          required
-          minLength={8}
+        <PasswordInput
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={setPassword}
+          minLength={8}
           placeholder="Nueva contraseña (mín. 8)"
-          className="rounded-md border border-cream/35 bg-transparent px-4 py-3.5 text-cream placeholder:text-cream/40 outline-none transition focus:border-cream"
         />
         <button
           type="submit"

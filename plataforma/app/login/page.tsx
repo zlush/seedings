@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { enviarAcceso } from "./actions";
+import { PasswordInput } from "../password-input";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -67,14 +68,7 @@ export default function LoginPage() {
             className={inputCls}
           />
           {mode === "password" && (
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Tu contraseña"
-              className={inputCls}
-            />
+            <PasswordInput value={password} onChange={setPassword} placeholder="Tu contraseña" />
           )}
           <button
             type="submit"

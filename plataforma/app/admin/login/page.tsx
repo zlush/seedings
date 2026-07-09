@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { PasswordInput } from "../../password-input";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -41,14 +42,7 @@ export default function AdminLoginPage() {
           placeholder="tu@seedings.cl"
           className="rounded-md border border-cream/35 bg-transparent px-4 py-3.5 text-cream placeholder:text-cream/40 outline-none transition focus:border-cream"
         />
-        <input
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Contraseña"
-          className="rounded-md border border-cream/35 bg-transparent px-4 py-3.5 text-cream placeholder:text-cream/40 outline-none transition focus:border-cream"
-        />
+        <PasswordInput value={password} onChange={setPassword} placeholder="Contraseña" />
         <button
           type="submit"
           disabled={loading}
