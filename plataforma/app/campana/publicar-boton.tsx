@@ -10,6 +10,7 @@ type LiveStory = {
   permalink?: string;
   timestamp?: string;
   already?: boolean;
+  source?: string | null;
 };
 
 type Msg = { kind: "ok" | "warn" | "err"; text: string };
@@ -41,7 +42,10 @@ export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
         return;
       }
       setStories(live);
-      setSelected(new Set(live.filter((s) => !s.already).map((s) => s.id)));
+      // Pre-selecciona las nuevas y también las ya vinculadas por mención.
+      setSelected(
+        new Set(live.filter((s) => !s.already || s.source === "mention").map((s) => s.id)),
+      );
       setStage("picking");
     } catch {
       setMsg({ kind: "err", text: "Error de conexión. Reintenta." });
@@ -125,7 +129,7 @@ export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
                 )}
                 {s.already && (
                   <span className="absolute bottom-1 left-1 rounded bg-wine/80 px-1.5 py-0.5 text-[10px] text-cream/80">
-                    ya medida
+                    {s.source === "mention" ? "🌱 por mención" : "ya medida"}
                   </span>
                 )}
               </button>

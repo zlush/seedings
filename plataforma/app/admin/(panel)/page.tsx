@@ -11,6 +11,16 @@ async function brandConnection() {
   return data?.username ?? null;
 }
 
+async function unclaimedMentions() {
+  const db = createAdminClient();
+  const { data } = await db
+    .from("unclaimed_stories")
+    .select("id, username, published_at")
+    .order("created_at", { ascending: false })
+    .limit(20);
+  return data ?? [];
+}
+
 const STATUS_LABEL: Record<string, string> = {
   active: "Activa",
   closed: "Cerrada",
@@ -25,6 +35,7 @@ export default async function AdminHome() {
     .order("created_at", { ascending: false });
 
   const brandUsername = await brandConnection();
+  const unclaimed = await unclaimedMentions();
 
   return (
     <>
@@ -64,6 +75,29 @@ export default async function AdminHome() {
           {brandUsername ? "Reconectar" : "Conectar marca"}
         </a>
       </div>
+
+      {/* Menciones de cuentas sin creador en la plataforma */}
+      {unclaimed.length > 0 && (
+        <div className="mt-4 rounded-md border border-gold/40 bg-gold/5 p-4">
+          <p className="text-[11px] uppercase tracking-[.14em] text-gold">
+            Menciones sin creador ({unclaimed.length})
+          </p>
+          <p className="mt-1 text-sm text-cream/70">
+            Estas cuentas etiquetaron a la marca pero no están en la plataforma. Invítalas para
+            capturar sus métricas.
+          </p>
+          <ul className="mt-3 flex flex-col gap-1.5 text-sm">
+            {unclaimed.map((u) => (
+              <li key={u.id} className="flex items-center justify-between">
+                <span className="font-semibold">@{u.username}</span>
+                <span className="text-xs text-cream/50">
+                  {u.published_at ? new Date(u.published_at).toLocaleDateString("es-CL") : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Lista */}
       <div className="mt-6 flex flex-col gap-3">

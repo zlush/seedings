@@ -20,17 +20,21 @@ export async function GET() {
   if (!creator?.ig_user_id || !creator.page_token_encrypted)
     return NextResponse.json({ error: "Primero conecta tu Instagram." }, { status: 400 });
 
-  // Marcar cuáles ya capturamos, para no ofrecerlas de nuevo como "nuevas".
+  // Marcar cuáles ya capturamos (y su origen) para no ofrecerlas como "nuevas".
   const { data: known } = await db
     .from("stories")
-    .select("ig_media_id, campaign_creators!inner(creator_id)")
+    .select("ig_media_id, source, campaign_creators!inner(creator_id)")
     .eq("campaign_creators.creator_id", creator.id);
-  const knownIds = new Set((known ?? []).map((k) => k.ig_media_id));
+  const knownMap = new Map((known ?? []).map((k) => [k.ig_media_id, k.source as string]));
 
   try {
     const stories = await listLiveStories(creator);
     return NextResponse.json({
-      stories: stories.map((s) => ({ ...s, already: knownIds.has(s.id) })),
+      stories: stories.map((s) => ({
+        ...s,
+        already: knownMap.has(s.id),
+        source: knownMap.get(s.id) ?? null,
+      })),
     });
   } catch (e) {
     return NextResponse.json(
