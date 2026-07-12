@@ -13,6 +13,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => ({}));
   const storyIds: string[] = Array.isArray(body?.storyIds) ? body.storyIds : [];
+  const assignmentId: string | undefined = body?.assignmentId || undefined;
   if (!storyIds.length)
     return NextResponse.json({ error: "Elige al menos una Story." }, { status: 400 });
 
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
     );
 
   try {
-    const result = await captureStoriesForCreator(creator, { onlyStoryIds: storyIds });
+    const result = await captureStoriesForCreator(creator, { onlyStoryIds: storyIds, assignmentId });
     return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json(

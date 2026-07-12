@@ -52,20 +52,17 @@ export async function listLiveStories(creator: Creator): Promise<IgStory[]> {
 // - onlyKnown: solo Stories que YA registramos (para el cron: refresca, no descubre).
 export async function captureStoriesForCreator(
   creator: Creator,
-  opts: { onlyStoryIds?: string[]; onlyKnown?: boolean } = {},
+  opts: { onlyStoryIds?: string[]; onlyKnown?: boolean; assignmentId?: string } = {},
 ): Promise<CaptureResult> {
   const db = createAdminClient();
   const token = decrypt(creator.page_token_encrypted);
   const result: CaptureResult = { found: 0, new: 0, snapshots: 0, errors: [] };
 
-  // Asignación de campaña activa del creador (MVP: la más reciente).
-  const { data: assignment } = await db
-    .from("campaign_creators")
-    .select("id, status")
-    .eq("creator_id", creator.id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  // Asignación objetivo: la indicada (campaña específica) o la más reciente.
+  const query = db.from("campaign_creators").select("id, status").eq("creator_id", creator.id);
+  const { data: assignment } = opts.assignmentId
+    ? await query.eq("id", opts.assignmentId).maybeSingle()
+    : await query.order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (!assignment) {
     result.errors.push("El creador no tiene campaña asignada.");
     return result;

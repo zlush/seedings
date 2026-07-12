@@ -21,7 +21,7 @@ async function uploadDirect(file: File, kind: "media" | "screenshot"): Promise<s
   return data.path as string;
 }
 
-export function SubirStory() {
+export function SubirStory({ assignmentId }: { assignmentId?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [media, setMedia] = useState<File | null>(null);
@@ -55,6 +55,7 @@ export function SubirStory() {
           screenshotPath,
           publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
           metrics,
+          assignmentId,
         }),
       });
       const data = await res.json();

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
 
   const body = await request.json().catch(() => ({}));
-  const { mediaPath, mime, screenshotPath, publishedAt, metrics } = body ?? {};
+  const { mediaPath, mime, screenshotPath, publishedAt, metrics, assignmentId } = body ?? {};
   if (!mediaPath || !mime)
     return NextResponse.json({ error: "Falta el archivo de la story." }, { status: 400 });
 
@@ -28,15 +28,15 @@ export async function POST(request: Request) {
     .maybeSingle();
   if (!creator) return NextResponse.json({ error: "Perfil no encontrado" }, { status: 400 });
 
-  // Asignación activa (no postulaciones ni rechazos).
-  const { data: assignment } = await db
-    .from("campaign_creators")
-    .select("id, status")
-    .eq("creator_id", creator.id)
-    .not("status", "in", "(applied,rejected)")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  // Asignación objetivo: la campaña indicada o, si no, la más reciente activa.
+  const q = db.from("campaign_creators").select("id, status").eq("creator_id", creator.id);
+  const { data: assignment } = assignmentId
+    ? await q.eq("id", assignmentId).maybeSingle()
+    : await q
+        .not("status", "in", "(applied,rejected)")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
   if (!assignment)
     return NextResponse.json({ error: "No tienes una campaña activa." }, { status: 400 });
 

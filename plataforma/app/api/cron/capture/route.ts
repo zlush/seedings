@@ -45,8 +45,9 @@ export async function GET(request: NextRequest) {
   const captures: Record<string, unknown> = {};
   for (const [id, creator] of creators) {
     try {
-      // Sin filtro: descubre y captura TODAS las historias vivas del creador.
-      captures[id] = await captureStoriesForCreator(creator, {});
+      // Refresca las métricas de las historias que el creador ya asoció a su
+      // campaña (no descubre nuevas — la asociación la hace el creador).
+      captures[id] = await captureStoriesForCreator(creator, { onlyKnown: true });
     } catch (e) {
       captures[id] = { error: e instanceof Error ? e.message : "error" };
     }

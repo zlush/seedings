@@ -14,7 +14,7 @@ type LiveStory = {
 
 type Msg = { kind: "ok" | "warn" | "err"; text: string };
 
-export function PublicarBoton() {
+export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
   const router = useRouter();
   const [stage, setStage] = useState<"idle" | "picking">("idle");
   const [stories, setStories] = useState<LiveStory[]>([]);
@@ -65,7 +65,7 @@ export function PublicarBoton() {
       const res = await fetch("/api/stories/refresh", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storyIds: [...selected] }),
+        body: JSON.stringify({ storyIds: [...selected], assignmentId }),
       });
       const data = await res.json();
       if (!res.ok) {
