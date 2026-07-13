@@ -37,8 +37,21 @@ export async function GET(request: NextRequest) {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: form,
     });
-    const short = (await shortRes.json()) as { access_token?: string; error_message?: string };
-    if (!short.access_token) return back("ig-token");
+    const short = (await shortRes.json()) as {
+      access_token?: string;
+      error_message?: string;
+      error_type?: string;
+      code?: number;
+    };
+    if (!short.access_token) {
+      // Registrar el error exacto de Instagram para diagnóstico.
+      try {
+        await createAdminClient()
+          .from("webhook_events")
+          .insert({ field: "debug_ig_token", payload: { status: shortRes.status, ...short } });
+      } catch {}
+      return back("ig-token");
+    }
 
     // 2) corto → long-lived (~60 días)
     const longUrl = new URL("https://graph.instagram.com/access_token");
