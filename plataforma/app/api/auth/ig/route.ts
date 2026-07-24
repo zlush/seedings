@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { INSTAGRAM_APP_ID } from "@/lib/ig-app";
 import { createClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
+import { siteUrl } from "@/lib/site-url";
 
 // Business Login for Instagram: el creador entra con SU clave de Instagram.
 // Sin Facebook, sin páginas. Instagram maneja la conversión a cuenta profesional.
@@ -29,7 +30,8 @@ export async function GET(request: NextRequest) {
   const state = crypto.randomBytes(16).toString("hex");
   const dialog = new URL("https://www.instagram.com/oauth/authorize");
   dialog.searchParams.set("client_id", INSTAGRAM_APP_ID);
-  dialog.searchParams.set("redirect_uri", `${origin}/api/auth/ig/callback`);
+  // URL canónica: DEBE ser idéntica aquí y en el callback (Meta lo exige).
+  dialog.searchParams.set("redirect_uri", `${siteUrl()}/api/auth/ig/callback`);
   dialog.searchParams.set("scope", (isBrand ? BRAND_SCOPES : CREATOR_SCOPES).join(","));
   dialog.searchParams.set("response_type", "code");
   dialog.searchParams.set("state", state);

@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { encrypt } from "@/lib/crypto";
 import { IG_GRAPH } from "@/lib/graph";
 import { INSTAGRAM_APP_ID } from "@/lib/ig-app";
+import { siteUrl } from "@/lib/site-url";
 
 // Callback del Business Login for Instagram:
 // code → token corto → token largo (60d) → perfil → guardar cifrado.
@@ -29,7 +30,8 @@ export async function GET(request: NextRequest) {
       client_id: INSTAGRAM_APP_ID,
       client_secret: process.env.INSTAGRAM_APP_SECRET!,
       grant_type: "authorization_code",
-      redirect_uri: `${origin}/api/auth/ig/callback`,
+      // Debe ser EXACTAMENTE la misma que se envió al abrir el diálogo.
+      redirect_uri: `${siteUrl()}/api/auth/ig/callback`,
       code,
     });
     const shortRes = await fetch("https://api.instagram.com/oauth/access_token", {
