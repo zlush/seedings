@@ -15,7 +15,8 @@ const ERRORS: Record<string, string> = {
   save: "No pudimos guardar la conexión. Reintenta.",
   graph: "Instagram rechazó la conexión. Reintenta.",
   "ig-denied": "Cancelaste la conexión con Instagram. Cuando quieras, reintenta.",
-  "ig-token": "Instagram no aceptó la conexión. Reintenta en un momento.",
+  "ig-token":
+    "Instagram no completó la conexión (suele pasar cuando se abre su app en el teléfono). Usa la alternativa de más abajo: Conectar con Facebook.",
   "ig-profile": "No pudimos leer tu perfil de Instagram. Reintenta.",
   "ig-config": "La conexión con Instagram no está configurada todavía. Avísanos por WhatsApp.",
 };
@@ -185,12 +186,25 @@ export default async function OnboardingPage({
       )}
 
       {!isConnected && (
-        <p className="mt-6 text-xs leading-relaxed text-cream/40">
-          ¿Tu cuenta está vinculada a una página de Facebook y prefieres ese camino?{" "}
-          <a href="/api/auth/instagram" className="underline underline-offset-4 hover:text-cream/70">
-            Conectar vía Facebook
+        <div className="mt-6 rounded-md border border-cream/20 bg-wine-deep/40 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[.14em] text-cream/60">
+            ¿No se completó la conexión?
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-cream/70">
+            A veces Instagram abre su app y deja el proceso a medias. Si te pasó, usa esta
+            alternativa — funciona igual de bien:
+          </p>
+          <a
+            href="/api/auth/instagram"
+            className="mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-cream/40 px-5 py-3 text-sm font-semibold transition hover:border-cream"
+          >
+            Conectar con Facebook <span className="font-display italic">→</span>
           </a>
-        </p>
+          <p className="mt-3 text-xs leading-relaxed text-cream/40">
+            Tip para el teléfono: si se queda cargando, mantén presionado el botón
+            &quot;Conectar&quot; y elige <b>Abrir en el navegador</b>.
+          </p>
+        </div>
       )}
 
       <p className="mt-8 text-sm text-cream/50">
