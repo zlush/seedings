@@ -4,6 +4,7 @@ import { INSTAGRAM_APP_ID } from "@/lib/ig-app";
 import { createClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
 import { siteUrl } from "@/lib/site-url";
+import { isInAppBrowser } from "@/lib/inapp";
 
 // Business Login for Instagram: el creador entra con SU clave de Instagram.
 // Sin Facebook, sin páginas. Instagram maneja la conversión a cuenta profesional.
@@ -15,6 +16,13 @@ export async function GET(request: NextRequest) {
   const origin = new URL(request.url).origin;
   if (!process.env.INSTAGRAM_APP_SECRET) {
     return NextResponse.redirect(`${origin}/onboarding?error=ig-config`);
+  }
+
+  // Dentro del navegador interno de Instagram/Facebook el login NO puede
+  // completarse (se queda cargando). Mandamos a una pantalla que explica
+  // cómo abrirlo en el navegador real.
+  if (isInAppBrowser(request.headers.get("user-agent"))) {
+    return NextResponse.redirect(`${origin}/abrir-en-navegador`);
   }
 
   // ?brand=1 conecta la cuenta de marca (@seedings.cl) — solo admins.
