@@ -7,6 +7,7 @@ import { isAdmin } from "@/lib/admin";
 import { ghlEnabled, pushInviteToGhl, sendGhlEmail } from "@/lib/ghl.server";
 import { sendPushToUsers, pushEnabled } from "@/lib/push.server";
 import { siteUrl } from "@/lib/site-url";
+import { emailHtml } from "@/lib/email-template";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -88,13 +89,15 @@ export async function createInviteLink(
       await sendGhlEmail(
         contactId,
         "Te invitamos a una campaña con Seedings 🌱",
-        `<div style="font-family:Georgia,serif;max-width:520px;margin:0 auto;background:#3A1A1D;color:#EDE3C8;padding:36px 32px;border-radius:8px">
-          <p style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.75;margin:0">Seedings Lab · Creadores</p>
-          <h1 style="font-size:26px;margin:14px 0 8px;color:#F5EEDC">Tienes una campaña esperándote</h1>
-          <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;opacity:.9">Entra para ver el brief, conectar tu Instagram y sumarte.</p>
-          <p style="margin:26px 0"><a href="${link}" style="background:#EDE3C8;color:#3A1A1D;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:15px;padding:14px 26px;border-radius:999px;display:inline-block">Ver mi campaña →</a></p>
-          <p style="font-family:Arial,sans-serif;font-size:12px;opacity:.6">El enlace es personal y sirve una vez.</p>
-        </div>`,
+        emailHtml({
+          eyebrow: "Seedings Lab · Creadores",
+          title: "Tienes una campaña esperándote",
+          body: "Entra para ver el brief, conectar tu Instagram y sumarte a la campaña.",
+          ctaLabel: "Ver mi campaña",
+          link,
+          footer: "El enlace es personal y sirve una vez.",
+          preheader: "Tu brief y los detalles de la campaña te esperan.",
+        }),
       );
       ghl = "Correo de invitación enviado desde m.seedings.cl ✓ (el link de abajo es tu respaldo para WhatsApp).";
     } catch (e) {
