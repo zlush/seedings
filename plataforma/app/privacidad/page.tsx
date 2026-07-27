@@ -21,6 +21,10 @@ export default function PrivacidadPage() {
             Santiago, Chile. Esta plataforma conecta a creadores de contenido con campañas de
             marcas y mide el rendimiento del contenido publicado.
           </p>
+          <p className="mt-2">
+            Seedings Lab es operado por <b className="text-paper">WebGuru SpA</b>, la entidad legal
+            responsable del tratamiento de los datos descritos en esta política.
+          </p>
         </section>
 
         <section>
