@@ -24,15 +24,19 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.redirect(`${origin}/login`);
 
+  const redirectUri = `${siteUrl()}/api/auth/ig/callback`;
+
   try {
     // 1) code → token corto (api.instagram.com, form-encoded)
+    // Instagram anexa "#_" al code en algunos flujos móviles; hay que limpiarlo.
+    const cleanCode = code.replace(/#_$/, "").trim();
     const form = new URLSearchParams({
       client_id: INSTAGRAM_APP_ID,
       client_secret: process.env.INSTAGRAM_APP_SECRET!,
       grant_type: "authorization_code",
       // Debe ser EXACTAMENTE la misma que se envió al abrir el diálogo.
-      redirect_uri: `${siteUrl()}/api/auth/ig/callback`,
-      code,
+      redirect_uri: redirectUri,
+      code: cleanCode,
     });
     const shortRes = await fetch("https://api.instagram.com/oauth/access_token", {
       method: "POST",
@@ -50,7 +54,18 @@ export async function GET(request: NextRequest) {
       try {
         await createAdminClient()
           .from("webhook_events")
-          .insert({ field: "debug_ig_token", payload: { status: shortRes.status, ...short } });
+          .insert({
+            field: "debug_ig_token",
+            payload: {
+              status: shortRes.status,
+              ...short,
+              // Diagnóstico: qué enviamos exactamente.
+              sent_redirect_uri: redirectUri,
+              request_origin: origin,
+              code_len: cleanCode.length,
+              code_tail: cleanCode.slice(-6),
+            },
+          });
       } catch {}
       return back("ig-token");
     }
