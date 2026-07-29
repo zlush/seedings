@@ -85,10 +85,56 @@ export async function GET(request: NextRequest) {
       code?: number;
     };
     if (!short.access_token) {
+      // DIAGNÓSTICO: el código que emite Instagram puede pertenecer al contexto
+      // de Facebook (el diálogo viaja con enable_fb_login=1). Probamos las otras
+      // dos puertas con el MISMO código para saber cuál lo acepta.
+      const probe = async (door: string, run: () => Promise<Response>) => {
+        try {
+          const r = await run();
+          const j = (await r.json()) as { access_token?: string; error?: { message?: string }; error_message?: string };
+          return {
+            door,
+            status: r.status,
+            ok: Boolean(j.access_token),
+            detail: j.access_token ? "TOKEN OBTENIDO" : (j.error?.message ?? j.error_message ?? "sin detalle"),
+          };
+        } catch (e) {
+          return { door, status: 0, ok: false, detail: e instanceof Error ? e.message : "error" };
+        }
+      };
+
+      const fbId = process.env.FB_APP_ID ?? "";
+      const fbSecret = process.env.FB_APP_SECRET ?? "";
+
+      const puertaB = await probe("api.instagram.com + credenciales FB", () =>
+        fetch("https://api.instagram.com/oauth/access_token", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            client_id: fbId,
+            client_secret: fbSecret,
+            grant_type: "authorization_code",
+            redirect_uri: redirectUri,
+            code: cleanCode,
+          }),
+        }),
+      );
+
+      const puertaC = await probe("graph.facebook.com + credenciales FB", () => {
+        const u = new URL("https://graph.facebook.com/v23.0/oauth/access_token");
+        u.searchParams.set("client_id", fbId);
+        u.searchParams.set("client_secret", fbSecret);
+        u.searchParams.set("redirect_uri", redirectUri);
+        u.searchParams.set("code", cleanCode);
+        return fetch(u);
+      });
+
       await logDebug({
         step: "token_exchange",
         status: shortRes.status,
         ...short,
+        puerta_b: puertaB,
+        puerta_c: puertaC,
         // Qué enviamos exactamente, y si la cookie coincidió con el recálculo.
         sent_redirect_uri: redirectUri,
         redirect_from_cookie: Boolean(savedRedirect),
