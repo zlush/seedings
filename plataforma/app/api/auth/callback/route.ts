@@ -10,6 +10,14 @@ type PageWithIg = {
   instagram_business_account?: { id: string; username: string };
 };
 
+// Deja rastro de cada fallo. Este es el camino del piloto: si un creador
+// tropieza, necesitamos saber dónde sin tener que pedirle capturas.
+async function logDebug(payload: Record<string, unknown>) {
+  try {
+    await createAdminClient().from("webhook_events").insert({ field: "debug_fb_login", payload });
+  } catch {}
+}
+
 // Callback del OAuth de Instagram: guarda la cuenta conectada + token cifrado.
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -19,14 +27,36 @@ export async function GET(request: NextRequest) {
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   const savedState = request.cookies.get("ig_oauth_state")?.value;
-  if (!code || !state || state !== savedState) return back("state");
+
+  const fbError = url.searchParams.get("error");
+  if (fbError) {
+    await logDebug({
+      step: "dialog_denied",
+      error: fbError,
+      reason: url.searchParams.get("error_reason"),
+      description: url.searchParams.get("error_description"),
+    });
+    return back("ig-denied");
+  }
+  if (!code || !state || state !== savedState) {
+    await logDebug({
+      step: "state",
+      has_code: Boolean(code),
+      has_state: Boolean(state),
+      has_cookie: Boolean(savedState),
+    });
+    return back("state");
+  }
 
   // Sesión del creador
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.redirect(`${origin}/login`);
+  if (!user) {
+    await logDebug({ step: "no_session" });
+    return NextResponse.redirect(`${origin}/login`);
+  }
 
   try {
     const redirectUri = `${origin}/api/auth/callback`;
@@ -60,7 +90,17 @@ export async function GET(request: NextRequest) {
       fields: "name,access_token,instagram_business_account{id,username}",
     });
     const withIg = (pages.data || []).filter((p) => p.instagram_business_account);
-    if (!withIg.length) return back("no-ig");
+    if (!withIg.length) {
+      // El caso más común de fallo real: Instagram no es profesional, o no
+      // está vinculado a ninguna página. Guardamos qué páginas sí vimos.
+      await logDebug({
+        step: "no_ig_account",
+        email: user.email,
+        paginas_encontradas: (pages.data || []).length,
+        paginas: (pages.data || []).map((p) => p.name),
+      });
+      return back("no-ig");
+    }
 
     const page = withIg[0];
     const ig = page.instagram_business_account!;
@@ -78,12 +118,21 @@ export async function GET(request: NextRequest) {
       },
       { onConflict: "user_id" },
     );
-    if (error) return back("save");
+    if (error) {
+      await logDebug({ step: "save", email: user.email, error: error.message });
+      return back("save");
+    }
 
+    await logDebug({ step: "conectado", email: user.email, ig: ig.username, pagina: page.name });
     const res = NextResponse.redirect(`${origin}/onboarding?connected=1`);
     res.cookies.delete("ig_oauth_state");
     return res;
-  } catch {
+  } catch (e) {
+    await logDebug({
+      step: "graph",
+      email: user.email,
+      error: e instanceof Error ? e.message : String(e),
+    });
     return back("graph");
   }
 }

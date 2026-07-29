@@ -11,14 +11,16 @@ const REGISTRO_FORM_URL = "https://link.seedings.cl/widget/form/ewXDwMDGrEnRlknS
 
 const ERRORS: Record<string, string> = {
   state: "La sesión de conexión expiró. Intenta de nuevo.",
-  "no-ig": "No encontramos una cuenta de Instagram profesional vinculada a una página de Facebook. Convierte tu cuenta a Business/Creator y conéctala a una página, luego reintenta.",
+  "no-ig":
+    "No encontramos una cuenta de Instagram profesional vinculada a una página de Facebook. Tu Instagram debe ser Creador o Empresa y estar conectado a una página. Escríbenos y te ayudamos en dos minutos.",
   save: "No pudimos guardar la conexión. Reintenta.",
   graph: "Instagram rechazó la conexión. Reintenta.",
-  "ig-denied": "Cancelaste la conexión con Instagram. Cuando quieras, reintenta.",
+  "ig-denied": "Cancelaste la conexión. Cuando quieras, reintenta.",
+  // El camino directo de Instagram sigue sin ser aprobado por Meta.
   "ig-token":
-    "Instagram no completó la conexión (suele pasar cuando se abre su app en el teléfono). Usa la alternativa de más abajo: Conectar con Facebook.",
+    "Esa vía todavía está en pruebas y Meta no la habilita aún. Usa el botón Conectar de arriba, que es el que funciona.",
   "ig-profile": "No pudimos leer tu perfil de Instagram. Reintenta.",
-  "ig-config": "La conexión con Instagram no está configurada todavía. Avísanos por WhatsApp.",
+  "ig-config": "La conexión no está configurada todavía. Avísanos por WhatsApp.",
 };
 
 export default async function OnboardingPage({
@@ -107,8 +109,8 @@ export default async function OnboardingPage({
         Conecta tus redes sociales
       </h1>
       <p className="mt-3 leading-relaxed text-cream/70">
-        Vincula tus cuentas para que midamos tus Stories automáticamente. Entras con tu clave de
-        Instagram — nosotros nunca la vemos.
+        Vincula tu cuenta para que midamos tus Stories automáticamente. La autorización la maneja
+        Meta — nosotros nunca vemos tu contraseña.
       </p>
 
       {connected && !isConnected && (
@@ -132,7 +134,7 @@ export default async function OnboardingPage({
           <p className="text-sm text-cream/60">
             {isConnected
               ? `Conectado como @${creator!.instagram_username}`
-              : "Conecta tu cuenta de Instagram"}
+              : "Autorizas con Facebook, que administra tu cuenta profesional"}
           </p>
         </div>
         {isConnected ? (
@@ -141,7 +143,7 @@ export default async function OnboardingPage({
           </span>
         ) : (
           <a
-            href="/api/auth/ig"
+            href="/api/auth/instagram"
             className="rounded-full bg-cream px-5 py-2.5 text-sm font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
           >
             Conectar
@@ -188,22 +190,23 @@ export default async function OnboardingPage({
       {!isConnected && (
         <div className="mt-6 rounded-md border border-cream/20 bg-wine-deep/40 p-4">
           <p className="text-[11px] font-semibold uppercase tracking-[.14em] text-cream/60">
-            ¿No se completó la conexión?
+            Antes de conectar
           </p>
           <p className="mt-2 text-sm leading-relaxed text-cream/70">
-            A veces Instagram abre su app y deja el proceso a medias. Si te pasó, usa esta
-            alternativa — funciona igual de bien:
+            Tu Instagram tiene que ser <b className="text-paper">Creador</b> o{" "}
+            <b className="text-paper">Empresa</b> y estar vinculado a una página de Facebook. Si no
+            lo está, escríbenos y lo dejamos listo contigo en dos minutos.
           </p>
-          <a
-            href="/api/auth/instagram"
-            className="mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-cream/40 px-5 py-3 text-sm font-semibold transition hover:border-cream"
-          >
-            Conectar con Facebook <span className="font-display italic">→</span>
-          </a>
           <p className="mt-3 text-xs leading-relaxed text-cream/40">
-            Tip para el teléfono: si se queda cargando, mantén presionado el botón
+            Tip para el teléfono: si la pantalla se queda cargando, mantén presionado
             &quot;Conectar&quot; y elige <b>Abrir en el navegador</b>.
           </p>
+          <a
+            href="/api/auth/ig"
+            className="mt-4 inline-block text-xs text-cream/35 underline underline-offset-4 hover:text-cream/60"
+          >
+            Entrar solo con Instagram (en pruebas)
+          </a>
         </div>
       )}
 
