@@ -36,10 +36,12 @@ export async function GET(request: NextRequest) {
   }
 
   const state = crypto.randomBytes(16).toString("hex");
+  // Meta compara el redirect_uri como TEXTO EXACTO entre diálogo y canje.
+  // Por eso no lo recalculamos en el callback: lo transportamos en la cookie.
+  const redirectUri = `${siteUrl()}/api/auth/ig/callback`;
   const dialog = new URL("https://www.instagram.com/oauth/authorize");
   dialog.searchParams.set("client_id", INSTAGRAM_APP_ID);
-  // URL canónica: DEBE ser idéntica aquí y en el callback (Meta lo exige).
-  dialog.searchParams.set("redirect_uri", `${siteUrl()}/api/auth/ig/callback`);
+  dialog.searchParams.set("redirect_uri", redirectUri);
   dialog.searchParams.set("scope", (isBrand ? BRAND_SCOPES : CREATOR_SCOPES).join(","));
   dialog.searchParams.set("response_type", "code");
   dialog.searchParams.set("state", state);
@@ -53,6 +55,7 @@ export async function GET(request: NextRequest) {
     path: "/",
   };
   res.cookies.set("ig_biz_state", state, opts);
+  res.cookies.set("ig_redirect_uri", redirectUri, opts);
   if (isBrand) res.cookies.set("ig_connect_brand", "1", opts);
   return res;
 }

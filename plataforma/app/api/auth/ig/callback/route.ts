@@ -7,6 +7,14 @@ import { siteUrl } from "@/lib/site-url";
 
 // Callback del Business Login for Instagram:
 // code → token corto → token largo (60d) → perfil → guardar cifrado.
+// Deja rastro en webhook_events. Sin esto, los fallos previos al canje
+// (state, sesión) desaparecían sin dejar nada que diagnosticar.
+async function logDebug(payload: Record<string, unknown>) {
+  try {
+    await createAdminClient().from("webhook_events").insert({ field: "debug_ig_token", payload });
+  } catch {}
+}
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const origin = url.origin;
@@ -15,16 +23,43 @@ export async function GET(request: NextRequest) {
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   const savedState = request.cookies.get("ig_biz_state")?.value;
-  if (url.searchParams.get("error")) return back("ig-denied");
-  if (!code || !state || state !== savedState) return back("state");
+
+  const igError = url.searchParams.get("error");
+  if (igError) {
+    await logDebug({
+      step: "dialog_denied",
+      error: igError,
+      reason: url.searchParams.get("error_reason"),
+      description: url.searchParams.get("error_description"),
+    });
+    return back("ig-denied");
+  }
+  if (!code || !state || state !== savedState) {
+    await logDebug({
+      step: "state",
+      has_code: Boolean(code),
+      has_state: Boolean(state),
+      has_cookie: Boolean(savedState),
+      state_matches: Boolean(state && savedState && state === savedState),
+    });
+    return back("state");
+  }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.redirect(`${origin}/login`);
+  if (!user) {
+    await logDebug({ step: "no_session" });
+    return NextResponse.redirect(`${origin}/login`);
+  }
 
-  const redirectUri = `${siteUrl()}/api/auth/ig/callback`;
+  // El redirect_uri DEBE ser byte a byte el mismo que se envió al diálogo.
+  // Lo transportamos en cookie en vez de recalcularlo (recalcular fue la
+  // fuente del "redirect_uri is not identical" que veníamos arrastrando).
+  const savedRedirect = request.cookies.get("ig_redirect_uri")?.value;
+  const recomputed = `${siteUrl()}/api/auth/ig/callback`;
+  const redirectUri = savedRedirect || recomputed;
 
   try {
     // 1) code → token corto (api.instagram.com, form-encoded)
@@ -50,23 +85,19 @@ export async function GET(request: NextRequest) {
       code?: number;
     };
     if (!short.access_token) {
-      // Registrar el error exacto de Instagram para diagnóstico.
-      try {
-        await createAdminClient()
-          .from("webhook_events")
-          .insert({
-            field: "debug_ig_token",
-            payload: {
-              status: shortRes.status,
-              ...short,
-              // Diagnóstico: qué enviamos exactamente.
-              sent_redirect_uri: redirectUri,
-              request_origin: origin,
-              code_len: cleanCode.length,
-              code_tail: cleanCode.slice(-6),
-            },
-          });
-      } catch {}
+      await logDebug({
+        step: "token_exchange",
+        status: shortRes.status,
+        ...short,
+        // Qué enviamos exactamente, y si la cookie coincidió con el recálculo.
+        sent_redirect_uri: redirectUri,
+        redirect_from_cookie: Boolean(savedRedirect),
+        recomputed_redirect_uri: recomputed,
+        redirect_matches_recomputed: savedRedirect === recomputed,
+        request_origin: origin,
+        code_len: cleanCode.length,
+        code_tail: cleanCode.slice(-6),
+      });
       return back("ig-token");
     }
 
@@ -105,6 +136,7 @@ export async function GET(request: NextRequest) {
       );
       const res = NextResponse.redirect(`${origin}/admin?brand=${error ? "error" : "ok"}`);
       res.cookies.delete("ig_biz_state");
+      res.cookies.delete("ig_redirect_uri");
       res.cookies.delete("ig_connect_brand");
       return res;
     }
@@ -125,6 +157,7 @@ export async function GET(request: NextRequest) {
 
     const res = NextResponse.redirect(`${origin}/onboarding?connected=1`);
     res.cookies.delete("ig_biz_state");
+    res.cookies.delete("ig_redirect_uri");
     return res;
   } catch {
     return back("graph");
