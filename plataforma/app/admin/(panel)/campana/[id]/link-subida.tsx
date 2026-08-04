@@ -45,10 +45,20 @@ export function LinkSubida({ link }: { link: string }) {
           Enviar por WhatsApp
         </a>
       </div>
-      <p className="mt-3 text-xs text-cream/50">
-        En un workflow de GHL puedes agregarle <code>&amp;tel=</code>
-        <code>{"{{contact.phone}}"}</code> para que llegue con el número puesto.
-      </p>
+      <div className="mt-4 border-t border-cream/15 pt-4 text-xs leading-relaxed text-cream/60">
+        <p className="font-semibold text-cream/70">Variables que acepta el link:</p>
+        <ul className="mt-2 flex flex-col gap-1">
+          <li>
+            <code className="text-cream/80">&amp;tel={"{{contact.phone}}"}</code> — llega con el
+            celular puesto
+          </li>
+          <li>
+            <code className="text-cream/80">&amp;campana=Nombre</code> y{" "}
+            <code className="text-cream/80">&amp;marca=Nombre</code> — solo si quieres
+            sobrescribir los de esta campaña
+          </li>
+        </ul>
+      </div>
     </section>
   );
 }

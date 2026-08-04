@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { normalizePhoneCl } from "@/lib/phone";
 import { Formulario } from "./formulario";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,10 @@ export default async function SubirPage({
   searchParams: Promise<{ c?: string; campana?: string; marca?: string; tel?: string }>;
 }) {
   const { c, campana, marca, tel } = await searchParams;
+
+  // El "+" de un {{contact.phone}} llega como espacio (así se decodifica una
+  // query string), así que el prefill se normaliza antes de mostrarlo.
+  const telPrefill = tel ? (normalizePhoneCl(tel) ?? tel.trim()) : undefined;
 
   let campaignId: string | undefined;
   let campaignName = campana;
@@ -62,7 +67,7 @@ export default async function SubirPage({
         campaignId={campaignId}
         campaignName={campaignName}
         brandName={brandName}
-        telPrefill={tel}
+        telPrefill={telPrefill}
       />
 
       <footer className="mt-12 border-t border-cream/15 pt-5 text-xs text-cream/50">
