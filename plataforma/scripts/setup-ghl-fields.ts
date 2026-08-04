@@ -18,6 +18,7 @@ const FIELDS: Array<{ name: string; dataType: string }> = [
   { name: "Plataforma Interacciones Total", dataType: "NUMERICAL" },
   { name: "Plataforma Stories Medidas", dataType: "NUMERICAL" },
   { name: "Plataforma Ultima Captura", dataType: "TEXT" },
+  { name: "Plataforma Videos Carpeta", dataType: "TEXT" },
 ];
 
 const res = await fetch(`${BASE}/locations/${LOC}/customFields`, { headers: H });

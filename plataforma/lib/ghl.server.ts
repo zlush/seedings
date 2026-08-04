@@ -19,6 +19,7 @@ export const GHL_FIELDS = {
   interactions: "Plataforma Interacciones Total",
   stories: "Plataforma Stories Medidas",
   lastCapture: "Plataforma Ultima Captura",
+  videos: "Plataforma Videos Carpeta",
 } as const;
 
 export const GHL_INVITE_TAG = "plataforma invitacion";
@@ -102,6 +103,31 @@ export async function findContactByEmail(email: string): Promise<{ id: string } 
   return matchContactByEmail(data.contacts ?? [], email);
 }
 
+// Busca por teléfono. OJO: GHL solo matchea el formato exacto que tiene
+// guardado (+56XXXXXXXXX) — por eso el número llega ya normalizado desde
+// lib/phone.ts. Buscar sin el "+" devuelve cero resultados.
+export async function findContactByPhone(
+  phone: string,
+): Promise<{ id: string } | undefined> {
+  const data = await ghl<{ contacts: Array<{ id: string; phone: string | null }> }>(
+    "GET",
+    `/contacts/?locationId=${loc()}&query=${encodeURIComponent(phone)}&limit=20`,
+  );
+  const digits = phone.replace(/\D/g, "");
+  return (data.contacts ?? []).find((c) => (c.phone ?? "").replace(/\D/g, "") === digits);
+}
+
+// Actualiza un contacto EXISTENTE. A diferencia de upsert, nunca crea uno
+// nuevo: el formulario de subida es público y no queremos que cualquiera
+// ensucie la base del CRM.
+export async function updateContactFields(
+  contactId: string,
+  values: Partial<Record<keyof typeof GHL_FIELDS, string | number>>,
+): Promise<void> {
+  const customFields = await toFieldEntries(values);
+  await ghl("PUT", `/contacts/${contactId}`, { customFields });
+}
+
 // Crea o actualiza el contacto con campos de la plataforma.
 export async function upsertContactFields(
   email: string,
@@ -157,6 +183,19 @@ export async function pushInviteToGhl(email: string, link: string): Promise<stri
   const contactId = await upsertContactFields(email, { link });
   await addTags(contactId, [GHL_INVITE_TAG]);
   return contactId;
+}
+
+// Videos subidos por formulario: deja el link a la carpeta en el contacto.
+// Devuelve el contactId, o null si ese teléfono no existe en el CRM (el video
+// se guarda igual y el equipo lo ve en el panel como "sin contacto").
+export async function pushVideosFolderToGhl(
+  phone: string,
+  link: string,
+): Promise<string | null> {
+  const contact = await findContactByPhone(phone);
+  if (!contact) return null;
+  await updateContactFields(contact.id, { videos: link });
+  return contact.id;
 }
 
 // Métricas capturadas: escribe totales y mueve la oportunidad.

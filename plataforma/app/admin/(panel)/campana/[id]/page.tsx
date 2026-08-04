@@ -4,6 +4,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { Invitar } from "./invitar";
 import { AsignarCreador, RevisarPostulacion } from "./postulaciones";
 import { Recordatorio } from "./recordatorio";
+import { LinkSubida } from "./link-subida";
+import { siteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +71,8 @@ export default async function CampanaDetalle({
           <p className="mt-2 whitespace-pre-wrap text-sm text-cream/90">{campaign.brief}</p>
         </div>
       )}
+
+      <LinkSubida link={`${siteUrl()}/subir?c=${campaign.id}`} />
 
       <Invitar campaignId={campaign.id} />
       <AsignarCreador campaignId={campaign.id} />

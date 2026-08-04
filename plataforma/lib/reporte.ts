@@ -13,6 +13,7 @@ export type ReportRow = {
   respuestas: number;
   compartidas: number;
   origen: string; // 'api' | 'manual' | 'mention'
+  video: string; // URL de descarga del respaldo ("" si no hay archivo)
 };
 
 const HEADERS = [
@@ -26,6 +27,7 @@ const HEADERS = [
   "Respuestas",
   "Compartidas",
   "Origen",
+  "Video",
 ] as const;
 
 function cell(value: string | number): string {
@@ -49,6 +51,7 @@ export function toCsv(rows: ReportRow[]): string {
         r.respuestas,
         r.compartidas,
         r.origen,
+        r.video,
       ]
         .map(cell)
         .join(","),

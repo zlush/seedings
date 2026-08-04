@@ -30,12 +30,20 @@ export default async function ReportePage() {
           </Link>
           <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">Reporte en vivo</h1>
         </div>
-        <a
-          href="/api/admin/reporte"
-          className="rounded-full bg-cream px-5 py-2.5 text-sm font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
-        >
-          Descargar CSV ↓
-        </a>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/ugc"
+            className="rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold transition hover:border-cream"
+          >
+            🎬 Videos
+          </Link>
+          <a
+            href="/api/admin/reporte"
+            className="rounded-full bg-cream px-5 py-2.5 text-sm font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
+          >
+            Descargar CSV ↓
+          </a>
+        </div>
       </div>
 
       {/* Totales — patrón hero-stats */}
@@ -63,7 +71,7 @@ export default async function ReportePage() {
         <table className="w-full min-w-[720px] text-sm">
           <thead>
             <tr className="border-b border-cream/20 bg-wine-deep/60 text-left">
-              {["Fecha", "Campaña", "Marca", "IG", "Alcance", "Reprod.", "Interac.", "Resp.", "Comp.", "Origen", "Reporte"].map(
+              {["Fecha", "Campaña", "Marca", "IG", "Alcance", "Reprod.", "Interac.", "Resp.", "Comp.", "Origen", "Video", "Reporte"].map(
                 (h) => (
                   <th
                     key={h}
@@ -99,6 +107,19 @@ export default async function ReportePage() {
                     {r.origen}
                   </span>
                 </td>
+                <td className="px-3 py-2.5 text-center">
+                  {r.video ? (
+                    <a
+                      href={r.video}
+                      title="Descargar el archivo de la story"
+                      className="text-cream/80 underline underline-offset-4 hover:text-cream"
+                    >
+                      ↓
+                    </a>
+                  ) : (
+                    <span className="text-cream/30">—</span>
+                  )}
+                </td>
                 <td className="px-3 py-2.5">
                   <FilaToggle storyId={r.storyId} excluded={r.excluded} />
                 </td>
@@ -106,7 +127,7 @@ export default async function ReportePage() {
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={11} className="px-3 py-8 text-center text-cream/50">
+                <td colSpan={12} className="px-3 py-8 text-center text-cream/50">
                   Aún no hay stories medidas. Aparecerán aquí en cuanto los creadores publiquen.
                 </td>
               </tr>

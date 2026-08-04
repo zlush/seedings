@@ -41,12 +41,20 @@ export default async function AdminHome() {
     <>
       <div className="mt-8 flex items-end justify-between">
         <h1 className="font-display text-3xl font-semibold tracking-tight">Campañas</h1>
-        <Link
-          href="/admin/reporte"
-          className="rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold transition hover:border-cream"
-        >
-          Reporte en vivo →
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/ugc"
+            className="rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold transition hover:border-cream"
+          >
+            🎬 Videos
+          </Link>
+          <Link
+            href="/admin/reporte"
+            className="rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold transition hover:border-cream"
+          >
+            Reporte en vivo →
+          </Link>
+        </div>
       </div>
 
       {/* Automatización por mención: cuenta de marca conectada */}

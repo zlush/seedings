@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
+import { siteUrl } from "./site-url";
 import type { ReportRow } from "./reporte";
 
 type MetricSnap = {
@@ -17,7 +18,7 @@ export async function fetchReportRows(): Promise<ReportRow[]> {
   const { data } = await db
     .from("stories")
     .select(
-      `id, published_at, source, excluded,
+      `id, published_at, source, excluded, media_backup_path,
        campaign_creators(
          creators(instagram_username),
          campaigns(name, brands:brand_id(name))
@@ -25,6 +26,8 @@ export async function fetchReportRows(): Promise<ReportRow[]> {
        story_metrics(reach, views, total_interactions, replies, shares, snapshot_at)`,
     )
     .order("published_at", { ascending: false });
+
+  const base = siteUrl();
 
   return (data ?? []).map((s) => {
     const cc = s.campaign_creators as unknown as {
@@ -47,6 +50,7 @@ export async function fetchReportRows(): Promise<ReportRow[]> {
       respuestas: latest?.replies ?? 0,
       compartidas: latest?.shares ?? 0,
       origen: s.source ?? "api",
+      video: s.media_backup_path ? `${base}/api/admin/ugc/${s.id}` : "",
     };
   });
 }
