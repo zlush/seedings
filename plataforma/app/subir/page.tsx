@@ -53,12 +53,6 @@ export default async function SubirPage({
         )}
       </h1>
 
-      {campaignName && (
-        <p className="mt-3 inline-block rounded-full border border-gold/50 px-4 py-1.5 text-sm text-gold">
-          Campaña: {campaignName}
-        </p>
-      )}
-
       <p className="mt-5 leading-relaxed text-cream/80">
         Súbelos acá y nos llegan directo — no necesitas cuenta ni contraseña. Solo tu número de
         celular para saber que son tuyos.

@@ -12,6 +12,8 @@ type Props = {
 
 export function Formulario({ campaignId, campaignName, brandName, telPrefill }: Props) {
   const [phone, setPhone] = useState(telPrefill ?? "");
+  const [campana, setCampana] = useState(campaignName ?? "");
+  const [marca, setMarca] = useState(brandName ?? "");
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
@@ -55,8 +57,8 @@ export function Formulario({ campaignId, campaignName, brandName, telPrefill }: 
           phone,
           files: uploaded,
           campaignId,
-          campaignName,
-          brandName,
+          campaignName: campana,
+          brandName: marca,
           note,
         }),
       });
@@ -112,6 +114,32 @@ export function Formulario({ campaignId, campaignName, brandName, telPrefill }: 
       />
       <p className="mt-1.5 text-xs text-cream/50">
         El mismo que tienes registrado con nosotros — así sabemos que el video es tuyo.
+      </p>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="block text-xs uppercase tracking-[.14em] text-cream/60">Marca</label>
+          <input
+            type="text"
+            placeholder="Ej: Spot Escence"
+            value={marca}
+            onChange={(e) => setMarca(e.target.value)}
+            className={`mt-2 ${inputCls}`}
+          />
+        </div>
+        <div>
+          <label className="block text-xs uppercase tracking-[.14em] text-cream/60">Campaña</label>
+          <input
+            type="text"
+            placeholder="Ej: Día de la madre"
+            value={campana}
+            onChange={(e) => setCampana(e.target.value)}
+            className={`mt-2 ${inputCls}`}
+          />
+        </div>
+      </div>
+      <p className="mt-1.5 text-xs text-cream/50">
+        Si el link te llegó con estos datos ya puestos, déjalos como están.
       </p>
 
       <label className="mt-6 block text-xs uppercase tracking-[.14em] text-cream/60">

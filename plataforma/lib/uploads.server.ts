@@ -130,9 +130,10 @@ export async function fetchUploads(
     return {
       id: r.id as string,
       phone: r.phone as string,
-      // La campaña real manda; el texto del link es el respaldo.
-      campana: c?.name ?? (r.campaign_name as string) ?? "",
-      marca: c?.brands?.name ?? (r.brand_name as string) ?? "",
+      // Manda lo que declaró el creador en el formulario; la campaña
+      // asociada al link es el respaldo.
+      campana: (r.campaign_name as string) || c?.name || "",
+      marca: (r.brand_name as string) || c?.brands?.name || "",
       fecha: String(r.created_at).slice(0, 10),
       mediaType: (r.media_type as string) ?? null,
       note: (r.note as string) ?? null,
@@ -154,8 +155,8 @@ export async function signedUploadDownloadUrl(id: string): Promise<string | null
 
   const c = data.campaigns as unknown as { name: string; brands: { name: string } | null } | null;
   const filename = ugcFilename({
-    marca: c?.brands?.name ?? (data.brand_name as string) ?? "",
-    campana: c?.name ?? (data.campaign_name as string) ?? "",
+    marca: (data.brand_name as string) || c?.brands?.name || "",
+    campana: (data.campaign_name as string) || c?.name || "",
     ig: data.phone as string,
     fecha: String(data.created_at).slice(0, 10),
     mediaType: (data.media_type as string) ?? null,
