@@ -115,20 +115,20 @@ export async function signedDownloadUrl(storyId: string): Promise<string | null>
   return data?.signedUrl ?? null;
 }
 
-// Campañas que tienen al menos un archivo respaldado (para el filtro).
-// Consulta liviana: no toca Storage.
-export async function fetchUgcCampaigns(): Promise<{ id: string; name: string }[]> {
+// Todas las campañas de la plataforma — sirven para filtrar y para corregir
+// a qué campaña pertenece un archivo.
+export async function fetchCampaignOptions(): Promise<
+  { id: string; name: string; brand: string }[]
+> {
   const db = createAdminClient();
   const { data } = await db
-    .from("stories")
-    .select(`campaign_creators!inner(campaigns(id, name))`)
-    .not("media_backup_path", "is", null);
+    .from("campaigns")
+    .select("id, name, brands:brand_id(name)")
+    .order("created_at", { ascending: false });
 
-  const seen = new Map<string, string>();
-  for (const row of data ?? []) {
-    const c = (row.campaign_creators as unknown as { campaigns: { id: string; name: string } | null } | null)
-      ?.campaigns;
-    if (c?.id && !seen.has(c.id)) seen.set(c.id, c.name);
-  }
-  return [...seen].map(([id, name]) => ({ id, name }));
+  return (data ?? []).map((c) => ({
+    id: c.id as string,
+    name: c.name as string,
+    brand: (c.brands as unknown as { name: string } | null)?.name ?? "sin marca",
+  }));
 }
