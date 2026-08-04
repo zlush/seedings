@@ -5,7 +5,7 @@ import { siteUrl } from "./site-url";
 import { phoneFolder } from "./phone";
 import { ugcFilename } from "./ugc";
 import { shareExpiry, isShareValid } from "./share";
-import { ghlEnabled, pushVideosFolderToGhl } from "./ghl.server";
+import { ghlEnabled, pushVideosFolderToGhl, type ContactDetails } from "./ghl.server";
 
 const BUCKET = "story-backups";
 
@@ -37,11 +37,13 @@ export async function saveUploads(
 ): Promise<{ saved: number; ghlContactId: string | null; ghlError?: string }> {
   const db = createAdminClient();
 
-  let ghlContactId: string | null = null;
+  // Se trae la ficha del CRM ANTES de guardar, para que el video quede
+  // identificado con nombre, IG y campaña activa — no solo con un teléfono.
+  let contact: ContactDetails | null = null;
   let ghlError: string | undefined;
   if (ghlEnabled()) {
     try {
-      ghlContactId = await pushVideosFolderToGhl(input.phone, folderLink(input.phone));
+      contact = await pushVideosFolderToGhl(input.phone, folderLink(input.phone));
     } catch (e) {
       ghlError = e instanceof Error ? e.message : "GHL falló";
     }
@@ -56,13 +58,18 @@ export async function saveUploads(
     storage_path: f.path,
     media_type: f.mediaType,
     note: input.note ?? null,
-    ghl_contact_id: ghlContactId,
+    ghl_contact_id: contact?.id ?? null,
+    contact_name: contact?.name || null,
+    contact_email: contact?.email || null,
+    contact_instagram: contact?.instagram || null,
+    contact_campaign: contact?.campaign || null,
+    contact_fields: contact?.fields ?? null,
   }));
 
   const { error } = await db.from("creator_uploads").insert(rows);
   if (error) throw new Error(error.message);
 
-  return { saved: rows.length, ghlContactId, ghlError };
+  return { saved: rows.length, ghlContactId: contact?.id ?? null, ghlError };
 }
 
 // ---- Links públicos temporales -----------------------------------------------
@@ -100,6 +107,12 @@ export type UploadItem = {
   note: string | null;
   ghlContactId: string | null;
   previewUrl: string | null;
+  // Copiado del CRM al subir.
+  nombre: string;
+  instagram: string;
+  email: string;
+  crmCampaign: string;
+  crmExtra: string; // todo junto, para el buscador
 };
 
 export async function fetchUploads(
@@ -109,7 +122,11 @@ export async function fetchUploads(
 
   let query = db
     .from("creator_uploads")
-    .select("id, phone, campaign_name, brand_name, storage_path, media_type, note, ghl_contact_id, created_at, campaigns(name, brands:brand_id(name))")
+    .select(
+      `id, phone, campaign_name, brand_name, storage_path, media_type, note, ghl_contact_id, created_at,
+       contact_name, contact_email, contact_instagram, contact_campaign, contact_fields,
+       campaigns(name, brands:brand_id(name))`,
+    )
     .order("created_at", { ascending: false });
   if (opts.phone) query = query.eq("phone", opts.phone);
   if (opts.campaignId) query = query.eq("campaign_id", opts.campaignId);
@@ -127,13 +144,27 @@ export async function fetchUploads(
 
   return rows.map((r) => {
     const c = r.campaigns as unknown as { name: string; brands: { name: string } | null } | null;
+    const crmFields = (r.contact_fields ?? {}) as Record<string, string>;
     return {
       id: r.id as string,
       phone: r.phone as string,
-      // Manda lo que declaró el creador en el formulario; la campaña
-      // asociada al link es el respaldo.
-      campana: (r.campaign_name as string) || c?.name || "",
+      // Manda lo que declaró el creador en el formulario; después la campaña
+      // asociada al link, y como último recurso la campaña activa del CRM.
+      campana: (r.campaign_name as string) || c?.name || (r.contact_campaign as string) || "",
       marca: (r.brand_name as string) || c?.brands?.name || "",
+      nombre: (r.contact_name as string) ?? "",
+      instagram: (r.contact_instagram as string) ?? "",
+      email: (r.contact_email as string) ?? "",
+      crmCampaign: (r.contact_campaign as string) ?? "",
+      crmExtra: [
+        r.contact_name,
+        r.contact_instagram,
+        r.contact_email,
+        r.contact_campaign,
+        ...Object.values(crmFields),
+      ]
+        .filter(Boolean)
+        .join(" · "),
       fecha: String(r.created_at).slice(0, 10),
       mediaType: (r.media_type as string) ?? null,
       note: (r.note as string) ?? null,

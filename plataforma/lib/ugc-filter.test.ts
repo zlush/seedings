@@ -33,4 +33,17 @@ describe("matchesQuery", () => {
   it("no inventa coincidencias", () => {
     expect(matchesQuery(item, "nebula")).toBe(false);
   });
+
+  it("busca en los datos traídos del CRM", () => {
+    const conCrm = {
+      title: "+56928587239",
+      campana: "",
+      marca: "",
+      extra: "Alfredo Grossi · @Alfredogrossic · Spot Pets · Foodie, Pet Lover",
+    };
+    for (const q of ["alfredo", "grossi", "alfredogrossic", "spot pets", "foodie"]) {
+      expect(matchesQuery(conCrm, q), q).toBe(true);
+    }
+    expect(matchesQuery(conCrm, "javiera")).toBe(false);
+  });
 });

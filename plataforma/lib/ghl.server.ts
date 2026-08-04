@@ -117,6 +117,63 @@ export async function findContactByPhone(
   return (data.contacts ?? []).find((c) => (c.phone ?? "").replace(/\D/g, "") === digits);
 }
 
+// Nombres de campos del CRM que valen la pena tener a mano en la plataforma.
+const CRM_INSTAGRAM_FIELDS = ["IG", "id_instagram", "Instagram"];
+const CRM_CAMPAIGN_FIELDS = ["campaña_name_1", "Active Metrics Opportunity Name"];
+
+export type ContactDetails = {
+  id: string;
+  name: string;
+  email: string;
+  instagram: string;
+  campaign: string;
+  fields: Record<string, string>; // resto de campos con valor, para buscar
+};
+
+// Trae la ficha del contacto (nombre, IG, campaña activa, etc.) para copiarla
+// junto al video. Así el material queda identificado y buscable, en vez de
+// quedar colgando de un número de teléfono.
+export async function fetchContactDetails(phone: string): Promise<ContactDetails | null> {
+  const found = await findContactByPhone(phone);
+  if (!found) return null;
+
+  const [{ contact }, names] = await Promise.all([
+    ghl<{ contact: Record<string, unknown> }>("GET", `/contacts/${found.id}`),
+    fieldIds(),
+  ]);
+
+  // fieldIds() mapea nombre→id; acá necesitamos id→nombre.
+  const byId = new Map([...names].map(([name, id]) => [id, name]));
+
+  const fields: Record<string, string> = {};
+  for (const f of (contact.customFields ?? []) as Array<Record<string, unknown>>) {
+    const label = byId.get(String(f.id));
+    const raw = f.value ?? f.field_value;
+    if (!label || raw === undefined || raw === null) continue;
+    const value = Array.isArray(raw) ? raw.join(", ") : String(raw);
+    // Los campos de la propia plataforma no aportan a la búsqueda.
+    if (!value || value === "[]" || label.startsWith("Plataforma")) continue;
+    fields[label] = value;
+  }
+
+  const pick = (candidates: string[]) =>
+    candidates.map((k) => fields[k]).find((v) => v && v.trim()) ?? "";
+
+  const tags = Array.isArray(contact.tags) ? (contact.tags as string[]).join(", ") : "";
+  if (tags) fields["tags"] = tags;
+
+  return {
+    id: found.id,
+    name:
+      [contact.firstName, contact.lastName].filter(Boolean).join(" ").trim() ||
+      String(contact.contactName ?? ""),
+    email: String(contact.email ?? ""),
+    instagram: pick(CRM_INSTAGRAM_FIELDS).replace(/^@/, ""),
+    campaign: pick(CRM_CAMPAIGN_FIELDS),
+    fields,
+  };
+}
+
 // Actualiza un contacto EXISTENTE. A diferencia de upsert, nunca crea uno
 // nuevo: el formulario de subida es público y no queremos que cualquiera
 // ensucie la base del CRM.
@@ -185,17 +242,17 @@ export async function pushInviteToGhl(email: string, link: string): Promise<stri
   return contactId;
 }
 
-// Videos subidos por formulario: deja el link a la carpeta en el contacto.
-// Devuelve el contactId, o null si ese teléfono no existe en el CRM (el video
-// se guarda igual y el equipo lo ve en el panel como "sin contacto").
+// Videos subidos por formulario: trae la ficha del contacto y le deja el link
+// a la carpeta. Devuelve null si ese teléfono no existe en el CRM (el video se
+// guarda igual y el equipo lo ve en el panel como "sin contacto").
 export async function pushVideosFolderToGhl(
   phone: string,
   link: string,
-): Promise<string | null> {
-  const contact = await findContactByPhone(phone);
-  if (!contact) return null;
-  await updateContactFields(contact.id, { videos: link });
-  return contact.id;
+): Promise<ContactDetails | null> {
+  const details = await fetchContactDetails(phone);
+  if (!details) return null;
+  await updateContactFields(details.id, { videos: link });
+  return details;
 }
 
 // Métricas capturadas: escribe totales y mueve la oportunidad.

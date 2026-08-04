@@ -5,6 +5,7 @@ import { matchesQuery } from "@/lib/ugc-filter";
 import { DescargarTodo } from "./descargar-todo";
 import { Compartir } from "./compartir";
 import { Editar } from "./editar";
+import { TraerCrm } from "./traer-crm";
 
 export const dynamic = "force-dynamic";
 
@@ -23,13 +24,16 @@ type Card = {
   previewUrl: string | null;
   mediaType: string | null;
   title: string;
+  subtitle?: string; // teléfono/@usuario bajo el nombre
   campana: string;
   marca: string;
+  extra?: string; // datos del CRM, solo para buscar
   fecha: string;
   badge: string;
   downloadHref: string;
   permalink?: string | null;
   warn?: string;
+  sinDatosCrm?: boolean;
 };
 
 export default async function UgcPage({
@@ -73,13 +77,19 @@ export default async function UgcPage({
       id: u.id,
       previewUrl: u.previewUrl,
       mediaType: u.mediaType,
-      title: u.phone,
+      // El nombre del CRM manda; el teléfono queda de subtítulo.
+      title: u.nombre || u.phone,
+      subtitle: [u.instagram ? `@${u.instagram}` : "", u.nombre ? u.phone : ""]
+        .filter(Boolean)
+        .join(" · "),
       campana: u.campana,
       marca: u.marca,
+      extra: u.crmExtra,
       fecha: u.fecha,
       badge: "📤 formulario",
       downloadHref: `/api/admin/ugc/upload/${u.id}`,
       warn: u.ghlContactId ? undefined : "sin contacto en el CRM",
+      sinDatosCrm: !u.nombre,
     })),
   ];
 
@@ -216,6 +226,9 @@ export default async function UgcPage({
 
             <div className="px-1 pb-1 pt-2.5">
               <p className="truncate text-sm font-semibold">{i.title}</p>
+              {i.subtitle && (
+                <p className="truncate text-[11px] text-cream/50">{i.subtitle}</p>
+              )}
               {i.campana || i.marca ? (
                 <p className="mt-0.5 truncate text-xs text-cream/60">
                   {[i.campana, i.marca].filter(Boolean).join(" · ")}
@@ -240,6 +253,7 @@ export default async function UgcPage({
                   marca={i.marca}
                   campaigns={campaigns}
                 />
+                {i.sinDatosCrm && <TraerCrm id={i.id} />}
                 {i.permalink && (
                   <a
                     href={i.permalink}

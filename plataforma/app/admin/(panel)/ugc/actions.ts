@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
 import { createShareLink } from "@/lib/uploads.server";
+import { ghlEnabled, fetchContactDetails } from "@/lib/ghl.server";
 import { SHARE_DAYS } from "@/lib/share";
 
 async function requireAdmin(): Promise<boolean> {
@@ -51,6 +52,45 @@ export async function editarSubida(
 
   revalidatePath("/admin/ugc");
   return { ok: true };
+}
+
+// Re-lee la ficha del CRM y la copia sobre el video. Sirve para los que se
+// subieron antes de que existiera esta copia, y para refrescar si el contacto
+// cambió en GHL.
+export async function traerDatosCrm(id: string): Promise<{ nombre?: string; error?: string }> {
+  if (!(await requireAdmin())) return { error: "No autorizado" };
+  if (!ghlEnabled()) return { error: "El CRM no está configurado." };
+
+  const db = createAdminClient();
+  const { data: row } = await db
+    .from("creator_uploads")
+    .select("phone")
+    .eq("id", id)
+    .maybeSingle();
+  if (!row?.phone) return { error: "No encontramos el video." };
+
+  try {
+    const details = await fetchContactDetails(row.phone as string);
+    if (!details) return { error: "Ese teléfono no está en el CRM." };
+
+    const { error } = await db
+      .from("creator_uploads")
+      .update({
+        ghl_contact_id: details.id,
+        contact_name: details.name || null,
+        contact_email: details.email || null,
+        contact_instagram: details.instagram || null,
+        contact_campaign: details.campaign || null,
+        contact_fields: details.fields,
+      })
+      .eq("phone", row.phone); // todos los videos de ese creador
+    if (error) return { error: error.message };
+
+    revalidatePath("/admin/ugc");
+    return { nombre: details.name || details.instagram || (row.phone as string) };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "El CRM no respondió." };
+  }
 }
 
 // Mueve una story de Instagram a otra campaña. La story cuelga de la
