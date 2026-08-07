@@ -125,6 +125,7 @@ export type ContactDetails = {
   id: string;
   name: string;
   email: string;
+  phone: string;
   instagram: string;
   campaign: string;
   fields: Record<string, string>; // resto de campos con valor, para buscar
@@ -136,9 +137,13 @@ export type ContactDetails = {
 export async function fetchContactDetails(phone: string): Promise<ContactDetails | null> {
   const found = await findContactByPhone(phone);
   if (!found) return null;
+  return contactDetailsById(found.id);
+}
 
+// Ficha completa a partir del id.
+async function contactDetailsById(id: string): Promise<ContactDetails | null> {
   const [{ contact }, names] = await Promise.all([
-    ghl<{ contact: Record<string, unknown> }>("GET", `/contacts/${found.id}`),
+    ghl<{ contact: Record<string, unknown> }>("GET", `/contacts/${id}`),
     fieldIds(),
   ]);
 
@@ -163,15 +168,48 @@ export async function fetchContactDetails(phone: string): Promise<ContactDetails
   if (tags) fields["tags"] = tags;
 
   return {
-    id: found.id,
+    id,
     name:
       [contact.firstName, contact.lastName].filter(Boolean).join(" ").trim() ||
       String(contact.contactName ?? ""),
     email: String(contact.email ?? ""),
+    phone: String(contact.phone ?? ""),
     instagram: pick(CRM_INSTAGRAM_FIELDS).replace(/^@/, ""),
     campaign: pick(CRM_CAMPAIGN_FIELDS),
     fields,
   };
+}
+
+// Busca al creador por su usuario de Instagram — el cruce con el CRM cuando
+// alguien etiqueta a la marca.
+//
+// OJO con dos cosas verificadas contra el CRM real:
+//  1. `?query=` NO busca en campos custom: hay que usar POST /contacts/search.
+//  2. El operador `eq` distingue mayúsculas ("alfredogrossic" no encuentra a
+//     "Alfredogrossic"), e Instagram siempre manda el usuario en minúscula.
+//     `contains` sí las ignora — por eso se filtra acá el match exacto, ya que
+//     "ana" también traería a "anabella".
+export async function fetchContactByInstagram(username: string): Promise<ContactDetails | null> {
+  const clean = username.replace(/^@/, "").trim().toLowerCase();
+  if (!clean) return null;
+
+  const ids = await fieldIds();
+  const campo = CRM_INSTAGRAM_FIELDS.map((n) => ids.get(n)).find(Boolean);
+  if (!campo) return null;
+
+  const data = await ghl<{ contacts: Array<{ id: string }> }>("POST", "/contacts/search", {
+    locationId: loc(),
+    pageLimit: 20,
+    filters: [
+      { group: "AND", filters: [{ field: `customFields.${campo}`, operator: "contains", value: clean }] },
+    ],
+  });
+
+  for (const c of data.contacts ?? []) {
+    const details = await contactDetailsById(c.id);
+    if (details?.instagram.toLowerCase() === clean) return details;
+  }
+  return null;
 }
 
 // Actualiza un contacto EXISTENTE. A diferencia de upsert, nunca crea uno

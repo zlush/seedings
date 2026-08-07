@@ -15,7 +15,7 @@ async function unclaimedMentions() {
   const db = createAdminClient();
   const { data } = await db
     .from("unclaimed_stories")
-    .select("id, username, published_at")
+    .select("id, username, published_at, contact_name, contact_phone")
     .order("created_at", { ascending: false })
     .limit(20);
   return data ?? [];
@@ -96,10 +96,36 @@ export default async function AdminHome() {
           </p>
           <ul className="mt-3 flex flex-col gap-1.5 text-sm">
             {unclaimed.map((u) => (
-              <li key={u.id} className="flex items-center justify-between">
-                <span className="font-semibold">@{u.username}</span>
-                <span className="text-xs text-cream/50">
-                  {u.published_at ? new Date(u.published_at).toLocaleDateString("es-CL") : ""}
+              <li key={u.id} className="flex items-center justify-between gap-3">
+                <span className="min-w-0">
+                  <span className="font-semibold">@{u.username}</span>
+                  {/* Identificado cruzando el usuario de IG con el CRM. */}
+                  {u.contact_name && (
+                    <span className="ml-2 text-xs text-cream/60">
+                      {u.contact_name}
+                      {u.contact_phone ? ` · ${u.contact_phone}` : ""}
+                    </span>
+                  )}
+                  {!u.contact_name && (
+                    <span className="ml-2 text-xs text-cream/40">sin match en el CRM</span>
+                  )}
+                </span>
+                <span className="flex shrink-0 items-center gap-3">
+                  {u.contact_phone && (
+                    <a
+                      href={`https://wa.me/${u.contact_phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                        `¡Hola! Vimos que etiquetaste a Seedings 🌱 Súbenos tu historia acá para medir sus resultados:`,
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-gold underline underline-offset-4 hover:text-cream"
+                    >
+                      escribirle
+                    </a>
+                  )}
+                  <span className="text-xs text-cream/50">
+                    {u.published_at ? new Date(u.published_at).toLocaleDateString("es-CL") : ""}
+                  </span>
                 </span>
               </li>
             ))}

@@ -4,6 +4,7 @@ import { captureStoriesForCreator } from "@/lib/stories.server";
 import { type MentionHint } from "@/lib/webhook";
 import { normalizeMentionMeta } from "@/lib/mentions";
 import { getBrandAccount, resolveMention, backupMentionMedia } from "@/lib/brand.server";
+import { ghlEnabled, fetchContactByInstagram, type ContactDetails } from "@/lib/ghl.server";
 
 // Procesa las menciones a la marca. Por cada @usuario que etiquetó a @seedings.cl:
 //  - Conectado  → captura su historia (métricas + media + metadata) con SU token.
@@ -69,6 +70,17 @@ export async function processMentions(hints: MentionHint[]): Promise<{ matched: 
         detail.media_type,
       );
     }
+    // Cruce con el CRM por el usuario de Instagram: aunque no esté conectado
+    // a la plataforma, si está en la base sabemos su nombre y su teléfono.
+    let contacto: ContactDetails | null = null;
+    if (ghlEnabled()) {
+      try {
+        contacto = await fetchContactByInstagram(clean);
+      } catch {
+        // El CRM caído no puede impedir que se registre la mención.
+      }
+    }
+
     await db.from("unclaimed_stories").upsert(
       {
         username: clean,
@@ -76,10 +88,18 @@ export async function processMentions(hints: MentionHint[]): Promise<{ matched: 
         media_backup_path: backupPath,
         mentions: meta,
         published_at: detail.timestamp ?? new Date().toISOString(),
+        ghl_contact_id: contacto?.id ?? null,
+        contact_name: contacto?.name || null,
+        contact_phone: contacto?.phone || null,
+        contact_fields: contacto?.fields ?? null,
       },
       { onConflict: "ig_media_id" },
     );
-    notes.push(`@${clean}: no conectado, registrado${backupPath ? " + media" : ""}`);
+    notes.push(
+      `@${clean}: no conectado, registrado${backupPath ? " + media" : ""}${
+        contacto ? ` · identificado como ${contacto.name}` : " · sin match en el CRM"
+      }`,
+    );
   }
 
   return { matched, note: notes.join(" · ") };
