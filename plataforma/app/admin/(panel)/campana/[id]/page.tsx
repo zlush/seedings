@@ -5,6 +5,7 @@ import { Invitar } from "./invitar";
 import { AsignarCreador, RevisarPostulacion } from "./postulaciones";
 import { Recordatorio } from "./recordatorio";
 import { LinkSubida } from "./link-subida";
+import { LinkMarca } from "./link-marca";
 import { siteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -73,6 +74,8 @@ export default async function CampanaDetalle({
       )}
 
       <LinkSubida link={`${siteUrl()}/subir?c=${campaign.id}`} />
+
+      <LinkMarca campaignId={campaign.id} />
 
       <Invitar campaignId={campaign.id} />
       <AsignarCreador campaignId={campaign.id} />

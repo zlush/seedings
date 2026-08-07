@@ -6,6 +6,8 @@ import { isAdmin } from "@/lib/admin";
 import { createShareLink } from "@/lib/uploads.server";
 import { ghlEnabled, fetchContactDetails } from "@/lib/ghl.server";
 import { SHARE_DAYS } from "@/lib/share";
+import { brandShareToken } from "@/lib/marca.server";
+import { siteUrl } from "@/lib/site-url";
 
 async function requireAdmin(): Promise<boolean> {
   const supabase = await createClient();
@@ -27,6 +29,29 @@ export async function crearLinkPublico(
     return { link, dias: SHARE_DAYS };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "No se pudo crear el link." };
+  }
+}
+
+// Link permanente al dashboard de una marca (no caduca).
+export async function linkDeMarca(
+  campaignId: string,
+): Promise<{ link?: string; marca?: string; error?: string }> {
+  if (!(await requireAdmin())) return { error: "No autorizado" };
+
+  const db = createAdminClient();
+  const { data } = await db
+    .from("campaigns")
+    .select("brands:brand_id(id, name)")
+    .eq("id", campaignId)
+    .maybeSingle();
+  const brand = data?.brands as unknown as { id: string; name: string } | null;
+  if (!brand?.id) return { error: "Esta campaña no tiene marca asociada." };
+
+  try {
+    const token = await brandShareToken(brand.id);
+    return { link: `${siteUrl()}/marca/${token}`, marca: brand.name };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "No se pudo generar el link." };
   }
 }
 
