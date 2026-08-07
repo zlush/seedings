@@ -161,10 +161,11 @@ export function Formulario({ campaignId, campaignName, brandName, telPrefill }: 
 
       {/* 1 · El contenido */}
       <section className="mt-8 border-t border-cream/15 pt-6">
-        <p className={eyebrow}>1 · Tu historia</p>
+        <p className={eyebrow}>1 · Tu historia (opcional)</p>
         <p className="mt-1.5 text-sm text-cream/60">
-          El video o la foto que publicaste. Sácalo de tu archivo de Instagram (Perfil → ☰ →
-          Archivo). Puedes elegir varios.
+          Si etiquetaste a <b>@seedings.cl</b> en tu historia, ya la tenemos — no hace falta que la
+          subas. Súbela solo si no nos etiquetaste: sácala de tu archivo de Instagram (Perfil → ☰ →
+          Archivo).
         </p>
         <input
           type="file"
