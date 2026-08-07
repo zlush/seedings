@@ -3,14 +3,22 @@
 import { useState, useTransition } from "react";
 import { toggleStoryExcluded } from "./actions";
 
-export function FilaToggle({ storyId, excluded }: { storyId: string; excluded: boolean }) {
+export function FilaToggle({
+  storyId,
+  excluded,
+  kind = "story",
+}: {
+  storyId: string;
+  excluded: boolean;
+  kind?: "story" | "submission";
+}) {
   const [on, setOn] = useState(!excluded); // on = incluida
   const [pending, start] = useTransition();
 
   function toggle() {
     const next = !on;
     setOn(next);
-    start(() => toggleStoryExcluded(storyId, !next));
+    start(() => toggleStoryExcluded(storyId, !next, kind));
   }
 
   return (

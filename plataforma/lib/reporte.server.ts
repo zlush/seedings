@@ -12,8 +12,8 @@ type MetricSnap = {
   snapshot_at: string;
 };
 
-// Todas las stories medidas, con su último snapshot — la "planilla" en vivo.
-export async function fetchReportRows(): Promise<ReportRow[]> {
+// Stories de Instagram, con su último snapshot de métricas.
+async function fetchStoryRows(base: string): Promise<ReportRow[]> {
   const db = createAdminClient();
   const { data } = await db
     .from("stories")
@@ -27,8 +27,6 @@ export async function fetchReportRows(): Promise<ReportRow[]> {
     )
     .order("published_at", { ascending: false });
 
-  const base = siteUrl();
-
   return (data ?? []).map((s) => {
     const cc = s.campaign_creators as unknown as {
       creators: { instagram_username: string | null } | null;
@@ -39,6 +37,7 @@ export async function fetchReportRows(): Promise<ReportRow[]> {
     )[0];
     return {
       storyId: s.id,
+      kind: "story" as const,
       excluded: !!s.excluded,
       fecha: s.published_at ? String(s.published_at).slice(0, 10) : "",
       campana: cc?.campaigns?.name ?? "",
@@ -53,4 +52,55 @@ export async function fetchReportRows(): Promise<ReportRow[]> {
       video: s.media_backup_path ? `${base}/api/admin/ugc/${s.id}` : "",
     };
   });
+}
+
+// Envíos del formulario público: el creador declaró sus números a mano.
+// Entran al mismo reporte que las stories medidas por API.
+async function fetchSubmissionRows(base: string): Promise<ReportRow[]> {
+  const db = createAdminClient();
+  const { data } = await db
+    .from("form_submissions")
+    .select(
+      `id, created_at, excluded, phone, contact_name, contact_instagram,
+       campaign_name, brand_name, reach, views, total_interactions, replies, shares,
+       campaigns(name, brands:brand_id(name)),
+       creator_uploads(id, kind)`,
+    )
+    .order("created_at", { ascending: false });
+
+  return (data ?? []).map((s) => {
+    const c = s.campaigns as unknown as { name: string; brands: { name: string } | null } | null;
+    // El link del reporte apunta al contenido, no a la captura de métricas.
+    const files = (s.creator_uploads ?? []) as Array<{ id: string; kind: string }>;
+    const principal = files.find((f) => f.kind === "contenido") ?? files[0];
+
+    return {
+      storyId: s.id as string,
+      kind: "submission" as const,
+      excluded: !!s.excluded,
+      fecha: String(s.created_at).slice(0, 10),
+      campana: (s.campaign_name as string) || c?.name || "",
+      marca: (s.brand_name as string) || c?.brands?.name || "",
+      ig: s.contact_instagram
+        ? `@${s.contact_instagram}`
+        : (s.contact_name as string) || (s.phone as string),
+      alcance: (s.reach as number) ?? 0,
+      reproducciones: (s.views as number) ?? 0,
+      interacciones: (s.total_interactions as number) ?? 0,
+      respuestas: (s.replies as number) ?? 0,
+      compartidas: (s.shares as number) ?? 0,
+      origen: "formulario",
+      video: principal ? `${base}/api/admin/ugc/upload/${principal.id}` : "",
+    };
+  });
+}
+
+// Todo lo medido — Instagram y formulario — en una sola planilla en vivo.
+export async function fetchReportRows(): Promise<ReportRow[]> {
+  const base = siteUrl();
+  const [stories, submissions] = await Promise.all([
+    fetchStoryRows(base),
+    fetchSubmissionRows(base),
+  ]);
+  return [...stories, ...submissions].sort((a, b) => b.fecha.localeCompare(a.fecha));
 }

@@ -5,7 +5,16 @@ import { siteUrl } from "./site-url";
 import { phoneFolder } from "./phone";
 import { ugcFilename } from "./ugc";
 import { shareExpiry, isShareValid } from "./share";
-import { ghlEnabled, pushVideosFolderToGhl, type ContactDetails } from "./ghl.server";
+import {
+  ghlEnabled,
+  pushVideosFolderToGhl,
+  pushDeclaredMetricsToGhl,
+  type ContactDetails,
+} from "./ghl.server";
+
+function hasMetrics(m: Record<string, number | undefined>): boolean {
+  return Object.values(m).some((v) => typeof v === "number");
+}
 
 const BUCKET = "story-backups";
 
@@ -16,7 +25,9 @@ export type UploadInput = {
   campaignName?: string | null;
   brandName?: string | null;
   note?: string | null;
-  files: Array<{ path: string; mediaType: "VIDEO" | "IMAGE" }>;
+  // "contenido" = el video/foto de la historia; "metrica" = captura de los KPI.
+  files: Array<{ path: string; mediaType: "VIDEO" | "IMAGE"; kind: "contenido" | "metrica" }>;
+  metrics?: Partial<Record<"reach" | "views" | "total_interactions" | "replies" | "shares", number>>;
 };
 
 // Link privado a la carpeta del creador (requiere sesión de admin).
@@ -49,6 +60,29 @@ export async function saveUploads(
     }
   }
 
+  // El envío: números + campaña. Los archivos cuelgan de acá.
+  const metrics = input.metrics ?? {};
+  const { data: submission, error: subErr } = await db
+    .from("form_submissions")
+    .insert({
+      phone: input.phone,
+      campaign_id: input.campaignId ?? null,
+      campaign_name: input.campaignName ?? null,
+      brand_name: input.brandName ?? null,
+      reach: metrics.reach ?? null,
+      views: metrics.views ?? null,
+      total_interactions: metrics.total_interactions ?? null,
+      replies: metrics.replies ?? null,
+      shares: metrics.shares ?? null,
+      note: input.note ?? null,
+      ghl_contact_id: contact?.id ?? null,
+      contact_name: contact?.name || null,
+      contact_instagram: contact?.instagram || null,
+    })
+    .select("id")
+    .single();
+  if (subErr) throw new Error(subErr.message);
+
   const rows = input.files.map((f) => ({
     phone: input.phone,
     phone_raw: input.phoneRaw ?? null,
@@ -57,6 +91,8 @@ export async function saveUploads(
     brand_name: input.brandName ?? null,
     storage_path: f.path,
     media_type: f.mediaType,
+    kind: f.kind,
+    submission_id: submission.id,
     note: input.note ?? null,
     ghl_contact_id: contact?.id ?? null,
     contact_name: contact?.name || null,
@@ -68,6 +104,18 @@ export async function saveUploads(
 
   const { error } = await db.from("creator_uploads").insert(rows);
   if (error) throw new Error(error.message);
+
+  // Las métricas declaradas vuelven al CRM, igual que las capturadas por API.
+  if (contact && hasMetrics(metrics)) {
+    try {
+      await pushDeclaredMetricsToGhl(contact.id, {
+        reach: metrics.reach ?? 0,
+        interactions: metrics.total_interactions ?? 0,
+      });
+    } catch (e) {
+      ghlError = e instanceof Error ? e.message : "GHL falló al escribir métricas";
+    }
+  }
 
   return { saved: rows.length, ghlContactId: contact?.id ?? null, ghlError };
 }

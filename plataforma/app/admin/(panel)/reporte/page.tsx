@@ -121,7 +121,7 @@ export default async function ReportePage() {
                   )}
                 </td>
                 <td className="px-3 py-2.5">
-                  <FilaToggle storyId={r.storyId} excluded={r.excluded} />
+                  <FilaToggle storyId={r.storyId} excluded={r.excluded} kind={r.kind} />
                 </td>
               </tr>
             ))}

@@ -2,6 +2,7 @@
 
 export type ReportRow = {
   storyId: string;
+  kind: "story" | "submission"; // de dónde salió la fila
   excluded: boolean;
   fecha: string;
   campana: string;

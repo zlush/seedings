@@ -255,6 +255,21 @@ export async function pushVideosFolderToGhl(
   return details;
 }
 
+// Métricas declaradas por el creador en el formulario público. Ya tenemos el
+// contactId (lo resolvimos por teléfono), así que se escribe directo y se
+// mueve la oportunidad, igual que con las capturadas por API.
+export async function pushDeclaredMetricsToGhl(
+  contactId: string,
+  totals: { reach: number; interactions: number },
+): Promise<void> {
+  await updateContactFields(contactId, {
+    reach: totals.reach,
+    interactions: totals.interactions,
+    lastCapture: new Date().toISOString().slice(0, 16).replace("T", " "),
+  });
+  await moveContactOpportunity(contactId, PIPELINE_STAGE_METRICS);
+}
+
 // Métricas capturadas: escribe totales y mueve la oportunidad.
 export async function pushMetricsToGhl(
   email: string,

@@ -3,6 +3,7 @@ import { toCsv, type ReportRow } from "./reporte";
 
 const row: ReportRow = {
   storyId: "s1",
+  kind: "story",
   excluded: false,
   fecha: "2026-07-05",
   campana: "Día de la madre",

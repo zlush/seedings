@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { normalizePhoneCl, phoneFolder } from "@/lib/phone";
-import { mediaTypeFromMime } from "@/lib/manual";
+import { mediaTypeFromMime, parseManualMetrics } from "@/lib/manual";
 import { saveUploads } from "@/lib/uploads.server";
 
 const MAX_FILES = 10;
@@ -10,7 +10,7 @@ const MAX_FILES = 10;
 // RUTA PÚBLICA (sin login).
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
-  const { phone, files, campaignId, campaignName, brandName, note } = body;
+  const { phone, files, campaignId, campaignName, brandName, note, metrics } = body;
 
   const normalized = normalizePhoneCl(phone);
   if (!normalized)
@@ -25,13 +25,18 @@ export async function POST(request: Request) {
   // podría registrar a su nombre el archivo de otro creador.
   const db = createAdminClient();
   const folder = `${phoneFolder(normalized)}/`;
-  const clean: Array<{ path: string; mediaType: "VIDEO" | "IMAGE" }> = [];
+  const clean: Array<{ path: string; mediaType: "VIDEO" | "IMAGE"; kind: "contenido" | "metrica" }> =
+    [];
   for (const f of files) {
     if (typeof f?.path !== "string" || typeof f?.mime !== "string")
       return NextResponse.json({ error: "Archivo inválido." }, { status: 400 });
     if (!f.path.startsWith(folder))
       return NextResponse.json({ error: "Archivo fuera de tu carpeta." }, { status: 400 });
-    clean.push({ path: f.path, mediaType: mediaTypeFromMime(f.mime) });
+    clean.push({
+      path: f.path,
+      mediaType: mediaTypeFromMime(f.mime),
+      kind: f.kind === "metrica" ? "metrica" : "contenido",
+    });
   }
 
   // La campaña, si el link traía una real.
@@ -50,6 +55,7 @@ export async function POST(request: Request) {
       brandName: typeof brandName === "string" ? brandName.slice(0, 120) : null,
       note: typeof note === "string" ? note.slice(0, 500) : null,
       files: clean,
+      metrics: parseManualMetrics(metrics ?? {}),
     });
     return NextResponse.json({ ok: true, saved: result.saved, crm: !!result.ghlContactId });
   } catch (e) {
