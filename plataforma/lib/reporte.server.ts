@@ -63,6 +63,7 @@ async function fetchSubmissionRows(base: string): Promise<ReportRow[]> {
     .select(
       `id, created_at, excluded, phone, contact_name, contact_instagram,
        campaign_name, brand_name, reach, views, total_interactions, replies, shares,
+       metrics_source, metrics_mismatch,
        campaigns(name, brands:brand_id(name)),
        creator_uploads(id, kind)`,
     )
@@ -89,7 +90,14 @@ async function fetchSubmissionRows(base: string): Promise<ReportRow[]> {
       interacciones: (s.total_interactions as number) ?? 0,
       respuestas: (s.replies as number) ?? 0,
       compartidas: (s.shares as number) ?? 0,
-      origen: "formulario",
+      // La lectura de las capturas se marca en el origen, y si no cuadra con
+      // lo que declaró el creador, se avisa cuál métrica revisar.
+      origen:
+        (s.metrics_mismatch as string[] | null)?.length
+          ? `⚠ revisar ${(s.metrics_mismatch as string[]).join(", ")}`
+          : s.metrics_source === "ia"
+            ? "formulario (leído)"
+            : "formulario",
       video: principal ? `${base}/api/admin/ugc/upload/${principal.id}` : "",
     };
   });

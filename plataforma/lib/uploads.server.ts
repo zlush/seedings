@@ -4,6 +4,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { siteUrl } from "./site-url";
 import { phoneFolder } from "./phone";
 import { ugcFilename } from "./ugc";
+import { discrepancias } from "./vision";
+import { readMetricsFromScreenshots, visionEnabled } from "./vision.server";
 import { shareExpiry, isShareValid } from "./share";
 import {
   ghlEnabled,
@@ -104,6 +106,36 @@ export async function saveUploads(
 
   const { error } = await db.from("creator_uploads").insert(rows);
   if (error) throw new Error(error.message);
+
+  // Lectura de las capturas: rellena lo que el creador no escribió y marca
+  // dónde no coinciden. Best-effort — si falla, quedan sus números.
+  const capturas = input.files.filter((f) => f.kind === "metrica").map((f) => f.path);
+  if (capturas.length && visionEnabled()) {
+    try {
+      const leido = await readMetricsFromScreenshots(capturas);
+      if (leido) {
+        const mismatch = discrepancias(metrics, leido);
+        await db
+          .from("form_submissions")
+          .update({
+            ai_reach: leido.reach ?? null,
+            ai_views: leido.views ?? null,
+            ai_total_interactions: leido.total_interactions ?? null,
+            // Lo que el creador dejó en blanco se completa con la lectura.
+            reach: metrics.reach ?? leido.reach ?? null,
+            views: metrics.views ?? leido.views ?? null,
+            total_interactions: metrics.total_interactions ?? leido.total_interactions ?? null,
+            metrics_source: hasMetrics(metrics) ? "ambos" : "ia",
+            metrics_mismatch: mismatch.length ? mismatch : null,
+          })
+          .eq("id", submission.id);
+      }
+    } catch {
+      // El equipo igual ve las capturas en el panel.
+    }
+  } else if (hasMetrics(metrics)) {
+    await db.from("form_submissions").update({ metrics_source: "creador" }).eq("id", submission.id);
+  }
 
   // Las métricas declaradas vuelven al CRM, igual que las capturadas por API.
   if (contact && hasMetrics(metrics)) {
