@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { fetchReportRows } from "@/lib/reporte.server";
 import { FilaToggle } from "./fila-toggle";
+import { Corregir } from "./corregir";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +123,21 @@ export default async function ReportePage() {
                 </td>
                 <td className="px-3 py-2.5">
                   <FilaToggle storyId={r.storyId} excluded={r.excluded} kind={r.kind} />
+                  {r.kind === "submission" && (
+                    <div className="mt-1">
+                      <Corregir
+                        submissionId={r.storyId}
+                        revisar={r.revisar}
+                        actuales={{
+                          reach: r.alcance,
+                          views: r.reproducciones,
+                          total_interactions: r.interacciones,
+                          replies: r.respuestas,
+                          shares: r.compartidas,
+                        }}
+                      />
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

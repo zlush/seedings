@@ -75,9 +75,15 @@ async function fetchSubmissionRows(base: string): Promise<ReportRow[]> {
     const files = (s.creator_uploads ?? []) as Array<{ id: string; kind: string }>;
     const principal = files.find((f) => f.kind === "contenido") ?? files[0];
 
+    const mismatch = (s.metrics_mismatch as string[] | null) ?? [];
+    // Sin números y sin lectura = alguien tiene que mirar la captura.
+    const sinNumeros =
+      s.reach == null && s.views == null && s.total_interactions == null;
+
     return {
       storyId: s.id as string,
       kind: "submission" as const,
+      revisar: mismatch.length > 0 || sinNumeros,
       excluded: !!s.excluded,
       fecha: String(s.created_at).slice(0, 10),
       campana: (s.campaign_name as string) || c?.name || "",
@@ -92,12 +98,15 @@ async function fetchSubmissionRows(base: string): Promise<ReportRow[]> {
       compartidas: (s.shares as number) ?? 0,
       // La lectura de las capturas se marca en el origen, y si no cuadra con
       // lo que declaró el creador, se avisa cuál métrica revisar.
-      origen:
-        (s.metrics_mismatch as string[] | null)?.length
-          ? `⚠ revisar ${(s.metrics_mismatch as string[]).join(", ")}`
+      origen: mismatch.length
+        ? `⚠ ${mismatch.join(", ")}`
+        : sinNumeros
+          ? "⚠ sin leer"
           : s.metrics_source === "ia"
-            ? "formulario (leído)"
-            : "formulario",
+            ? "leído"
+            : s.metrics_source === "equipo"
+              ? "corregido"
+              : "formulario",
       video: principal ? `${base}/api/admin/ugc/upload/${principal.id}` : "",
     };
   });

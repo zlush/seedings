@@ -13,7 +13,8 @@ export type ReportRow = {
   interacciones: number;
   respuestas: number;
   compartidas: number;
-  origen: string; // 'api' | 'manual' | 'mention'
+  origen: string; // 'api' | 'manual' | 'mention' | 'formulario'
+  revisar?: boolean; // la lectura no cuadró, o no dejó números
   video: string; // URL de descarga del respaldo ("" si no hay archivo)
 };
 

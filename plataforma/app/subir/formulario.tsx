@@ -12,21 +12,12 @@ type Props = {
 
 type Subida = { path: string; mime: string; kind: "contenido" | "metrica" };
 
-const METRICAS = [
-  ["reach", "Alcance"],
-  ["views", "Reproducciones"],
-  ["total_interactions", "Interacciones"],
-  ["replies", "Respuestas"],
-  ["shares", "Compartidas"],
-] as const;
-
 export function Formulario({ campaignId, campaignName, brandName, telPrefill }: Props) {
   const [phone, setPhone] = useState(telPrefill ?? "");
   const [campana, setCampana] = useState(campaignName ?? "");
   const [marca, setMarca] = useState(brandName ?? "");
   const [contenido, setContenido] = useState<File[]>([]);
   const [capturas, setCapturas] = useState<File[]>([]);
-  const [metrics, setMetrics] = useState<Record<string, string>>({});
   const [note, setNote] = useState("");
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -36,7 +27,8 @@ export function Formulario({ campaignId, campaignName, brandName, telPrefill }: 
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!total || !phone.trim()) return;
+    // Las capturas son obligatorias: de ahí salen las métricas.
+    if (!capturas.length || !phone.trim()) return;
 
     setMsg(null);
     setProgress({ done: 0, total });
@@ -76,7 +68,6 @@ export function Formulario({ campaignId, campaignName, brandName, telPrefill }: 
           campaignId,
           campaignName: campana,
           brandName: marca,
-          metrics,
           note,
         }),
       });
@@ -86,7 +77,6 @@ export function Formulario({ campaignId, campaignName, brandName, telPrefill }: 
       setMsg({ ok: true, text: "¡Listo! Recibimos tu material. Gracias 🌱" });
       setContenido([]);
       setCapturas([]);
-      setMetrics({});
       setNote("");
     } catch (e) {
       setMsg({ ok: false, text: e instanceof Error ? e.message : "Error. Reintenta." });
@@ -186,37 +176,16 @@ export function Formulario({ campaignId, campaignName, brandName, telPrefill }: 
         {lista(contenido)}
       </section>
 
-      {/* 2 · Los números */}
+      {/* 2 · Las capturas */}
       <section className="mt-8 border-t border-cream/15 pt-6">
-        <p className={eyebrow}>2 · Tus números</p>
+        <p className={eyebrow}>2 · Capturas de tus métricas *</p>
         <p className="mt-1.5 text-sm text-cream/60">
-          Los ves en Instagram: tu historia → deslizar hacia arriba → Ver todo. Si no los tienes a
-          mano, súbelos como captura más abajo.
-        </p>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {METRICAS.map(([key, label]) => (
-            <input
-              key={key}
-              type="number"
-              min={0}
-              inputMode="numeric"
-              placeholder={label}
-              value={metrics[key] ?? ""}
-              onChange={(e) => setMetrics((m) => ({ ...m, [key]: e.target.value }))}
-              className={inputCls}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* 3 · Las capturas */}
-      <section className="mt-8 border-t border-cream/15 pt-6">
-        <p className={eyebrow}>3 · Capturas de tus métricas</p>
-        <p className="mt-1.5 text-sm text-cream/60">
-          Los pantallazos de los insights de tu historia. Nos sirven de respaldo.
+          Los pantallazos de los insights: tu historia → deslizar hacia arriba → Ver todo. De ahí
+          sacamos tus números, así que no tienes que escribir ninguno.
         </p>
         <input
           type="file"
+          required
           multiple
           accept="image/*"
           onChange={(e) => setCapturas(Array.from(e.target.files ?? []))}
@@ -237,7 +206,7 @@ export function Formulario({ campaignId, campaignName, brandName, telPrefill }: 
 
       <button
         type="submit"
-        disabled={loading || !total}
+        disabled={loading || !capturas.length}
         className="mt-7 w-full rounded-full bg-cream px-6 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper disabled:opacity-50 disabled:hover:translate-y-0"
       >
         {loading ? `Subiendo ${progress.done}/${progress.total}…` : "Enviar"}
