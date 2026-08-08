@@ -20,9 +20,31 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const raw = await request.text();
   const signature = request.headers.get("x-hub-signature-256");
-  const secret = process.env.INSTAGRAM_APP_SECRET ?? process.env.FB_APP_SECRET ?? "";
 
-  if (!verifySignature(raw, signature, secret)) {
+  // Meta firma con el App Secret de la APP (el de Facebook), no con el de
+  // Instagram. Antes se elegía uno solo con `??` y, al no calzar la firma, el
+  // evento se descartaba con 401 SIN dejar rastro: parecía que Meta nunca
+  // había llamado. Se prueban ambos, y el rechazo queda registrado.
+  const secretos = [process.env.FB_APP_SECRET, process.env.INSTAGRAM_APP_SECRET].filter(
+    (s): s is string => Boolean(s),
+  );
+  const firmaOk = secretos.some((s) => verifySignature(raw, signature, s));
+
+  if (!firmaOk) {
+    try {
+      await createAdminClient()
+        .from("webhook_events")
+        .insert({
+          field: "debug_firma_rechazada",
+          payload: {
+            tiene_firma: Boolean(signature),
+            secretos_probados: secretos.length,
+            body_len: raw.length,
+            // Sin secretos ni firma completa: solo lo justo para diagnosticar.
+            body_head: raw.slice(0, 300),
+          },
+        });
+    } catch {}
     return new NextResponse("Invalid signature", { status: 401 });
   }
 
