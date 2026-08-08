@@ -39,14 +39,22 @@ export async function GET(request: NextRequest) {
   // Meta compara el redirect_uri como TEXTO EXACTO entre diálogo y canje.
   // Por eso no lo recalculamos en el callback: lo transportamos en la cookie.
   const redirectUri = `${siteUrl()}/api/auth/ig/callback`;
-  const dialog = new URL("https://www.instagram.com/oauth/authorize");
-  dialog.searchParams.set("client_id", INSTAGRAM_APP_ID);
-  dialog.searchParams.set("redirect_uri", redirectUri);
-  dialog.searchParams.set("scope", (isBrand ? BRAND_SCOPES : CREATOR_SCOPES).join(","));
-  dialog.searchParams.set("response_type", "code");
-  dialog.searchParams.set("state", state);
 
-  const res = NextResponse.redirect(dialog.toString());
+  // La query se arma a mano, no con searchParams: `set()` percent-codifica el
+  // redirect_uri (`https%3A%2F%2F…`) y el Business Login de Instagram compara
+  // esa cadena tal como viene, no decodificada. La URL de ejemplo que genera
+  // el propio panel de Meta la lleva SIN codificar; con la codificada, el canje
+  // responde "redirect_uri is not identical" aunque ambas sean equivalentes.
+  const query = [
+    `client_id=${INSTAGRAM_APP_ID}`,
+    `redirect_uri=${redirectUri}`,
+    `scope=${encodeURIComponent((isBrand ? BRAND_SCOPES : CREATOR_SCOPES).join(","))}`,
+    "response_type=code",
+    `state=${state}`,
+  ].join("&");
+  const dialog = `https://www.instagram.com/oauth/authorize?${query}`;
+
+  const res = NextResponse.redirect(dialog);
   const opts = {
     httpOnly: true,
     secure: origin.startsWith("https"),
