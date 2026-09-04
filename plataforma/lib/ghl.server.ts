@@ -1,5 +1,6 @@
 import "server-only";
 import { matchContactByEmail, type CampaignTotals } from "./ghl";
+import { normalizarHandle } from "./ig-handle";
 
 // ============================================================================
 // Cliente de GoHighLevel (LeadConnector API v2).
@@ -118,7 +119,11 @@ export async function findContactByPhone(
 }
 
 // Nombres de campos del CRM que valen la pena tener a mano en la plataforma.
-const CRM_INSTAGRAM_FIELDS = ["IG", "id_instagram", "Instagram"];
+// Verificado contra la location el 2026-09-04: los campos que existen son "IG"
+// y "url_instagram". Se excluye "id_instagram" a propósito: guarda el id
+// numérico de Instagram ("47318593205"), no el handle, y colarlo como
+// alternativa hacía que el cruce nunca calzara cuando "IG" venía vacío.
+const CRM_INSTAGRAM_FIELDS = ["IG", "url_instagram"];
 const CRM_CAMPAIGN_FIELDS = ["campaña_name_1", "Active Metrics Opportunity Name"];
 
 export type ContactDetails = {
@@ -174,7 +179,10 @@ async function contactDetailsById(id: string): Promise<ContactDetails | null> {
       String(contact.contactName ?? ""),
     email: String(contact.email ?? ""),
     phone: String(contact.phone ?? ""),
-    instagram: pick(CRM_INSTAGRAM_FIELDS).replace(/^@/, ""),
+    // El campo del CRM viene sucio: hay valores con espacio al final, con URL
+    // completa y hasta nombres de persona. normalizarHandle deja el handle o
+    // nada, en vez de un texto que después no calza con nadie.
+    instagram: normalizarHandle(pick(CRM_INSTAGRAM_FIELDS)) ?? "",
     campaign: pick(CRM_CAMPAIGN_FIELDS),
     fields,
   };
@@ -190,7 +198,7 @@ async function contactDetailsById(id: string): Promise<ContactDetails | null> {
 //     `contains` sí las ignora — por eso se filtra acá el match exacto, ya que
 //     "ana" también traería a "anabella".
 export async function fetchContactByInstagram(username: string): Promise<ContactDetails | null> {
-  const clean = username.replace(/^@/, "").trim().toLowerCase();
+  const clean = normalizarHandle(username);
   if (!clean) return null;
 
   const ids = await fieldIds();
@@ -207,7 +215,7 @@ export async function fetchContactByInstagram(username: string): Promise<Contact
 
   for (const c of data.contacts ?? []) {
     const details = await contactDetailsById(c.id);
-    if (details?.instagram.toLowerCase() === clean) return details;
+    if (details?.instagram === clean) return details;
   }
   return null;
 }

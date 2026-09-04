@@ -31,6 +31,26 @@ describe("normalizarHandle", () => {
   });
 });
 
+// Valores sacados del campo IG real del CRM el 2026-09-04. El campo está
+// sucio: hay espacios al final y nombres de persona en vez de handles.
+describe("normalizarHandle sobre el campo IG del CRM", () => {
+  it("tolera el espacio al final que rompía la comparación", () => {
+    expect(normalizarHandle("cocinandoconstefany ")).toBe("cocinandoconstefany");
+  });
+
+  it("deja pasar un handle limpio", () => {
+    expect(normalizarHandle("mama.con.ideas")).toBe("mama.con.ideas");
+  });
+
+  it("entiende también el campo url_instagram", () => {
+    expect(normalizarHandle("https://www.instagram.com/mama.con.ideas")).toBe("mama.con.ideas");
+  });
+
+  it("rechaza un nombre de persona en vez de inventar una coincidencia", () => {
+    expect(normalizarHandle("Clara Comparini")).toBeNull();
+  });
+});
+
 describe("handlesUnicos", () => {
   it("normaliza, deduplica y descarta lo inválido", () => {
     expect(
