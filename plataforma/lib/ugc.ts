@@ -9,7 +9,7 @@ export type UgcFilenameInput = {
 };
 
 // "Día de la madre" → "dia-de-la-madre" (sin acentos, sin símbolos).
-function slug(value: string): string {
+export function slug(value: string): string {
   return value
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "") // marcas de acento ya separadas por NFD
