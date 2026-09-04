@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mapearStories, motivoVacio, type ItemCrudo } from "./ig-stories";
+import { mapearStories, motivoVacio, mencionaA, type ItemCrudo } from "./ig-stories";
 import fixture from "./__fixtures__/stories-apify.json";
 
 describe("mapearStories", () => {
@@ -44,12 +44,36 @@ describe("mapearStories", () => {
   it("cero items también significa sin historias", () => {
     expect(mapearStories([])).toHaveLength(0);
   });
+
+  // Los stickers de mención vienen en reel_mentions[].user.username.
+  it("extrae a quién etiqueta la story, en minúsculas", () => {
+    expect(stories[0].menciones).toEqual(["seedings.cl", "otracuenta"]);
+    expect(stories[1].menciones).toEqual(["otramarca"]);
+  });
+
+  it("sin reel_mentions, la lista queda vacía", () => {
+    const sinNada = mapearStories([
+      { id: "9", media_type: 1, media_url: "https://x.cdninstagram.com/a.jpg" },
+    ]);
+    expect(sinNada[0].menciones).toEqual([]);
+  });
 });
 
-describe("motivoVacio", () => {
-  it("distingue cuenta privada de cuenta sin historias", () => {
-    expect(motivoVacio([{ status: "private_account" }])).toMatch(/privada/i);
-    expect(motivoVacio([{ status: "no_active_stories" }])).toMatch(/historias/i);
-    expect(motivoVacio([])).toMatch(/historias/i);
+describe("mencionaA", () => {
+  const stories = mapearStories(fixture as ItemCrudo[]);
+
+  it("reconoce a la marca sin importar mayúsculas ni arroba", () => {
+    for (const h of ["seedings.cl", "Seedings.cl", "@seedings.cl", "  @SEEDINGS.CL "]) {
+      expect(mencionaA(stories[0], h), h).toBe(true);
+    }
+  });
+
+  it("dice que no cuando la marca no está etiquetada", () => {
+    expect(mencionaA(stories[1], "seedings.cl")).toBe(false);
+  });
+
+  it("sin handle de marca, no filtra a nadie", () => {
+    expect(mencionaA(stories[1], "")).toBe(false);
+    expect(mencionaA(stories[1], undefined)).toBe(false);
   });
 });

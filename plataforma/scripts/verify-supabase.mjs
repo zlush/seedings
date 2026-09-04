@@ -7,7 +7,7 @@ const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const db = createClient(url, key, { auth: { persistSession: false } });
 
 const tables = ["brands", "campaigns", "creators", "invitations",
-  "campaign_creators", "stories", "story_metrics"];
+  "campaign_creators", "stories", "story_metrics", "historias_capturadas"];
 
 let ok = true;
 console.log("\n== Tablas ==");

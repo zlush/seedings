@@ -10,7 +10,11 @@
     "video_url": "https://scontent-lax3-2.cdninstagram.com/o1/v/t2/f2/m78/elvideo.mp4?ccb=17-1",
     "thumbnail_url": "https://scontent-lax3-2.cdninstagram.com/v/t51.71878-15/portada.jpg?oe=6AA0D024",
     "owner": { "username": "netflix" },
-    "user": { "username": "netflix" }
+    "user": { "username": "netflix" },
+    "reel_mentions": [
+      { "id": "1", "display_type": "mention_username", "user": { "username": "Seedings.cl" } },
+      { "id": "2", "display_type": "mention_username", "user": { "username": "otracuenta" } }
+    ]
   },
   {
     "id": "3978321437583763371",
@@ -21,6 +25,9 @@
     "media_url": "https://scontent-dfw5-2.cdninstagram.com/v/t51.82787-15/lafoto.jpg?oe=6AA0AAAA",
     "thumbnail_url": "https://scontent-dfw5-2.cdninstagram.com/v/t51.82787-15/lafoto.jpg?oe=6AA0AAAA",
     "owner": { "username": "natgeo" },
-    "user": { "username": "natgeo" }
+    "user": { "username": "natgeo" },
+    "reel_mentions": [
+      { "id": "3", "display_type": "mention_username", "user": { "username": "otramarca" } }
+    ]
   }
 ]

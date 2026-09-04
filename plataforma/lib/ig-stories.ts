@@ -15,6 +15,8 @@ export type ItemCrudo = {
   username?: string;
   owner?: { username?: string };
   user?: { username?: string };
+  // Stickers de mención: es como una marca queda etiquetada en una historia.
+  reel_mentions?: Array<{ user?: { username?: string } }>;
   status?: string;
   stories_count?: number;
 };
@@ -28,7 +30,21 @@ export type StoryPublica = {
   tomadaEn: string;
   expiraEn: number;
   duracion?: number;
+  menciones: string[];
 };
+
+// Normaliza un @ para comparar: sin arroba, sin espacios, en minúsculas.
+function limpio(handle: string): string {
+  return handle.trim().toLowerCase().replace(/^@/, "");
+}
+
+// ¿Esta historia etiqueta a la marca? Sin handle no afirma nada.
+export function mencionaA(story: StoryPublica, handle: string | undefined | null): boolean {
+  if (!handle) return false;
+  const buscado = limpio(handle);
+  if (!buscado) return false;
+  return story.menciones.includes(buscado);
+}
 
 export function mapearStories(items: ItemCrudo[]): StoryPublica[] {
   const out: StoryPublica[] = [];
@@ -48,6 +64,10 @@ export function mapearStories(items: ItemCrudo[]): StoryPublica[] {
       tomadaEn: i.taken_at_date ?? "",
       expiraEn: i.expiring_at ?? 0,
       duracion: esVideo ? i.video_duration : undefined,
+      menciones: (i.reel_mentions ?? [])
+        .map((m) => m.user?.username)
+        .filter((u): u is string => Boolean(u))
+        .map(limpio),
     });
   }
   return out;

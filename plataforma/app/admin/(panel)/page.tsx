@@ -49,6 +49,12 @@ export default async function AdminHome() {
             🎬 Videos
           </Link>
           <Link
+            href="/admin/capturas"
+            className="rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold transition hover:border-cream"
+          >
+            📥 Capturas
+          </Link>
+          <Link
             href="/admin/reporte"
             className="rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold transition hover:border-cream"
           >

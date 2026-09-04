@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { claveValida } from "@/lib/descargador-acceso";
 import { normalizarHandle } from "@/lib/ig-handle";
 import { traerStoriesPublicas } from "@/lib/ig-stories.server";
+import { mencionaA } from "@/lib/ig-stories";
+import { getBrandAccount } from "@/lib/brand.server";
 import { storyFilename } from "@/lib/descargador";
 import { encrypt } from "@/lib/crypto";
 
@@ -19,9 +21,12 @@ export async function GET(req: Request) {
 
   try {
     const { stories, aviso } = await traerStoriesPublicas(handle);
+    // El @ de la marca sale de brand_accounts, no está escrito a mano.
+    const marca = (await getBrandAccount().catch(() => null))?.username ?? null;
     return NextResponse.json({
       handle,
       aviso,
+      marca,
       stories: stories.map((s, i) => {
         const nombre = storyFilename({
           ig: s.usuario || handle,
@@ -36,6 +41,8 @@ export async function GET(req: Request) {
           tomadaEn: s.tomadaEn,
           expiraEn: s.expiraEn,
           duracion: s.duracion,
+          menciones: s.menciones,
+          mencionaMarca: mencionaA(s, marca),
           nombre,
           // La URL del CDN nunca viaja en claro: el proxy solo acepta lo que
           // él mismo cifró, y así no queda abierto a URLs arbitrarias.

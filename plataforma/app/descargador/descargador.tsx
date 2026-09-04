@@ -9,6 +9,8 @@ type Story = {
   tomadaEn: string;
   expiraEn: number;
   duracion?: number;
+  menciones: string[];
+  mencionaMarca: boolean;
   nombre: string;
   token: string;
 };
@@ -25,6 +27,9 @@ export function Descargador({ handleInicial, clave }: { handleInicial: string; c
   const [cargando, setCargando] = useState(false);
   const [bajando, setBajando] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [marca, setMarca] = useState<string | null>(null);
+  const [soloMarca, setSoloMarca] = useState(false);
+  const [guardando, setGuardando] = useState(false);
 
   const buscar = useCallback(
     async (h: string) => {
@@ -40,6 +45,7 @@ export function Descargador({ handleInicial, clave }: { handleInicial: string; c
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Falló la consulta.");
         setStories(data.stories);
+        setMarca(data.marca ?? null);
         if (data.aviso) setMsg(data.aviso);
       } catch (e) {
         setMsg(e instanceof Error ? e.message : "Falló la consulta.");
@@ -84,6 +90,30 @@ export function Descargador({ handleInicial, clave }: { handleInicial: string; c
       }
     }
     setBajando(null);
+  }
+
+  // Guarda en Supabase (bucket + tabla). Idempotente: repetir no duplica.
+  async function guardar() {
+    setGuardando(true);
+    setMsg(null);
+    try {
+      const res = await fetch(
+        `/api/descargador/guardar?ig=${encodeURIComponent(handle)}&k=${encodeURIComponent(clave)}` +
+          (soloMarca ? "&soloMarca=1" : ""),
+        { method: "POST" },
+      );
+      const r = await res.json();
+      if (!res.ok) throw new Error(r.error ?? "No se pudo guardar.");
+      const partes = [`Guardadas ${r.guardadas} de ${r.encontradas}`];
+      if (r.omitidas) partes.push(`${r.omitidas} ya estaban`);
+      if (r.descartadas) partes.push(`${r.descartadas} sin etiqueta`);
+      if (r.errores?.length) partes.push(`${r.errores.length} con error`);
+      setMsg(partes.join(" · ") + ".");
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "No se pudo guardar.");
+    } finally {
+      setGuardando(false);
+    }
   }
 
   return (
@@ -133,11 +163,32 @@ export function Descargador({ handleInicial, clave }: { handleInicial: string; c
             <button
               onClick={descargar}
               disabled={sel.size === 0 || bajando !== null}
-              className="ml-auto rounded-lg bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
+              className="ml-auto rounded-lg border border-neutral-300 px-4 py-2 text-sm disabled:opacity-50"
             >
               {bajando ? "Descargando…" : `Descargar ${sel.size || ""}`}
             </button>
+            <button
+              onClick={guardar}
+              disabled={guardando}
+              className="rounded-lg bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
+            >
+              {guardando ? "Guardando…" : "Guardar en Seedings"}
+            </button>
           </div>
+
+          {marca && (
+            <label className="mt-3 flex items-center gap-2 text-sm text-neutral-600">
+              <input
+                type="checkbox"
+                checked={soloMarca}
+                onChange={(e) => setSoloMarca(e.target.checked)}
+              />
+              Guardar solo las que etiquetan a @{marca}
+              <span className="text-neutral-400">
+                ({stories.filter((s) => s.mencionaMarca).length} de {stories.length})
+              </span>
+            </label>
+          )}
 
           <ul className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {stories.map((s) => (
@@ -152,8 +203,15 @@ export function Descargador({ handleInicial, clave }: { handleInicial: string; c
                   <img src={s.thumb} alt="" className="aspect-[9/16] w-full object-cover" />
                 </button>
                 <p className="mt-1 text-xs text-neutral-500">
-                  {s.esVideo ? "🎬" : "🖼"} {horasRestantes(s.expiraEn)}
+                  {s.esVideo ? "🎬" : "🖼"}{" "}
+                  {s.mencionaMarca && <span title={`Etiqueta a @${marca}`}>🏷</span>}{" "}
+                  {horasRestantes(s.expiraEn)}
                 </p>
+                {s.menciones.length > 0 && (
+                  <p className="truncate text-xs text-neutral-400" title={s.menciones.join(", ")}>
+                    @{s.menciones.join(" @")}
+                  </p>
+                )}
               </li>
             ))}
           </ul>
