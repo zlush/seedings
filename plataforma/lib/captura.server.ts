@@ -4,6 +4,7 @@ import { getBrandAccount } from "@/lib/brand.server";
 import { traerStoriesPublicas } from "@/lib/ig-stories.server";
 import { mencionaA, type StoryPublica } from "@/lib/ig-stories";
 import { ghlEnabled, fetchContactByInstagram, addTags } from "@/lib/ghl.server";
+import { construirPayloadCaptura } from "@/lib/captura";
 
 const BUCKET = "story-backups";
 
@@ -70,7 +71,9 @@ export async function capturarStories(
       elegidas.map((s) => s.id),
     );
   const yaEstan = new Set((previas ?? []).map((p) => p.ig_media_id as string));
-  let nuevasConMarca = 0;
+  // Rutas de las historias NUEVAS que etiquetan a la marca: son las que
+  // disparan el aviso al CRM y las que viajan en el payload.
+  const nuevasConMarca: string[] = [];
 
   // Secuencial a propósito: cada archivo se bufferea entero, y en paralelo
   // varios videos de ~10 MB reventarían la memoria de la función.
@@ -121,7 +124,7 @@ export async function capturarStories(
       }
 
       resumen.guardadas++;
-      if (mencionaA(s, marca)) nuevasConMarca++;
+      if (mencionaA(s, marca)) nuevasConMarca.push(path);
     } catch (e) {
       resumen.errores.push(`${s.id}: ${e instanceof Error ? e.message : "falló"}`);
     }
@@ -130,26 +133,73 @@ export async function capturarStories(
   // Etiqueta el contacto en el CRM UNA vez por creador, no una por historia, y
   // solo si esta corrida trajo algo nuevo: repetir la captura no debe volver a
   // disparar el workflow de GHL.
-  if (nuevasConMarca > 0) {
+  if (nuevasConMarca.length > 0) {
     const creador = elegidas[0]?.usuario || handle;
-    resumen.crm = await etiquetarEnCrm(creador);
+    resumen.crm = await avisarCrm(creador, nuevasConMarca);
   }
 
   return resumen;
 }
 
-// Best-effort: si el CRM falla, las historias ya quedaron guardadas igual.
-// Nunca crea contactos — un perfil raspado no es fuente confiable para eso.
-async function etiquetarEnCrm(username: string): Promise<string> {
-  if (!ghlEnabled()) return "GHL no está configurado.";
-  try {
-    const contacto = await fetchContactByInstagram(username);
-    if (!contacto) return `@${username} no está en el CRM; no se etiquetó.`;
-    await addTags(contacto.id, [TAG_MENCION]);
-    return `Etiquetado "${TAG_MENCION}" en el contacto de @${username}.`;
-  } catch (e) {
-    return `No se pudo etiquetar en el CRM: ${e instanceof Error ? e.message : "falló"}`;
+// Duración de las URLs firmadas que viajan al workflow. 24 h para que GHL
+// alcance a usarlas aunque el workflow tenga esperas o reintentos.
+const HORAS_URL = 24;
+
+// Dos avisos al CRM por el mismo hecho, y a propósito:
+//   1) El tag directo — piso garantizado, no depende de nada externo.
+//   2) El webhook — deja que el workflow haga lo que quiera sin tocar código.
+// Todo best-effort: si el CRM falla, las historias ya quedaron guardadas.
+// Nunca crea contactos: un perfil raspado no es fuente confiable para eso.
+async function avisarCrm(username: string, rutas: string[]): Promise<string> {
+  const notas: string[] = [];
+  const db = createAdminClient();
+
+  // El contactId se resuelve una sola vez y sirve para las dos vías.
+  let contactId: string | null = null;
+  if (ghlEnabled()) {
+    try {
+      const contacto = await fetchContactByInstagram(username);
+      contactId = contacto?.id ?? null;
+      if (!contactId) notas.push(`@${username} no está en el CRM`);
+      else {
+        await addTags(contactId, [TAG_MENCION]);
+        notas.push(`etiquetado "${TAG_MENCION}"`);
+      }
+    } catch (e) {
+      notas.push(`tag falló: ${e instanceof Error ? e.message : "error"}`);
+    }
+  } else {
+    notas.push("GHL no configurado");
   }
+
+  const hook = process.env.GHL_CAPTURA_WEBHOOK_URL;
+  if (hook) {
+    try {
+      const media: string[] = [];
+      for (const ruta of rutas) {
+        const { data } = await db.storage.from(BUCKET).createSignedUrl(ruta, HORAS_URL * 3600);
+        if (data?.signedUrl) media.push(data.signedUrl);
+      }
+      const res = await fetch(hook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          construirPayloadCaptura({
+            creador: username,
+            contactId,
+            etiquetaAMarca: true,
+            media,
+            capturadoEn: new Date().toISOString(),
+          }),
+        ),
+      });
+      notas.push(res.ok ? "webhook enviado" : `webhook respondió ${res.status}`);
+    } catch (e) {
+      notas.push(`webhook falló: ${e instanceof Error ? e.message : "error"}`);
+    }
+  }
+
+  return notas.join(" · ");
 }
 
 export type CapturaGuardada = {
