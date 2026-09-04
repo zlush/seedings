@@ -110,11 +110,34 @@ export async function POST(req: Request) {
     "";
 
   const handle = normalizarHandle(crudo);
-  if (!handle)
+  if (!handle) {
+    // Igual que con la clave: decir QUÉ campos llegaron y cuáles venían vacíos.
+    // Sin esto, un "@ vacío" no distingue entre "el par ig no está configurado"
+    // y "el contacto no tiene el campo IG cargado en el CRM", que se arreglan
+    // en lugares distintos.
+    const vistos: Record<string, string> = {};
+    for (const n of ["ig", "instagram", "creador", "IG", "url_instagram", "id_instagram"]) {
+      for (const [dónde, fuente] of [
+        ["customData", custom],
+        ["cuerpo", body],
+      ] as const) {
+        if (n in fuente) vistos[`${dónde}.${n}`] = String(fuente[n] ?? "") || "(vacío)";
+      }
+    }
     return NextResponse.json(
-      { ok: false, motivo: "Sin @ de Instagram utilizable.", recibido: crudo },
+      {
+        ok: false,
+        motivo: "Sin @ de Instagram utilizable.",
+        recibido: crudo,
+        recibi: {
+          camposDeInstagram: vistos,
+          contacto: campo("full_name") ?? campo("first_name") ?? "(sin nombre)",
+          pista: "El contacto no tiene el campo IG cargado en el CRM, o el par 'ig' no está en Custom Data.",
+        },
+      },
       { status: 400 },
     );
+  }
 
   const previa = ultima.get(handle);
   if (previa && Date.now() - previa < ESPERA_MS)
