@@ -14,8 +14,14 @@ const cache = new Map<string, { en: number; stories: StoryPublica[]; aviso?: str
 
 export type Resultado = { stories: StoryPublica[]; aviso?: string };
 
-export async function traerStoriesPublicas(handle: string): Promise<Resultado> {
-  const hit = cache.get(handle);
+// `sinCache` es obligatorio cuando el disparo viene de un aviso en tiempo real:
+// si un sticker consultó hace dos minutos y ahora llega la mención de verdad,
+// el caché devolvería el resultado viejo y la historia se perdería.
+export async function traerStoriesPublicas(
+  handle: string,
+  opts: { sinCache?: boolean } = {},
+): Promise<Resultado> {
+  const hit = opts.sinCache ? undefined : cache.get(handle);
   if (hit && Date.now() - hit.en < CACHE_MS) return { stories: hit.stories, aviso: hit.aviso };
 
   const token = process.env.APIFY_TOKEN;

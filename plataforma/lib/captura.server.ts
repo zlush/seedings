@@ -31,13 +31,13 @@ export type ResumenCaptura = {
 
 export async function capturarStories(
   handle: string,
-  opts: { soloMarca?: boolean } = {},
+  opts: { soloMarca?: boolean; sinCache?: boolean } = {},
 ): Promise<ResumenCaptura> {
   const db = createAdminClient();
   const brand = await getBrandAccount();
   const marca = brand?.username ?? null;
 
-  const { stories } = await traerStoriesPublicas(handle);
+  const { stories } = await traerStoriesPublicas(handle, { sinCache: opts.sinCache });
   const resumen: ResumenCaptura = {
     handle,
     encontradas: stories.length,
