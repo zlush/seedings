@@ -6,12 +6,20 @@ import { capturarStories, type ResumenCaptura } from "@/lib/captura.server";
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
-// GET /api/cron/menciones — una vez al día, a las 02:00 UTC (~22:00 en Chile).
+// GET /api/cron/menciones — DESACTIVADO: ya no tiene entrada en vercel.json.
 //
-// Lo ideal serían 12 h: las historias viven 24 h y una sola pasada diaria no
-// deja margen ante cualquier atraso. Pero el proyecto está en plan Hobby de
-// Vercel, que limita los cron jobs a 2 por proyecto y a UNA ejecución diaria.
-// Con Pro se puede volver a "0 *\/12 * * *" en vercel.json.
+// Se apagó a propósito. Revisa perfil por perfil a los creadores de la tabla
+// `creators`, y eso obliga a mantener a mano una lista curada: con miles de
+// contactos el costo escala linealmente (se paga por historia devuelta, aunque
+// se descarte) y nadie iba a mantener esa lista.
+//
+// Lo reemplaza el aviso en tiempo real desde GoHighLevel (/api/ghl/mencion),
+// que no necesita lista: reacciona al DM que Instagram genera cuando alguien
+// etiqueta a la marca.
+//
+// La ruta se conserva porque funciona y está probada: para reactivarla basta
+// volver a agregarla a "crons" en vercel.json. Sirve también para dispararla a
+// mano si algún día hace falta una pasada de rescate.
 //
 // Revisa las historias vivas de los creadores registrados y guarda SOLO las que
 // etiquetan a la marca, dejando el tag en el CRM. Cubre el hueco de las 24 h:
