@@ -52,16 +52,29 @@ export async function POST(req: Request) {
     }
   }
 
-  // La clave se acepta por cabecera, por query o dentro del cuerpo, y bajo los
-  // dos nombres. En GHL la sección "Custom Data" va al CUERPO, no a las
-  // cabeceras, y es fácil poner ahí "x-seedings-key" creyendo que es un header:
-  // pasó en la primera prueba y el 404 no daba ninguna pista de por qué.
-  const delCuerpo = (n: string) => (typeof body[n] === "string" ? (body[n] as string) : undefined);
+  // GHL NO manda los pares de "Custom Data" al primer nivel: los anida dentro
+  // de un objeto `customData`, junto a todos los campos del contacto. Buscar
+  // solo arriba devolvía siempre vacío. Se miran los dos niveles.
+  const custom =
+    body.customData && typeof body.customData === "object"
+      ? (body.customData as Record<string, unknown>)
+      : {};
+  const campo = (n: string): string | undefined => {
+    for (const fuente of [custom, body]) {
+      const v = fuente[n];
+      if (typeof v === "string" && v.trim()) return v;
+    }
+    return undefined;
+  };
+
+  // La clave se acepta por cabecera, por query o en el cuerpo, bajo los dos
+  // nombres: en GHL es fácil poner "x-seedings-key" en Custom Data creyendo
+  // que es una cabecera.
   const clave =
     req.headers.get("x-seedings-key") ??
     searchParams.get("k") ??
-    delCuerpo("k") ??
-    delCuerpo("x-seedings-key") ??
+    campo("k") ??
+    campo("x-seedings-key") ??
     undefined;
   if (!claveValida(clave))
     // Se devuelve QUÉ llegó, nunca lo esperado: sin esto, un 401 obliga a
@@ -84,11 +97,16 @@ export async function POST(req: Request) {
 
   // GHL puede mandar el @ con distintos nombres de campo según cómo se arme
   // la acción; se aceptan varios para no depender de un mapeo exacto.
+  // Además de lo que se configure en Custom Data, GHL manda los campos del
+  // contacto en el mismo cuerpo. Se usan como respaldo: si alguien olvida
+  // configurar el par `ig`, el @ igual se encuentra.
   const crudo =
-    (typeof body.ig === "string" && body.ig) ||
-    (typeof body.instagram === "string" && body.instagram) ||
-    (typeof body.creador === "string" && body.creador) ||
-    searchParams.get("ig") ||
+    campo("ig") ??
+    campo("instagram") ??
+    campo("creador") ??
+    campo("IG") ??
+    campo("url_instagram") ??
+    searchParams.get("ig") ??
     "";
 
   const handle = normalizarHandle(crudo);
