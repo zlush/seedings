@@ -1,62 +1,85 @@
-# Bitácora — Descargador de historias y captura automática
+# Bitácora — Descargador de historias y captura en tiempo real
 
 **Fecha:** 2026-09-04
-**Rama:** `feat/descargador-stories` (en GitHub; genera despliegue de Preview)
-**Estado:** funciona en local. Producción sigue en `ca68a69` (7 de agosto).
+**Estado:** en producción y verificado en `https://seedings-app.vercel.app`.
 
 Documentos relacionados: [diseño](2026-09-04-descargador-stories-design.md) · [plan](2026-09-04-descargador-stories-plan.md)
 
 ---
 
-## Qué se construyó
+## Qué quedó funcionando
 
-| Commit | Contenido |
+| Pieza | Estado |
 |---|---|
-| `0b57f09` | Descargador `/descargador?ig=<handle>&k=<clave>`: grilla de historias vivas, selección y descarga al computador |
-| `56a6360` | Guardado en Supabase (bucket + tabla), filtro por etiqueta, galería `/admin/capturas` con borrado |
-| `c9bc5fa` | Cron diario y tag `historia subida` en GHL |
-| `d859d6a` | Webhook al workflow de GHL |
-| `9ddc77b` | Arreglo del cruce de contactos por Instagram en el CRM |
+| Descargador manual `/descargador?ig=<handle>&k=<clave>` | En producción, verificado contra Instagram real |
+| Galería `/admin/capturas` con borrado | En producción |
+| Aviso en tiempo real desde GHL `/api/ghl/mencion` | En producción, verificado |
+| Cron diario de menciones | **Desactivado a propósito** |
+| Webhook de menciones de Meta | Bloqueado hasta App Review |
 
-104 tests, build limpio con TypeScript.
+## La arquitectura, y por qué es rara
 
-## Las decisiones que explican el diseño
+El camino obvio —que Meta avise cuando alguien etiqueta a la marca— **está bloqueado y no depende de nosotros**. La app de Meta está en modo Development, y el propio panel lo dice sin ambigüedad: mientras esté sin publicar no se entrega ningún dato de producción, *ni siquiera de administradores, desarrolladores o testers*. Solo llegan los envíos de prueba del dashboard. Eso explica que en un mes el único evento recibido fuera un payload de prueba con `entry[0].id === "0"`.
 
-**Por qué no se usa la API oficial de Meta.** No existe ningún endpoint que devuelva las historias de una cuenta ajena, aunque sea pública. `/{ig_user_id}/stories` solo responde por la cuenta que autorizó el token, y `business_discovery` —la única puerta a terceros— excluye las stories. Por eso se consulta un actor de Apify.
+Como GoHighLevel **sí** recibe los DM de Instagram —su integración no depende del estado de nuestra app—, se le pide prestado el canal:
 
-**Por qué una tabla nueva y no `unclaimed_stories`.** Esa tabla significa "alguien etiquetó a la marca pero no es creador registrado" y alimenta la sección "Menciones sin creador" del panel. El descargador guarda perfiles públicos cualesquiera, etiqueten o no a la marca; mezclarlos rompería esa vista.
+```
+El creador etiqueta a la marca en una historia
+        ↓
+Instagram manda un DM sin texto a Seedings
+        ↓
+GHL: trigger "Customer Replied" (message body is empty)
+        ↓
+Acción Webhook → POST /api/ghl/mencion
+        ↓
+Se consulta el perfil en Apify y se filtra por mención
+        ↓
+¿Apareció una historia NUEVA que etiquete a la marca?
+   NO → era un sticker o una imagen: no se guarda ni se avisa
+   SÍ → se guarda en Supabase, se etiqueta el contacto y se
+        hace POST al Inbound Webhook del workflow
+```
 
-**Por qué el proxy cifra la URL del CDN.** El navegador no puede bajar directo de Instagram (URLs firmadas, CORS cerrado), así que hay que proxear. Para que ese proxy no quede abierto a URLs arbitrarias, la URL viaja cifrada con el `encrypt()` que ya existía y se valida el host al descifrar.
+**La regla que separa la mención real del ruido no es el tiempo, es el resultado.** Se evaluó una ventana de 60 segundos y se descartó: entre que Instagram entrega el DM, GHL evalúa el workflow y Apify corre el actor se van decenas de segundos, y se descartarían menciones reales por pura latencia.
 
-**Por qué no hay ZIP en el servidor.** Ya se había descartado en el diseño de la galería UGC (2026-08-03) por los límites de memoria y tiempo de Vercel. Se siguió ese criterio: las descargas se disparan una por una desde el cliente.
+## Decisiones que conviene no reabrir
 
-**Cadencia del cron.** Lo ideal son 12 h, porque las historias viven 24 h y una sola pasada diaria no deja margen. Pero el plan Hobby de Vercel limita los crons a 2 por proyecto y a una ejecución diaria, así que quedó en `0 2 * * *`. Con Pro se vuelve a 12 h.
+**Por qué no se usa la API oficial de Meta.** No existe ningún endpoint que devuelva las historias de una cuenta ajena, aunque sea pública. `business_discovery` —la única puerta a terceros— excluye las stories.
 
-**Por qué el tag directo Y el webhook.** El tag es el piso garantizado y no depende de nada externo; el webhook deja cambiar la automatización desde la interfaz de GHL sin tocar código.
+**Por qué una tabla nueva y no `unclaimed_stories`.** Esa tabla significa "alguien etiquetó a la marca pero no es creador registrado" y alimenta otra vista del panel; mezclarlas la rompería.
+
+**Por qué el proxy cifra la URL del CDN.** El navegador no puede bajar directo de Instagram (URLs firmadas, CORS cerrado). Para que el proxy no quede abierto a URLs arbitrarias, la URL viaja cifrada con el `encrypt()` que ya existía.
+
+**Por qué no hay ZIP en el servidor.** Ya se había descartado en el diseño de la galería UGC por los límites de Vercel.
+
+**Por qué se desactivó el cron.** Revisaba perfil por perfil a los creadores de la tabla `creators`, lo que obliga a mantener una lista curada a mano. Con miles de contactos el costo escala linealmente —se paga por historia devuelta, aunque después se descarte— y esa lista no se iba a mantener. La ruta se conserva; reactivarla es volver a agregarla a `crons` en `vercel.json`.
+
+**Por qué la respuesta HTTP del endpoint no importa.** La acción Webhook de GHL dispara y olvida: no lee la respuesta. Por eso el aviso de vuelta viaja en una segunda llamada independiente al Inbound Webhook, y no en el cuerpo de la respuesta. Se evaluó el Custom Webhook de GHL —que sí espera respuesta y permitiría un solo workflow— y se descartó: obligaría a GHL a esperar la consulta a Apify (7,7 s medidos, hasta 23 s en el peor caso visto), con riesgo de timeout.
 
 ## Hallazgos que costaron encontrar
 
-**El esquema publicado del actor de Apify miente en dos puntos.** Los items de story no traen `username` de primer nivel (llega `undefined`; el @ está en `owner.username`), y en un lote una cuenta sin historias desaparece sin dejar item de estado. Ambos se descubrieron corriendo el actor de verdad, no leyendo la documentación.
+**El esquema publicado del actor de Apify miente en dos puntos.** Los items de story no traen `username` de primer nivel (el @ está en `owner.username`), y en un lote una cuenta sin historias desaparece sin dejar item de estado. Ambos se descubrieron corriendo el actor de verdad.
 
-**`reel_mentions` es el campo que hace viable todo.** Trae los stickers de mención, o sea a quién etiqueta la historia. Sin eso, guardar sería inviable por espacio (~10 MB por video). Con eso, se guardan solo las que etiquetan a la marca.
+**`reel_mentions` es el campo que hace viable todo.** Trae los stickers de mención. Sin filtrar por eso, guardar sería inviable por espacio (~10 MB por video).
 
-**El webhook de menciones nunca ha recibido un evento real**, pero el endpoint está vivo. Durante la sesión se dio por bueno el dominio `app-seedings.vercel.app` —que no existe— y se concluyó por error que la app no estaba desplegada. El dominio real es `seedings-app.vercel.app`, y ahí `/api/webhooks/instagram` responde. La causa hay que buscarla en la Callback URL configurada en Meta y en los campos suscritos.
+**El dominio de producción es `seedings-app.vercel.app`.** Durante la sesión se dio por bueno `app-seedings.vercel.app` —que no existe— y se concluyó por error que la app no estaba desplegada. Sí lo estaba.
 
-**El campo IG del CRM está sucio.** Espacios al final y nombres de persona en vez de handles. El cruce fallaba en silencio.
+**El campo IG del CRM está sucio.** Espacios al final y nombres de persona en vez de handles; el cruce fallaba en silencio. Arreglado reusando `normalizarHandle`.
 
-## Lo que quedó pendiente
+**El MCP de GoHighLevel apunta a otra cuenta** (WebGuru, no Seedings). Para consultar el CRM correcto hay que usar las credenciales de la app.
 
-1. **Llevar esto a producción.** El proyecto es `seedings-app` y está conectado al repo, pero producción quedó congelada en `ca68a69` (7 de agosto). Hasta que esto se mezcle a `main`, el cron no corre.
-2. **La rama ya está en GitHub** y generó despliegue de Preview.
-3. **Variables en Vercel:** `APIFY_TOKEN`, `DESCARGADOR_KEY`, `GHL_CAPTURA_WEBHOOK_URL`.
-4. **Prueba de punta a punta con un creador real**, inscrito en Supabase y en el CRM. Hoy no hay ninguno: el único con @ registrado era de prueba.
-5. **El workflow de GHL está en Draft.** Al publicarlo, la primera prueba conviene hacerla con un contacto propio, porque le escribe a la persona.
+## Pendiente
+
+1. **Terminar la configuración del webhook en GHL:** en Custom Data, `k` con la clave y `ig` con el campo IG del contacto.
+2. **Publicar el workflow**, que sigue en Draft.
+3. **Probar con una mención real** y revisar los Execution logs. Si aparece una sola ejecución en vez de dos, es el problema de re-entrada: la solución es separar en dos workflows —uno que reciba los DM y llame a la plataforma sin esperas, otro con el Inbound Webhook y el recordatorio.
+4. **App Review de Meta**, para que el webhook nativo funcione y la captura deje de depender de GHL.
 
 ## Verificaciones hechas con datos reales
 
-- Actor de Apify corrido de verdad: 16 historias de 4 cuentas en 23 s.
+- Actor de Apify: 16 historias de 4 cuentas en 23 s.
 - Descarga por el proxy: MP4 de 9,6 MB, validado como video real.
-- Guardado: 8 historias, con idempotencia comprobada (repetir omite, no duplica).
+- Guardado: 8 historias, con idempotencia comprobada.
 - Filtro por etiqueta: 8 encontradas, 8 descartadas, 0 guardadas.
-- Webhook a GHL: `HTTP 200`, `{"status":"Success: test request received"}`.
+- Endpoint de GHL en producción: `@natgeo` → 4 historias, 4 descartadas, `mencionReal: false`. El falso positivo se filtra bien.
 - Arreglo del CRM medido sobre 100 contactos: 3 pasan a encontrarse, 1 se descarta con razón.
