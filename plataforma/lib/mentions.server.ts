@@ -3,7 +3,13 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { captureStoriesForCreator } from "@/lib/stories.server";
 import { type MentionHint } from "@/lib/webhook";
 import { normalizeMentionMeta } from "@/lib/mentions";
-import { getBrandAccount, resolveMention, backupMentionMedia } from "@/lib/brand.server";
+import {
+  getBrandAccount,
+  resolveMention,
+  backupMentionMedia,
+  resolverUsernamePorIgsid,
+} from "@/lib/brand.server";
+import { avisarMencionAlCrm } from "@/lib/captura.server";
 import { ghlEnabled, fetchContactByInstagram, type ContactDetails } from "@/lib/ghl.server";
 
 // Procesa las menciones a la marca. Por cada @usuario que etiquetó a @seedings.cl:
@@ -15,6 +21,8 @@ export async function processMentions(hints: MentionHint[]): Promise<{ matched: 
   const db = createAdminClient();
   const brand = await getBrandAccount();
   const notes: string[] = [];
+  // Creadores a avisar al CRM al final, una sola vez cada uno.
+  const avisar = new Set<string>();
   let matched = 0;
 
   for (const hint of hints) {
@@ -25,8 +33,17 @@ export async function processMentions(hints: MentionHint[]): Promise<{ matched: 
       detail = await resolveMention(brand, hint.mediaId);
       username = username ?? detail.username;
     }
+    // Una mención de historia por Messaging no trae @ ni media_id: trae el
+    // IGSID del remitente. Hay que canjearlo antes de poder hacer nada.
+    if (!username && brand && hint.senderId) {
+      username = (await resolverUsernamePorIgsid(brand, hint.senderId)) ?? undefined;
+    }
     if (!username) {
-      notes.push("mención sin username resoluble");
+      notes.push(
+        hint.senderId
+          ? `mención de historia sin @ resoluble (igsid ${hint.senderId})`
+          : "mención sin username resoluble",
+      );
       continue;
     }
     const clean = username.replace(/^@/, "").toLowerCase();
@@ -53,6 +70,7 @@ export async function processMentions(hints: MentionHint[]): Promise<{ matched: 
           result = await captureStoriesForCreator(creator, { source: "mention", mentions: meta });
         }
         matched++;
+        avisar.add(clean);
         notes.push(`@${clean}: conectado, capturadas ${result.found}, snapshots ${result.snapshots}`);
       } catch (e) {
         notes.push(`@${clean}: error ${e instanceof Error ? e.message : ""}`);
@@ -95,11 +113,24 @@ export async function processMentions(hints: MentionHint[]): Promise<{ matched: 
       },
       { onConflict: "ig_media_id" },
     );
+    avisar.add(clean);
     notes.push(
       `@${clean}: no conectado, registrado${backupPath ? " + media" : ""}${
         contacto ? ` · identificado como ${contacto.name}` : " · sin match en el CRM"
       }`,
     );
+  }
+
+  // Aviso al CRM por el camino INSTANTÁNEO. El cron hace lo mismo una vez al
+  // día; acá ocurre en el momento en que Meta entrega el evento. Una vez por
+  // creador aunque haya etiquetado varias veces, y best-effort: el CRM caído
+  // no puede deshacer una mención ya registrada.
+  for (const u of avisar) {
+    try {
+      notes.push(`CRM @${u}: ${await avisarMencionAlCrm(u, [])}`);
+    } catch (e) {
+      notes.push(`CRM @${u} falló: ${e instanceof Error ? e.message : ""}`);
+    }
   }
 
   return { matched, note: notes.join(" · ") };

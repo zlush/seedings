@@ -18,6 +18,24 @@ export async function getBrandAccount(): Promise<BrandAccount | null> {
   return { ig_user_id: data.ig_user_id, username: data.username, token: decrypt(data.token_encrypted) };
 }
 
+// Una mención de historia que llega por Messaging identifica al creador con un
+// IGSID (id con alcance de la app), no con su @. Hay que canjearlo.
+// Sin verificar contra un evento real: nunca ha llegado uno. Falla a null.
+export async function resolverUsernamePorIgsid(
+  brand: BrandAccount,
+  igsid: string,
+): Promise<string | null> {
+  try {
+    const r = await graphGet<{ username?: string }>(`/${igsid}`, {
+      access_token: brand.token,
+      fields: "username",
+    });
+    return r.username ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export type ResolvedMention = {
   username?: string;
   media_url?: string;

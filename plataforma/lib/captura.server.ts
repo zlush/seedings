@@ -135,7 +135,7 @@ export async function capturarStories(
   // disparar el workflow de GHL.
   if (nuevasConMarca.length > 0) {
     const creador = elegidas[0]?.usuario || handle;
-    resumen.crm = await avisarCrm(creador, nuevasConMarca);
+    resumen.crm = await avisarMencionAlCrm(creador, nuevasConMarca);
   }
 
   return resumen;
@@ -150,7 +150,7 @@ const HORAS_URL = 24;
 //   2) El webhook — deja que el workflow haga lo que quiera sin tocar código.
 // Todo best-effort: si el CRM falla, las historias ya quedaron guardadas.
 // Nunca crea contactos: un perfil raspado no es fuente confiable para eso.
-async function avisarCrm(username: string, rutas: string[]): Promise<string> {
+export async function avisarMencionAlCrm(username: string, rutas: string[]): Promise<string> {
   const notas: string[] = [];
   const db = createAdminClient();
 
