@@ -17,3 +17,14 @@ export function normalizarHandle(input: string | undefined | null): string | nul
 
   return FORMA.test(v) ? v : null;
 }
+
+// Lista de handles lista para consultar: normalizada, sin repetidos y sin
+// basura. El CRM y la tabla de creadores guardan el @ con formatos distintos.
+export function handlesUnicos(valores: Array<string | null | undefined>): string[] {
+  const out: string[] = [];
+  for (const v of valores) {
+    const h = normalizarHandle(v);
+    if (h && !out.includes(h)) out.push(h);
+  }
+  return out;
+}

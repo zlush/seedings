@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizarHandle } from "./ig-handle";
+import { normalizarHandle, handlesUnicos } from "./ig-handle";
 
 describe("normalizarHandle", () => {
   it("acepta el handle pelado", () => {
@@ -28,5 +28,25 @@ describe("normalizarHandle", () => {
     for (const malo of ["", "   ", "@", "con espacio", "hola/mundo", "a".repeat(31), "tilde-ñ"]) {
       expect(normalizarHandle(malo), malo).toBeNull();
     }
+  });
+});
+
+describe("handlesUnicos", () => {
+  it("normaliza, deduplica y descarta lo inválido", () => {
+    expect(
+      handlesUnicos([
+        "@Seedings",
+        "seedings", // mismo de arriba tras normalizar
+        "https://instagram.com/otro/",
+        null,
+        "",
+        "no vale",
+        undefined,
+      ]),
+    ).toEqual(["seedings", "otro"]);
+  });
+
+  it("sin nada útil devuelve lista vacía", () => {
+    expect(handlesUnicos([null, undefined, "  ", "@"])).toEqual([]);
   });
 });

@@ -3,8 +3,12 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { getBrandAccount } from "@/lib/brand.server";
 import { traerStoriesPublicas } from "@/lib/ig-stories.server";
 import { mencionaA, type StoryPublica } from "@/lib/ig-stories";
+import { ghlEnabled, fetchContactByInstagram, addTags } from "@/lib/ghl.server";
 
 const BUCKET = "story-backups";
+
+// Debe calzar al carácter con el tag que espera el workflow de GHL.
+const TAG_MENCION = "historia subida";
 
 // Carpeta propia, separada de las de creador (uuid) y las del formulario
 // público (tel-...), para que borrar capturas nunca toque respaldos reales.
@@ -20,6 +24,8 @@ export type ResumenCaptura = {
   descartadas: number; // no etiquetaban a la marca (con filtro activo)
   errores: string[];
   marca: string | null;
+  // Qué pasó con el CRM. null = no hubo nada que etiquetar.
+  crm: string | null;
 };
 
 export async function capturarStories(
@@ -39,6 +45,7 @@ export async function capturarStories(
     descartadas: 0,
     errores: [],
     marca,
+    crm: null,
   };
 
   // Con el filtro activo pero sin marca configurada no se guarda nada, en vez
@@ -63,6 +70,7 @@ export async function capturarStories(
       elegidas.map((s) => s.id),
     );
   const yaEstan = new Set((previas ?? []).map((p) => p.ig_media_id as string));
+  let nuevasConMarca = 0;
 
   // Secuencial a propósito: cada archivo se bufferea entero, y en paralelo
   // varios videos de ~10 MB reventarían la memoria de la función.
@@ -113,12 +121,35 @@ export async function capturarStories(
       }
 
       resumen.guardadas++;
+      if (mencionaA(s, marca)) nuevasConMarca++;
     } catch (e) {
       resumen.errores.push(`${s.id}: ${e instanceof Error ? e.message : "falló"}`);
     }
   }
 
+  // Etiqueta el contacto en el CRM UNA vez por creador, no una por historia, y
+  // solo si esta corrida trajo algo nuevo: repetir la captura no debe volver a
+  // disparar el workflow de GHL.
+  if (nuevasConMarca > 0) {
+    const creador = elegidas[0]?.usuario || handle;
+    resumen.crm = await etiquetarEnCrm(creador);
+  }
+
   return resumen;
+}
+
+// Best-effort: si el CRM falla, las historias ya quedaron guardadas igual.
+// Nunca crea contactos — un perfil raspado no es fuente confiable para eso.
+async function etiquetarEnCrm(username: string): Promise<string> {
+  if (!ghlEnabled()) return "GHL no está configurado.";
+  try {
+    const contacto = await fetchContactByInstagram(username);
+    if (!contacto) return `@${username} no está en el CRM; no se etiquetó.`;
+    await addTags(contacto.id, [TAG_MENCION]);
+    return `Etiquetado "${TAG_MENCION}" en el contacto de @${username}.`;
+  } catch (e) {
+    return `No se pudo etiquetar en el CRM: ${e instanceof Error ? e.message : "falló"}`;
+  }
 }
 
 export type CapturaGuardada = {

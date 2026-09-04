@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/capture",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/menciones",
+      "schedule": "0 */12 * * *"
+    }
+  ]
+}
