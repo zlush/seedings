@@ -41,12 +41,22 @@ export async function POST(req: Request) {
     // Cuerpo vacío o no-JSON: se sigue con los parámetros de la URL.
   }
 
+  // La clave se acepta por cabecera, por query o dentro del cuerpo, y bajo los
+  // dos nombres. En GHL la sección "Custom Data" va al CUERPO, no a las
+  // cabeceras, y es fácil poner ahí "x-seedings-key" creyendo que es un header:
+  // pasó en la primera prueba y el 404 no daba ninguna pista de por qué.
+  const delCuerpo = (n: string) => (typeof body[n] === "string" ? (body[n] as string) : undefined);
   const clave =
     req.headers.get("x-seedings-key") ??
     searchParams.get("k") ??
-    (typeof body.k === "string" ? body.k : undefined) ??
+    delCuerpo("k") ??
+    delCuerpo("x-seedings-key") ??
     undefined;
-  if (!claveValida(clave)) return new NextResponse("No encontrado", { status: 404 });
+  if (!claveValida(clave))
+    return NextResponse.json(
+      { ok: false, motivo: "Clave ausente o incorrecta." },
+      { status: 401 },
+    );
 
   // GHL puede mandar el @ con distintos nombres de campo según cómo se arme
   // la acción; se aceptan varios para no depender de un mapeo exacto.
