@@ -34,11 +34,22 @@ function claveValida(recibida: string | undefined): boolean {
 export async function POST(req: Request) {
   const { searchParams } = new URL(req.url);
 
+  // GHL no documenta con qué Content-Type manda su "Custom Data", y si llega
+  // como formulario un req.json() falla en silencio: el endpoint se queda sin
+  // clave y responde 401 sin ninguna pista. Se leen las dos formas.
+  const contentType = req.headers.get("content-type") ?? "";
   let body: Record<string, unknown> = {};
-  try {
-    body = (await req.json()) as Record<string, unknown>;
-  } catch {
-    // Cuerpo vacío o no-JSON: se sigue con los parámetros de la URL.
+  const crudoTexto = await req.text().catch(() => "");
+  if (crudoTexto) {
+    try {
+      body = JSON.parse(crudoTexto) as Record<string, unknown>;
+    } catch {
+      try {
+        body = Object.fromEntries(new URLSearchParams(crudoTexto));
+      } catch {
+        // Ni JSON ni formulario: se sigue con los parámetros de la URL.
+      }
+    }
   }
 
   // La clave se acepta por cabecera, por query o dentro del cuerpo, y bajo los
@@ -53,8 +64,21 @@ export async function POST(req: Request) {
     delCuerpo("x-seedings-key") ??
     undefined;
   if (!claveValida(clave))
+    // Se devuelve QUÉ llegó, nunca lo esperado: sin esto, un 401 obliga a
+    // adivinar si el problema es el nombre del campo, el formato del cuerpo o
+    // el valor. Solo nombres y longitudes, jamás el contenido de la clave.
     return NextResponse.json(
-      { ok: false, motivo: "Clave ausente o incorrecta." },
+      {
+        ok: false,
+        motivo: "Clave ausente o incorrecta.",
+        recibi: {
+          contentType,
+          camposEnCuerpo: Object.keys(body),
+          camposEnUrl: [...searchParams.keys()],
+          largoClaveRecibida: clave?.length ?? 0,
+          configurada: Boolean(process.env.GHL_TRIGGER_KEY),
+        },
+      },
       { status: 401 },
     );
 
