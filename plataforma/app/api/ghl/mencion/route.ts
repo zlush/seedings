@@ -107,6 +107,18 @@ export async function POST(req: Request) {
     campo("IG") ??
     campo("url_instagram") ??
     searchParams.get("ig") ??
+    // Último recurso: el NOMBRE del contacto. GHL crea los contactos que
+    // llegan por DM de Instagram usando el handle como nombre ("andreasanhuezac")
+    // y deja vacío el campo IG personalizado, así que sin esto toda creadora
+    // nueva falla en su primera mención.
+    //
+    // Es seguro aunque el nombre no sea un handle: normalizarHandle descarta
+    // cualquier cosa con espacios ("Andrea Davinson" → null), y si aun así se
+    // consultara un perfil equivocado, el filtro por mención a la marca hace
+    // que no se guarde nada. El costo de una corazonada errada es la consulta
+    // a Apify, no un dato falso en la base.
+    campo("full_name") ??
+    campo("first_name") ??
     "";
 
   const handle = normalizarHandle(crudo);
