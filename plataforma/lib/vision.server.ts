@@ -29,7 +29,11 @@ Reglas:
 - Devuelve el número tal cual aparece. Si dice "1,2 mil" o "1.2K", conviértelo a 1200.
 - Si una métrica no aparece en ninguna captura, devuélvela como null. No la estimes ni la deduzcas de las otras.
 - Si el mismo dato aparece en varias capturas, usa el que se lea con más claridad.
-- No confundas seguidores, likes ni comentarios con estas tres métricas.`;
+- No confundas seguidores, likes ni comentarios con estas tres métricas.
+- Las interacciones solo valen si aparecen como un total escrito. Si no está,
+  puedes sumar las partes SOLO si todas son números exactos; si alguna viene
+  abreviada ("1,1 mil", "1.2K"), devuelve null en vez de sumar: una suma de
+  valores redondeados inventa precisión que no existe.`;
 
 // Descarga las capturas y le pide a Claude que lea los números.
 // Best-effort: si algo falla, devuelve null y el envío queda con lo que

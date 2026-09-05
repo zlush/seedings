@@ -13,21 +13,30 @@ import { saveUploads } from "@/lib/uploads.server";
 //
 // Es una ruta pública (GHL no puede firmar), así que va protegida por secreto.
 
-// Campos del contacto donde GHL guarda las capturas.
-const CAMPOS_CAPTURA = ["metricas_screnshot_story", "captura performance ig"];
+// Ojo con los nombres: pese a llamarse "metricas_screnshot_story", ese campo
+// guarda el pantallazo de LA HISTORIA (contenido). Las métricas están en
+// "captura performance ig". Verificado mirando los archivos reales.
+const CAMPOS: Array<{ campo: string; kind: "contenido" | "metrica" }> = [
+  { campo: "metricas_screnshot_story", kind: "contenido" },
+  { campo: "captura performance ig", kind: "metrica" },
+];
 const MAX_CAPTURAS = 6;
 
-function capturasDe(row: Record<string, unknown>): string[] {
-  const out: string[] = [];
-  for (const campo of CAMPOS_CAPTURA) {
+type Adjunto = { url: string; kind: "contenido" | "metrica" };
+
+function adjuntosDe(row: Record<string, unknown>): Adjunto[] {
+  const out: Adjunto[] = [];
+  const vistas = new Set<string>();
+  for (const { campo, kind } of CAMPOS) {
     const v = row[campo];
-    if (Array.isArray(v)) {
-      for (const u of v) if (typeof u === "string" && u.startsWith("http")) out.push(u);
-    } else if (typeof v === "string" && v.startsWith("http")) {
-      out.push(v);
+    const lista = Array.isArray(v) ? v : typeof v === "string" ? [v] : [];
+    for (const u of lista) {
+      if (typeof u !== "string" || !u.startsWith("http") || vistas.has(u)) continue;
+      vistas.add(u);
+      out.push({ url: u, kind });
     }
   }
-  return [...new Set(out)].slice(0, MAX_CAPTURAS);
+  return out.slice(0, MAX_CAPTURAS);
 }
 
 export async function POST(request: Request) {
@@ -46,9 +55,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Sin teléfono utilizable" }, { status: 400 });
   }
 
-  const capturas = capturasDe(row);
-  if (capturas.length === 0) {
-    return NextResponse.json({ error: "El contacto no trae capturas" }, { status: 400 });
+  const adjuntos = adjuntosDe(row);
+  if (adjuntos.length === 0) {
+    return NextResponse.json({ error: "El contacto no trae archivos" }, { status: 400 });
   }
 
   const db = createAdminClient();
@@ -66,9 +75,9 @@ export async function POST(request: Request) {
   }
 
   // Bajar cada captura y dejarla en la carpeta del creador.
-  const archivos: Array<{ path: string; mediaType: "IMAGE"; kind: "metrica" }> = [];
+  const archivos: Array<{ path: string; mediaType: "IMAGE"; kind: "contenido" | "metrica" }> = [];
   const fallidas: string[] = [];
-  for (const url of capturas) {
+  for (const { url, kind } of adjuntos) {
     try {
       const res = await fetch(url);
       if (!res.ok) {
@@ -86,14 +95,14 @@ export async function POST(request: Request) {
         fallidas.push(`${url}: ${error.message}`);
         continue;
       }
-      archivos.push({ path, mediaType: "IMAGE", kind: "metrica" });
+      archivos.push({ path, mediaType: "IMAGE", kind });
     } catch (e) {
       fallidas.push(`${url}: ${e instanceof Error ? e.message : "error"}`);
     }
   }
 
   if (archivos.length === 0) {
-    return NextResponse.json({ error: "No se pudo bajar ninguna captura", fallidas }, { status: 502 });
+    return NextResponse.json({ error: "No se pudo bajar ningún archivo", fallidas }, { status: 502 });
   }
 
   // saveUploads hace el resto: ficha del CRM, envío, y lectura de las capturas.
@@ -108,7 +117,8 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    capturas: archivos.length,
+    contenido: archivos.filter((a) => a.kind === "contenido").length,
+    capturas: archivos.filter((a) => a.kind === "metrica").length,
     fallidas,
     crm: !!r.ghlContactId,
     campana: campaignName,
