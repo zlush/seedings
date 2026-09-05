@@ -22,6 +22,16 @@ const CAMPOS: Array<{ campo: string; kind: "contenido" | "metrica" }> = [
 ];
 const MAX_CAPTURAS = 6;
 
+// "ICB Valdivía " y "icb valdivia" son la misma campaña.
+function normalizar(v: string): string {
+  return v
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/s+/g, " ")
+    .trim();
+}
+
 type Adjunto = { url: string; kind: "contenido" | "metrica" };
 
 function adjuntosDe(row: Record<string, unknown>): Adjunto[] {
@@ -62,16 +72,51 @@ export async function POST(request: Request) {
 
   const db = createAdminClient();
 
-  // La campaña del CRM; si existe una con ese nombre, se asocia de verdad.
-  const campaignName = typeof row["campaña_name_1"] === "string" ? row["campaña_name_1"] : null;
+  // La campaña del CRM. Si no existe en la plataforma se crea —junto con su
+  // marca— para que el envío llegue al dashboard del cliente, que filtra por
+  // campaña real y no por el texto.
+  //
+  // La comparación se normaliza en código (sin acentos, sin mayúsculas, sin
+  // espacios de más) porque `ilike` de Postgres no ignora acentos: "ICB
+  // Valdivia" e "ICB Valdivía" crearían dos campañas distintas.
+  const campaignName =
+    typeof row["campaña_name_1"] === "string" && row["campaña_name_1"].trim()
+      ? row["campaña_name_1"].trim().replace(/s+/g, " ")
+      : null;
+
   let campaignId: string | null = null;
+  let campanaCreada = false;
+
   if (campaignName) {
-    const { data } = await db
-      .from("campaigns")
-      .select("id")
-      .ilike("name", campaignName)
-      .maybeSingle();
-    campaignId = data?.id ?? null;
+    const clave = normalizar(campaignName);
+
+    const { data: campanas } = await db.from("campaigns").select("id, name");
+    campaignId = (campanas ?? []).find((c) => normalizar(String(c.name)) === clave)?.id ?? null;
+
+    if (!campaignId) {
+      // Reusar la marca si ya existe con ese nombre; si no, crearla.
+      const { data: marcas } = await db.from("brands").select("id, name");
+      let brandId = (marcas ?? []).find((b) => normalizar(String(b.name)) === clave)?.id ?? null;
+
+      if (!brandId) {
+        const { data: nueva } = await db
+          .from("brands")
+          .insert({ name: campaignName })
+          .select("id")
+          .single();
+        brandId = nueva?.id ?? null;
+      }
+
+      if (brandId) {
+        const { data: camp } = await db
+          .from("campaigns")
+          .insert({ brand_id: brandId, name: campaignName })
+          .select("id")
+          .single();
+        campaignId = camp?.id ?? null;
+        campanaCreada = Boolean(campaignId);
+      }
+    }
   }
 
   // Bajar cada captura y dejarla en la carpeta del creador.
@@ -123,5 +168,6 @@ export async function POST(request: Request) {
     crm: !!r.ghlContactId,
     campana: campaignName,
     campana_asociada: !!campaignId,
+    campana_creada: campanaCreada,
   });
 }
