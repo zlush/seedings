@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { pickActiveAssignment, normalizeMentionMeta } from "./mentions";
+import { pickActiveAssignment, normalizeMentionMeta, historiasEnEseInstante } from "./mentions";
 
 describe("pickActiveAssignment", () => {
   const rows = [
@@ -37,5 +37,32 @@ describe("normalizeMentionMeta", () => {
     const meta = normalizeMentionMeta({ username: "x", raw: {} });
     expect(meta.hashtags).toEqual([]);
     expect(meta.mentions).toEqual([]);
+  });
+});
+
+describe("historiasEnEseInstante", () => {
+  const vivas = [
+    { id: "vieja", timestamp: "2026-09-07T08:00:00+0000" },
+    { id: "laQueNosEtiqueto", timestamp: "2026-09-07T14:30:00+0000" },
+    { id: "reciente", timestamp: "2026-09-07T19:45:00+0000" },
+  ];
+
+  it("elige la historia publicada en ese instante, no la más reciente", () => {
+    const r = historiasEnEseInstante(vivas, "2026-09-07T14:30:00+0000");
+    expect(r.map((s) => s.id)).toEqual(["laQueNosEtiqueto"]);
+  });
+
+  it("tolera unos segundos de diferencia entre contextos", () => {
+    const r = historiasEnEseInstante(vivas, "2026-09-07T14:30:01+0000");
+    expect(r.map((s) => s.id)).toEqual(["laQueNosEtiqueto"]);
+  });
+
+  it("no devuelve nada si ninguna coincide", () => {
+    expect(historiasEnEseInstante(vivas, "2026-09-07T12:00:00+0000")).toEqual([]);
+  });
+
+  it("ignora historias sin marca de tiempo y fechas basura", () => {
+    expect(historiasEnEseInstante([{ id: "x" }], "2026-09-07T14:30:00+0000")).toEqual([]);
+    expect(historiasEnEseInstante(vivas, "no es una fecha")).toEqual([]);
   });
 });

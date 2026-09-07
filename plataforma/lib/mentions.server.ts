@@ -59,19 +59,40 @@ export async function processMentions(hints: MentionHint[]): Promise<{ matched: 
 
     if (creator?.page_token_encrypted) {
       try {
+        // Identificar CUÁL de sus historias vivas nos etiquetó. No se asume que
+        // sea la más reciente: puede etiquetarnos en una publicada hace horas.
+        // Se intenta de lo más preciso a lo más amplio.
         const ids = hint.mediaId ? [hint.mediaId] : [];
         let result = await captureStoriesForCreator(creator, {
           onlyStoryIds: ids.length ? ids : undefined,
           source: "mention",
           mentions: meta,
         });
-        // El media_id de la marca puede no coincidir con el del creador → reintento.
-        if (ids.length && result.found === 0) {
-          result = await captureStoriesForCreator(creator, { source: "mention", mentions: meta });
+        let via = ids.length ? "media_id" : "sin filtro";
+
+        // El media_id que ve la marca no es el que ve el creador; la marca de
+        // tiempo sí coincide, y con eso se identifica la historia exacta.
+        if (result.found === 0 && detail.timestamp) {
+          result = await captureStoriesForCreator(creator, {
+            matchTimestamp: detail.timestamp,
+            source: "mention",
+            mentions: meta,
+          });
+          via = "marca de tiempo";
         }
+
+        // Último recurso: todas las vivas. Captura de más, pero no pierde la
+        // historia; el equipo puede excluir lo que no corresponda.
+        if (result.found === 0) {
+          result = await captureStoriesForCreator(creator, { source: "mention", mentions: meta });
+          via = "todas las vivas";
+        }
+
         matched++;
         avisar.add(clean);
-        notes.push(`@${clean}: conectado, capturadas ${result.found}, snapshots ${result.snapshots}`);
+        notes.push(
+          `@${clean}: conectado, identificada por ${via}, capturadas ${result.found}, snapshots ${result.snapshots}`,
+        );
       } catch (e) {
         notes.push(`@${clean}: error ${e instanceof Error ? e.message : ""}`);
       }

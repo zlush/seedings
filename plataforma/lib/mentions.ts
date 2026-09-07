@@ -35,3 +35,26 @@ export function normalizeMentionMeta(input: {
     mentions.find((m) => m.toLowerCase() === BRAND_HANDLE) ?? BRAND_HANDLE;
   return { source: "mention", mentioned, mentions, hashtags, caption, raw: input.raw };
 }
+
+// Historias publicadas en ese instante exacto.
+//
+// Es como se identifica cuál de las historias VIVAS del creador nos etiquetó:
+// el media_id que ve la marca no es el mismo que ve el creador, pero la marca
+// de tiempo es idéntica en ambos contextos. Deliberadamente NO mira cuál es la
+// más reciente — el creador puede etiquetarnos en una publicada hace horas,
+// cuando se acuerda de hacerlo.
+//
+// La tolerancia existe porque no conviene depender de que dos cadenas de fecha
+// sean idénticas carácter por carácter.
+export function historiasEnEseInstante<T extends { timestamp?: string }>(
+  vivas: T[],
+  instante: string,
+  toleranciaMs = 2000,
+): T[] {
+  const objetivo = Date.parse(instante);
+  if (!Number.isFinite(objetivo)) return [];
+  return vivas.filter((s) => {
+    const t = s.timestamp ? Date.parse(s.timestamp) : NaN;
+    return Number.isFinite(t) && Math.abs(t - objetivo) <= toleranciaMs;
+  });
+}

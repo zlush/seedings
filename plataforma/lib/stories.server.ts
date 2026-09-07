@@ -4,7 +4,7 @@ import { decrypt } from "@/lib/crypto";
 import { graphGet, flattenInsights, storyBackupFilename, STORY_METRICS, GRAPH, IG_GRAPH, type InsightEntry } from "@/lib/graph";
 import { computeCampaignTotals } from "@/lib/ghl";
 import { ghlEnabled, pushMetricsToGhl } from "@/lib/ghl.server";
-import { pickActiveAssignment } from "@/lib/mentions";
+import { pickActiveAssignment, historiasEnEseInstante } from "@/lib/mentions";
 
 type Creator = {
   id: string;
@@ -51,11 +51,20 @@ export async function listLiveStories(creator: Creator): Promise<IgStory[]> {
 // Captura Stories específicas: respalda media y guarda snapshot de métricas.
 // - onlyStoryIds: solo estas (selección del creador).
 // - onlyKnown: solo Stories que YA registramos (para el cron: refresca, no descubre).
+// - matchTimestamp: la Story publicada en ese instante. Es como se identifica la
+//   historia de una mención: el media_id que ve la marca NO es el mismo que ve el
+//   creador, pero la marca de tiempo sí es idéntica en ambos contextos. Así se
+//   encuentra la correcta aunque se haya publicado hace horas.
+// - matchTimestamp: la Story publicada en ese instante. Sirve para las menciones:
+//   el media_id que ve la marca NO es el mismo que ve el creador, pero la marca
+//   de tiempo sí es idéntica en ambos contextos. Así se identifica la historia
+//   correcta aunque se haya publicado hace horas.
 export async function captureStoriesForCreator(
   creator: Creator,
   opts: {
     onlyStoryIds?: string[];
     onlyKnown?: boolean;
+    matchTimestamp?: string;
     assignmentId?: string;
     source?: "api" | "manual" | "mention";
     mentions?: unknown;
@@ -101,6 +110,8 @@ export async function captureStoriesForCreator(
       .eq("campaign_creator_id", assignment.id);
     const set = new Set((known ?? []).map((k) => k.ig_media_id));
     items = items.filter((s) => set.has(s.id));
+  } else if (opts.matchTimestamp) {
+    items = historiasEnEseInstante(items, opts.matchTimestamp);
   }
   result.found = items.length;
 
