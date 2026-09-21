@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PasswordInput } from "../../password-input";
@@ -20,7 +21,13 @@ export default function AdminLoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      setError("Correo o contraseña incorrectos.");
+      // Las creadoras llegaban aquí con su correo personal y no entendían por
+      // qué "la contraseña" fallaba: este panel no es para ellas.
+      setError(
+        email.trim().toLowerCase().endsWith("@seedings.cl")
+          ? "Correo o contraseña incorrectos."
+          : "Este panel es solo para el equipo de Seedings. Si eres creadora o creador, entra por el acceso de abajo.",
+      );
       return;
     }
     router.push("/admin");
@@ -54,6 +61,12 @@ export default function AdminLoginPage() {
           <p className="mt-2 rounded-md border border-terra/60 bg-terra/15 p-3.5 text-sm">{error}</p>
         )}
       </form>
+      <p className="mt-8 border-t border-cream/15 pt-6 text-sm text-cream/70">
+        ¿Eres creadora o creador?{" "}
+        <Link href="/login" className="font-semibold text-cream underline underline-offset-4">
+          Tu acceso está aquí →
+        </Link>
+      </p>
     </main>
   );
 }

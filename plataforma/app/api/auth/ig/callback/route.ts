@@ -4,6 +4,7 @@ import { encrypt } from "@/lib/crypto";
 import { IG_GRAPH } from "@/lib/graph";
 import { INSTAGRAM_APP_ID } from "@/lib/ig-app";
 import { siteUrl } from "@/lib/site-url";
+import { verifyState } from "@/lib/oauth-state";
 
 // Callback del Business Login for Instagram:
 // code → token corto → token largo (60d) → perfil → guardar cifrado.
@@ -22,7 +23,6 @@ export async function GET(request: NextRequest) {
 
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
-  const savedState = request.cookies.get("ig_biz_state")?.value;
 
   const igError = url.searchParams.get("error");
   if (igError) {
@@ -34,29 +34,37 @@ export async function GET(request: NextRequest) {
     });
     return back("ig-denied");
   }
-  if (!code || !state || state !== savedState) {
-    await logDebug({
-      step: "state",
-      has_code: Boolean(code),
-      has_state: Boolean(state),
-      has_cookie: Boolean(savedState),
-      state_matches: Boolean(state && savedState && state === savedState),
-    });
-    return back("state");
-  }
 
+  // El state viene firmado y dice quién inició la conexión, así que no hace
+  // falta cookie ni sesión: se puede volver por otro navegador (el celular
+  // que abre la app de Instagram) y la cuenta igual queda en su lugar.
+  // La sesión se mira solo para saber a dónde devolverla y para diagnosticar.
+  const verified = verifyState(state, process.env.SECRET_ENCRYPTION_KEY ?? "");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) {
-    await logDebug({ step: "no_session" });
-    return NextResponse.redirect(`${origin}/login`);
+  const diag = {
+    has_session: Boolean(user),
+    session_matches: verified.ok ? user?.id === verified.uid : null,
+    user_agent: (request.headers.get("user-agent") ?? "").slice(0, 200),
+  };
+
+  if (!code || !verified.ok) {
+    await logDebug({
+      step: "state",
+      has_code: Boolean(code),
+      has_state: Boolean(state),
+      reason: verified.ok ? "sin-code" : verified.reason,
+      ...diag,
+    });
+    return back(!verified.ok && verified.reason === "expired" ? "state-expired" : "state");
   }
+  const { uid, kind, ageMs } = verified;
 
   // El redirect_uri DEBE ser byte a byte el mismo que se envió al diálogo.
-  // Lo transportamos en cookie en vez de recalcularlo (recalcular fue la
-  // fuente del "redirect_uri is not identical" que veníamos arrastrando).
+  // Llega en cookie como pista; si no, se recalcula con siteUrl(), que da el
+  // mismo valor en ambos extremos.
   const savedRedirect = request.cookies.get("ig_redirect_uri")?.value;
   const recomputed = `${siteUrl()}/api/auth/ig/callback`;
   const redirectUri = savedRedirect || recomputed;
@@ -143,6 +151,8 @@ export async function GET(request: NextRequest) {
         request_origin: origin,
         code_len: cleanCode.length,
         code_tail: cleanCode.slice(-6),
+        age_ms: ageMs,
+        ...diag,
       });
       return back("ig-token");
     }
@@ -170,7 +180,7 @@ export async function GET(request: NextRequest) {
     const expiresAt = new Date(Date.now() + expiresInSec * 1000).toISOString();
 
     // Conexión de la cuenta de MARCA (@seedings.cl) → recibe las menciones.
-    if (request.cookies.get("ig_connect_brand")?.value === "1") {
+    if (kind === "brand") {
       const { error } = await db.from("brand_accounts").upsert(
         {
           ig_user_id: igUserId,
@@ -180,17 +190,18 @@ export async function GET(request: NextRequest) {
         },
         { onConflict: "ig_user_id" },
       );
+      await logDebug({ step: error ? "save_error" : "ok", kind, username: me.username, age_ms: ageMs, ...diag });
       const res = NextResponse.redirect(`${origin}/admin?brand=${error ? "error" : "ok"}`);
-      res.cookies.delete("ig_biz_state");
       res.cookies.delete("ig_redirect_uri");
-      res.cookies.delete("ig_connect_brand");
       return res;
     }
 
     // Conexión de un CREADOR (fb_page_id = null marca camino Instagram Login).
+    // Se guarda para quien INICIÓ la conexión (uid del state firmado), no para
+    // quien tenga sesión en este navegador.
     const { error } = await db.from("creators").upsert(
       {
-        user_id: user.id,
+        user_id: uid,
         instagram_username: me.username ?? null,
         ig_user_id: igUserId,
         fb_page_id: null,
@@ -199,13 +210,27 @@ export async function GET(request: NextRequest) {
       },
       { onConflict: "user_id" },
     );
+    await logDebug({
+      step: error ? "save_error" : "ok",
+      kind,
+      username: me.username,
+      error: error?.message,
+      age_ms: ageMs,
+      ...diag,
+    });
     if (error) return back("save");
 
-    const res = NextResponse.redirect(`${origin}/onboarding?connected=1`);
-    res.cookies.delete("ig_biz_state");
+    // Si volvió a un navegador sin su sesión, igual quedó conectada: se lo
+    // decimos en una página pública en vez de mandarla a un login.
+    const res = NextResponse.redirect(
+      user?.id === uid
+        ? `${origin}/onboarding?connected=1`
+        : `${origin}/conectado?ig=${encodeURIComponent(me.username ?? "")}`,
+    );
     res.cookies.delete("ig_redirect_uri");
     return res;
-  } catch {
+  } catch (e) {
+    await logDebug({ step: "graph", error: e instanceof Error ? e.message : String(e), age_ms: ageMs, ...diag });
     return back("graph");
   }
 }

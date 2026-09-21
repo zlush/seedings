@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-import crypto from "node:crypto";
 import { INSTAGRAM_APP_ID } from "@/lib/ig-app";
 import { createClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
 import { siteUrl } from "@/lib/site-url";
 import { isInAppBrowser } from "@/lib/inapp";
+import { signState } from "@/lib/oauth-state";
 
 // Business Login for Instagram: el creador entra con SU clave de Instagram.
 // Sin Facebook, sin páginas. Instagram maneja la conversión a cuenta profesional.
@@ -14,7 +14,8 @@ const BRAND_SCOPES = [...CREATOR_SCOPES, "instagram_business_manage_comments"];
 
 export async function GET(request: NextRequest) {
   const origin = new URL(request.url).origin;
-  if (!process.env.INSTAGRAM_APP_SECRET) {
+  const secret = process.env.SECRET_ENCRYPTION_KEY;
+  if (!process.env.INSTAGRAM_APP_SECRET || !secret) {
     return NextResponse.redirect(`${origin}/onboarding?error=ig-config`);
   }
 
@@ -25,19 +26,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/abrir-en-navegador`);
   }
 
-  // ?brand=1 conecta la cuenta de marca (@seedings.cl) — solo admins.
+  // La sesión se exige ANTES de mandar a Instagram. Antes se descubría al
+  // volver, cuando el código de Instagram ya estaba gastado y no había cómo
+  // recuperar el intento.
   const isBrand = new URL(request.url).searchParams.get("brand") === "1";
-  if (isBrand) {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user || !isAdmin(user.email)) return NextResponse.redirect(`${origin}/admin/login`);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.redirect(
+      isBrand ? `${origin}/admin/login` : `${origin}/login?next=${encodeURIComponent("/api/auth/ig")}`,
+    );
   }
+  // ?brand=1 conecta la cuenta de marca (@seedings.cl) — solo admins.
+  if (isBrand && !isAdmin(user.email)) return NextResponse.redirect(`${origin}/admin/login`);
 
-  const state = crypto.randomBytes(16).toString("hex");
+  // El state va firmado y dice quién inició la conexión: el callback lo
+  // verifica sin depender de una cookie (ver lib/oauth-state.ts).
+  const state = signState({ uid: user.id, kind: isBrand ? "brand" : "creator" }, secret);
+
   // Meta compara el redirect_uri como TEXTO EXACTO entre diálogo y canje.
-  // Por eso no lo recalculamos en el callback: lo transportamos en la cookie.
   const redirectUri = `${siteUrl()}/api/auth/ig/callback`;
 
   // La query se arma a mano, no con searchParams: `set()` percent-codifica el
@@ -55,15 +64,14 @@ export async function GET(request: NextRequest) {
   const dialog = `https://www.instagram.com/oauth/authorize?${query}`;
 
   const res = NextResponse.redirect(dialog);
-  const opts = {
+  // Solo una pista para el canje: si la cookie no vuelve, el callback
+  // recalcula el mismo valor con siteUrl().
+  res.cookies.set("ig_redirect_uri", redirectUri, {
     httpOnly: true,
     secure: origin.startsWith("https"),
-    sameSite: "lax" as const,
-    maxAge: 600,
+    sameSite: "lax",
+    maxAge: 30 * 60,
     path: "/",
-  };
-  res.cookies.set("ig_biz_state", state, opts);
-  res.cookies.set("ig_redirect_uri", redirectUri, opts);
-  if (isBrand) res.cookies.set("ig_connect_brand", "1", opts);
+  });
   return res;
 }

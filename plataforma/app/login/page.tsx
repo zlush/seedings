@@ -30,6 +30,12 @@ export default function LoginPage() {
         setError("Correo o contraseña incorrectos. ¿Aún no tienes contraseña? Entra con enlace y créala en Ajustes.");
         return;
       }
+      // /api/auth/ig es un route handler, no una página: el router del
+      // cliente no sabe seguirlo hasta Instagram. Necesita navegación completa.
+      if (next?.startsWith("/api/")) {
+        window.location.assign(next);
+        return;
+      }
       router.push(next ?? "/campana");
       router.refresh();
     } else {

@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 const REGISTRO_FORM_URL = "https://link.seedings.cl/widget/form/ewXDwMDGrEnRlknSl2Eo";
 
 const ERRORS: Record<string, string> = {
-  state: "La sesión de conexión expiró. Intenta de nuevo.",
+  state: "No pudimos verificar la conexión. Vuelve a tocar Conectar Instagram.",
+  "state-expired":
+    "Pasaron más de 30 minutos desde que empezaste. Vuelve a tocar Conectar Instagram y hazlo de una sola vez.",
   "no-ig":
     "No encontramos una cuenta de Instagram profesional vinculada a una página de Facebook. Tu Instagram debe ser Creador o Empresa y estar conectado a una página. Escríbenos y te ayudamos en dos minutos.",
   save: "No pudimos guardar la conexión. Reintenta.",
