@@ -5,6 +5,7 @@ import { IG_GRAPH } from "@/lib/graph";
 import { INSTAGRAM_APP_ID } from "@/lib/ig-app";
 import { siteUrl } from "@/lib/site-url";
 import { verifyState } from "@/lib/oauth-state";
+import { validarCuentaCreador } from "@/lib/ig-conexion";
 
 // Callback del Business Login for Instagram:
 // code → token corto → token largo (60d) → perfil → guardar cifrado.
@@ -194,6 +195,14 @@ export async function GET(request: NextRequest) {
       const res = NextResponse.redirect(`${origin}/admin?brand=${error ? "error" : "ok"}`);
       res.cookies.delete("ig_redirect_uri");
       return res;
+    }
+
+    // Una creadora no puede conectar la cuenta de la marca (ver lib/ig-conexion.ts).
+    const { data: marcas } = await db.from("brand_accounts").select("ig_user_id, username");
+    const validacion = validarCuentaCreador({ igUserId, username: me.username }, marcas ?? []);
+    if (!validacion.ok) {
+      await logDebug({ step: "rechazada", motivo: validacion.error, username: me.username, age_ms: ageMs, ...diag });
+      return back(validacion.error);
     }
 
     // Conexión de un CREADOR (fb_page_id = null marca camino Instagram Login).

@@ -11,6 +11,8 @@ const REGISTRO_FORM_URL = "https://link.seedings.cl/widget/form/ewXDwMDGrEnRlknS
 
 const ERRORS: Record<string, string> = {
   state: "No pudimos verificar la conexión. Vuelve a tocar Conectar Instagram.",
+  "ig-es-marca":
+    "Conectaste la cuenta de Seedings (@seedings.cl), no la tuya. Entra a instagram.com, sal de esa cuenta, entra con tu cuenta personal y vuelve a tocar Conectar Instagram.",
   "state-expired":
     "Pasaron más de 30 minutos desde que empezaste. Vuelve a tocar Conectar Instagram y hazlo de una sola vez.",
   "no-ig":
