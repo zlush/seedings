@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { fechaHoraChile } from "@/lib/fecha";
 import { PublicarBoton } from "../publicar-boton";
 import { SubirStory } from "../subir-story";
 import { ActivarAvisos } from "../activar-avisos";
@@ -157,9 +158,7 @@ export default async function CampanaCreadorPage({
               <div className="flex items-center justify-between text-sm text-cream/60">
                 <span>
                   {s.media_type === "VIDEO" ? "Video" : "Imagen"} ·{" "}
-                  {s.published_at ? new Date(s.published_at).toLocaleString("es-CL", {
-                    day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
-                  }) : ""}
+                  {fechaHoraChile(s.published_at as string | null)}
                 </span>
                 {s.permalink && (
                   <a href={s.permalink} target="_blank" className="underline underline-offset-4 hover:text-cream">

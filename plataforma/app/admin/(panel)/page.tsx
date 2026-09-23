@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/server";
+import { fechaChile } from "@/lib/fecha";
 import { createCampaign } from "./actions";
 import { CambiarPassword } from "./cambiar-password";
 
@@ -130,7 +131,7 @@ export default async function AdminHome() {
                     </a>
                   )}
                   <span className="text-xs text-cream/50">
-                    {u.published_at ? new Date(u.published_at).toLocaleDateString("es-CL") : ""}
+                    {fechaChile(u.published_at as string | null)}
                   </span>
                 </span>
               </li>
