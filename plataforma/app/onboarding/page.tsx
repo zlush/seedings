@@ -138,7 +138,7 @@ export default async function OnboardingPage({
           <p className="text-sm text-cream/60">
             {isConnected
               ? `Conectado como @${creator!.instagram_username}`
-              : "Autorizas con Facebook, que administra tu cuenta profesional"}
+              : "Entras con tu propia clave de Instagram"}
           </p>
         </div>
         {isConnected ? (
@@ -147,7 +147,7 @@ export default async function OnboardingPage({
           </span>
         ) : (
           <a
-            href="/api/auth/instagram"
+            href="/api/auth/ig"
             className="rounded-full bg-cream px-5 py-2.5 text-sm font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
           >
             Conectar
@@ -198,18 +198,18 @@ export default async function OnboardingPage({
           </p>
           <p className="mt-2 text-sm leading-relaxed text-cream/70">
             Tu Instagram tiene que ser <b className="text-paper">Creador</b> o{" "}
-            <b className="text-paper">Empresa</b> y estar vinculado a una página de Facebook. Si no
-            lo está, escríbenos y lo dejamos listo contigo en dos minutos.
+            <b className="text-paper">Empresa</b>. Si es una cuenta personal, Instagram te ofrece
+            cambiarla durante la conexión; si te complica, escríbenos y lo vemos contigo.
           </p>
           <p className="mt-3 text-xs leading-relaxed text-cream/40">
             Tip para el teléfono: si la pantalla se queda cargando, mantén presionado
             &quot;Conectar&quot; y elige <b>Abrir en el navegador</b>.
           </p>
           <a
-            href="/api/auth/ig"
+            href="/api/auth/instagram"
             className="mt-4 inline-block text-xs text-cream/35 underline underline-offset-4 hover:text-cream/60"
           >
-            Entrar solo con Instagram (en pruebas)
+            ¿Prefieres autorizar con Facebook? Entra por aquí
           </a>
         </div>
       )}
