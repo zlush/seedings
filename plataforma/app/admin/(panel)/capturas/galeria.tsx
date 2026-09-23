@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { borrarCapturas } from "./actions";
+import { horaPublicacion } from "@/lib/captura";
 import type { CapturaGuardada } from "@/lib/captura.server";
 
 export function Galeria({ capturas, filtro }: { capturas: CapturaGuardada[]; filtro: string }) {
@@ -112,10 +113,15 @@ export function Galeria({ capturas, filtro }: { capturas: CapturaGuardada[]; fil
                     </div>
                   )}
                 </button>
-                <p className="mt-1 flex items-center gap-1 text-xs text-cream/50">
+                <p
+                  className="mt-1 flex items-center gap-1 text-xs text-cream/50"
+                  title={`Capturada ${horaPublicacion(c.captured_at)}`}
+                >
                   {c.media_type === "VIDEO" ? "🎬" : "🖼"}
                   {c.menciona_marca && <span title="Etiquetó a la marca">🏷</span>}
-                  {(c.taken_at ?? "").slice(0, 10)}
+                  {/* Publicación, no captura: es el dato que se contrasta con
+                      la hora del aviso cuando algo no se descargó. */}
+                  {horaPublicacion(c.taken_at)}
                 </p>
                 {c.url && (
                   <a href={c.url} download className="text-xs underline text-cream/60">

@@ -41,3 +41,31 @@ export function construirPayloadCaptura({
     media,
   };
 }
+
+// Fecha y hora de publicación en horario de Chile, para la galería.
+//
+// La fila guarda un ISO en UTC, y en septiembre Chile va tres horas atrás: una
+// historia de las 22:30 se ve publicada "mañana" si se corta el ISO a diez
+// caracteres, que es lo que hacía la galería antes. Intl resuelve el huso y el
+// horario de verano sin tabla propia.
+const FORMATO = new Intl.DateTimeFormat("es-CL", {
+  timeZone: "America/Santiago",
+  day: "2-digit",
+  month: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+export function horaPublicacion(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  // es-CL ignora el "2-digit" del día y del mes y entrega "8-9"; el cero se
+  // agrega aquí para que la columna quede alineada en la galería.
+  const partes = Object.fromEntries(
+    FORMATO.formatToParts(d).map((p) => [p.type, p.value]),
+  );
+  const cero = (v: string) => v.padStart(2, "0");
+  return `${cero(partes.day)}-${cero(partes.month)} ${cero(partes.hour)}:${cero(partes.minute)}`;
+}
