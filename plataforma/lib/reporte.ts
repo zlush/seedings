@@ -61,3 +61,31 @@ export function toCsv(rows: ReportRow[]): string {
   }
   return lines.join("\r\n");
 }
+
+// Qué mostrar en la columna Origen y si la fila necesita ojo humano.
+//
+// La lectura de las capturas devuelve null para lo que NO pudo leer — por
+// ejemplo interacciones que solo vienen abreviadas ("1,1 mil"), donde sumar
+// las partes inventaría precisión. Ese null baja al reporte como 0, así que
+// basta UNA métrica sin leer para marcar la fila: un 0 silencioso le reporta
+// de menos a la marca, que es peor que un número mal leído.
+export function estadoLectura(e: {
+  alcance: number | null;
+  reproducciones: number | null;
+  interacciones: number | null;
+  mismatch: string[]; // métricas donde el creador y la lectura no coinciden
+  fuente: string | null; // metrics_source
+}): { revisar: boolean; origen: string } {
+  // Un desacuerdo es más urgente que un vacío: hay dos números y uno miente.
+  if (e.mismatch.length) return { revisar: true, origen: `⚠ ${e.mismatch.join(", ")}` };
+
+  // Ojo: 0 es un valor leído, no un vacío.
+  const faltan = (["alcance", "reproducciones", "interacciones"] as const).filter(
+    (k) => e[k] == null,
+  );
+  if (faltan.length) return { revisar: true, origen: `⚠ sin leer: ${faltan.join(", ")}` };
+
+  const origen =
+    e.fuente === "ia" ? "leído" : e.fuente === "equipo" ? "corregido" : "formulario";
+  return { revisar: false, origen };
+}

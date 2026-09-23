@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
 import { siteUrl } from "./site-url";
-import type { ReportRow } from "./reporte";
+import { estadoLectura, type ReportRow } from "./reporte";
 
 type MetricSnap = {
   reach: number | null;
@@ -75,15 +75,20 @@ async function fetchSubmissionRows(base: string): Promise<ReportRow[]> {
     const files = (s.creator_uploads ?? []) as Array<{ id: string; kind: string }>;
     const principal = files.find((f) => f.kind === "contenido") ?? files[0];
 
-    const mismatch = (s.metrics_mismatch as string[] | null) ?? [];
-    // Sin números y sin lectura = alguien tiene que mirar la captura.
-    const sinNumeros =
-      s.reach == null && s.views == null && s.total_interactions == null;
+    // Basta una métrica sin leer para que alguien tenga que mirar la captura:
+    // el null baja a la planilla como 0 y le reporta de menos a la marca.
+    const { revisar, origen } = estadoLectura({
+      alcance: s.reach as number | null,
+      reproducciones: s.views as number | null,
+      interacciones: s.total_interactions as number | null,
+      mismatch: (s.metrics_mismatch as string[] | null) ?? [],
+      fuente: (s.metrics_source as string | null) ?? null,
+    });
 
     return {
       storyId: s.id as string,
       kind: "submission" as const,
-      revisar: mismatch.length > 0 || sinNumeros,
+      revisar,
       excluded: !!s.excluded,
       fecha: String(s.created_at).slice(0, 10),
       campana: (s.campaign_name as string) || c?.name || "",
@@ -96,17 +101,7 @@ async function fetchSubmissionRows(base: string): Promise<ReportRow[]> {
       interacciones: (s.total_interactions as number) ?? 0,
       respuestas: (s.replies as number) ?? 0,
       compartidas: (s.shares as number) ?? 0,
-      // La lectura de las capturas se marca en el origen, y si no cuadra con
-      // lo que declaró el creador, se avisa cuál métrica revisar.
-      origen: mismatch.length
-        ? `⚠ ${mismatch.join(", ")}`
-        : sinNumeros
-          ? "⚠ sin leer"
-          : s.metrics_source === "ia"
-            ? "leído"
-            : s.metrics_source === "equipo"
-              ? "corregido"
-              : "formulario",
+      origen,
       video: principal ? `${base}/api/admin/ugc/upload/${principal.id}` : "",
     };
   });
