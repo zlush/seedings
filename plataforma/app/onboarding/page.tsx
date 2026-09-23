@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ghlEnabled, findContactByEmail } from "@/lib/ghl.server";
+import { desconectarInstagram } from "./actions";
 import { RegistroBoton } from "./registro-boton";
 import { LogoutButton } from "../logout-button";
 
@@ -142,9 +143,19 @@ export default async function OnboardingPage({
           </p>
         </div>
         {isConnected ? (
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gold text-lg font-bold text-wine">
-            ✓
-          </span>
+          <div className="flex items-center gap-3">
+            <form action={desconectarInstagram}>
+              <button
+                type="submit"
+                className="text-xs text-cream/45 underline underline-offset-4 transition hover:text-cream"
+              >
+                Desconectar
+              </button>
+            </form>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gold text-lg font-bold text-wine">
+              ✓
+            </span>
+          </div>
         ) : (
           <a
             href="/api/auth/ig"

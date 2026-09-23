@@ -5,6 +5,7 @@ import { graphGet, flattenInsights, storyBackupFilename, STORY_METRICS, GRAPH, I
 import { computeCampaignTotals } from "@/lib/ghl";
 import { ghlEnabled, pushMetricsToGhl } from "@/lib/ghl.server";
 import { pickActiveAssignment, historiasEnEseInstante } from "@/lib/mentions";
+import { esTokenRevocado } from "@/lib/token";
 
 type Creator = {
   id: string;
@@ -33,6 +34,22 @@ export type CaptureResult = {
   snapshots: number;
   errors: string[];
 };
+
+// Suelta la conexión de un creador cuyo token ya no vale. Sin esto la fila
+// seguía diciendo "conectado" con un token muerto: la pantalla no ofrecía
+// reconectar y cada captura fallaba en silencio.
+export async function marcarDesconectado(creatorId: string): Promise<void> {
+  await createAdminClient()
+    .from("creators")
+    .update({
+      page_token_encrypted: null,
+      ig_user_id: null,
+      instagram_username: null,
+      token_expires_at: null,
+      fb_page_id: null,
+    })
+    .eq("id", creatorId);
+}
 
 // Lista las Stories vivas del creador (para que elija cuál es la de la campaña).
 export async function listLiveStories(creator: Creator): Promise<IgStory[]> {
@@ -96,8 +113,21 @@ export async function captureStoriesForCreator(
     return result;
   }
 
-  // Stories vivas en Instagram.
-  let items = await listLiveStories(creator);
+  // Stories vivas en Instagram. Si Instagram dice que ya no la tenemos
+  // autorizada, se suelta la conexión aquí mismo: así la pantalla vuelve a
+  // ofrecer "Conectar" en vez de mentir con un token muerto.
+  let items: IgStory[];
+  try {
+    items = await listLiveStories(creator);
+  } catch (e) {
+    const mensaje = e instanceof Error ? e.message : String(e);
+    if (esTokenRevocado(mensaje)) {
+      await marcarDesconectado(creator.id);
+      result.errors.push("La creadora retiró el permiso en Instagram: hay que reconectar.");
+      return result;
+    }
+    throw e;
+  }
 
   // Filtrado según el modo.
   if (opts.onlyStoryIds) {
