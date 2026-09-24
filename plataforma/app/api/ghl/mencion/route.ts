@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { normalizarHandle } from "@/lib/ig-handle";
 import { capturarStories } from "@/lib/captura.server";
+import { createAdminClient } from "@/lib/supabase/server";
+import { filaMencion, type EntradaMencion } from "@/lib/mencion-log";
 
 export const maxDuration = 120;
 export const dynamic = "force-dynamic";
@@ -22,6 +24,16 @@ export const dynamic = "force-dynamic";
 // dinero al usuario y GHL puede mandar varios avisos por una misma ráfaga.
 const ESPERA_MS = 2 * 60 * 1000;
 const ultima = new Map<string, number>();
+
+// Best-effort: el log nunca puede tumbar la captura. Si la base falla, se
+// pierde el registro, no la historia.
+async function registrar(e: EntradaMencion): Promise<void> {
+  try {
+    await createAdminClient().from("webhook_events").insert(filaMencion(e));
+  } catch {
+    // sin log, pero la llamada sigue su curso
+  }
+}
 
 function claveValida(recibida: string | undefined): boolean {
   const esperada = process.env.GHL_TRIGGER_KEY;
@@ -76,7 +88,11 @@ export async function POST(req: Request) {
     campo("k") ??
     campo("x-seedings-key") ??
     undefined;
-  if (!claveValida(clave))
+  // Lo que se repite en cada registro; el resultado y el @ los pone cada salida.
+  const comun = { contentType, cuerpo: body, query: Object.fromEntries(searchParams) };
+
+  if (!claveValida(clave)) {
+    await registrar({ ...comun, handle: null, resultado: "sin-clave" });
     // Se devuelve QUÉ llegó, nunca lo esperado: sin esto, un 401 obliga a
     // adivinar si el problema es el nombre del campo, el formato del cuerpo o
     // el valor. Solo nombres y longitudes, jamás el contenido de la clave.
@@ -94,6 +110,7 @@ export async function POST(req: Request) {
       },
       { status: 401 },
     );
+  }
 
   // GHL puede mandar el @ con distintos nombres de campo según cómo se arme
   // la acción; se aceptan varios para no depender de un mapeo exacto.
@@ -123,6 +140,12 @@ export async function POST(req: Request) {
 
   const handle = normalizarHandle(crudo);
   if (!handle) {
+    await registrar({
+      ...comun,
+      handle: null,
+      resultado: "sin-handle",
+      nota: crudo ? `recibido ${JSON.stringify(crudo)}` : "no llegó ningún campo con el @",
+    });
     // Igual que con la clave: decir QUÉ campos llegaron y cuáles venían vacíos.
     // Sin esto, un "@ vacío" no distingue entre "el par ig no está configurado"
     // y "el contacto no tiene el campo IG cargado en el CRM", que se arreglan
@@ -152,14 +175,24 @@ export async function POST(req: Request) {
   }
 
   const previa = ultima.get(handle);
-  if (previa && Date.now() - previa < ESPERA_MS)
+  if (previa && Date.now() - previa < ESPERA_MS) {
+    await registrar({ ...comun, handle, resultado: "omitido" });
     return NextResponse.json({ ok: true, motivo: "Consultado hace muy poco; se omite.", handle });
+  }
   ultima.set(handle, Date.now());
 
   try {
     // sinCache obligatorio: el caché de 5 min haría perder justo la historia
     // que acabamos de venir a buscar.
     const r = await capturarStories(handle, { soloMarca: true, sinCache: true });
+    await registrar({
+      ...comun,
+      handle,
+      resultado: r.guardadas > 0 ? "capturado" : "sin-historia",
+      nota: `guardadas ${r.guardadas} · omitidas ${r.omitidas} · descartadas ${r.descartadas}${
+        r.crm ? ` · crm: ${r.crm}` : ""
+      }`,
+    });
     return NextResponse.json({
       ok: true,
       handle,
@@ -171,9 +204,8 @@ export async function POST(req: Request) {
       crm: r.crm,
     });
   } catch (e) {
-    return NextResponse.json(
-      { ok: false, motivo: e instanceof Error ? e.message : "Falló la consulta." },
-      { status: 502 },
-    );
+    const motivo = e instanceof Error ? e.message : "Falló la consulta.";
+    await registrar({ ...comun, handle, resultado: "error", nota: motivo });
+    return NextResponse.json({ ok: false, motivo }, { status: 502 });
   }
 }
