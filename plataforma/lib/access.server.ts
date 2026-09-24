@@ -22,6 +22,42 @@ function accessEmailHtml(link: string): string {
   });
 }
 
+// Acceso al panel del equipo. A diferencia del de creadoras, NUNCA crea la
+// cuenta: solo sirve para quien ya es del equipo (quien llama valida con
+// isAdmin). El enlace deja a la persona dentro del panel, donde puede fijar
+// una contraseña nueva.
+export async function sendAdminAccessEmail(email: string): Promise<{ ok?: boolean; error?: string }> {
+  const clean = email.trim().toLowerCase();
+  if (!ghlEnabled()) return { error: "El envío de correos no está configurado." };
+
+  const db = createAdminClient();
+  const { data, error } = await db.auth.admin.generateLink({ type: "magiclink", email: clean });
+  if (error || !data.properties) return { error: "No pudimos generar el acceso. Reintenta." };
+
+  const link = `${siteUrl()}/auth/confirm?token_hash=${data.properties.hashed_token}&type=magiclink&next=${encodeURIComponent("/admin")}`;
+
+  try {
+    const contactId = await upsertContactFields(clean, { link });
+    await sendGhlEmail(
+      contactId,
+      "Tu acceso al panel de Seedings",
+      emailHtml({
+        eyebrow: "Seedings Lab · Equipo",
+        title: "Entra al panel",
+        body: "Usa este enlace para entrar al panel de administración. Una vez adentro puedes fijar una contraseña nueva desde Cambiar contraseña.",
+        ctaLabel: "Entrar al panel",
+        link,
+        footer: "El enlace es personal y sirve una vez. Si no lo pediste, ignora este correo.",
+        preheader: "Enlace para entrar al panel del equipo.",
+      }),
+    );
+  } catch (e) {
+    return { error: `No pudimos enviar el correo: ${e instanceof Error ? e.message : "error"}` };
+  }
+
+  return { ok: true };
+}
+
 // Genera el magic link y lo envía por GHL. `next` es la ruta post-login.
 export async function sendAccessEmail(
   email: string,

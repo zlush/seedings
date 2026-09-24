@@ -5,18 +5,30 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PasswordInput } from "../../password-input";
+import { recuperarAcceso } from "./actions";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const [modo, setModo] = useState<"password" | "recuperar">("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [enviado, setEnviado] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    if (modo === "recuperar") {
+      const res = await recuperarAcceso(email);
+      setLoading(false);
+      if (res.error) setError(res.error);
+      else setEnviado(true);
+      return;
+    }
+
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
@@ -34,6 +46,22 @@ export default function AdminLoginPage() {
     router.refresh();
   }
 
+  if (enviado) {
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6">
+        <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
+          Seedings Lab · Equipo
+        </p>
+        <h1 className="font-display mt-4 text-3xl font-semibold tracking-tight">Revisa tu correo</h1>
+        <p className="mt-4 leading-relaxed text-cream/80">
+          Te enviamos un enlace a <b className="text-paper">{email}</b> para entrar al panel. Sirve
+          una sola vez. Cuando estés adentro, fija tu contraseña nueva en{" "}
+          <b className="text-paper">Cambiar contraseña</b>.
+        </p>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6">
       <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
@@ -49,17 +77,31 @@ export default function AdminLoginPage() {
           placeholder="tu@seedings.cl"
           className="rounded-md border border-cream/35 bg-transparent px-4 py-3.5 text-cream placeholder:text-cream/40 outline-none transition focus:border-cream"
         />
-        <PasswordInput value={password} onChange={setPassword} placeholder="Contraseña" />
+        {modo === "password" && (
+          <PasswordInput value={password} onChange={setPassword} placeholder="Contraseña" />
+        )}
         <button
           type="submit"
           disabled={loading}
           className="mt-2 inline-flex items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper disabled:opacity-50"
         >
-          {loading ? "Entrando…" : "Entrar"}
+          {loading ? "Enviando…" : modo === "password" ? "Entrar" : "Enviarme el enlace"}
         </button>
         {error && (
           <p className="mt-2 rounded-md border border-terra/60 bg-terra/15 p-3.5 text-sm">{error}</p>
         )}
+        <button
+          type="button"
+          onClick={() => {
+            setModo(modo === "password" ? "recuperar" : "password");
+            setError("");
+          }}
+          className="mt-2 text-sm text-cream/60 underline underline-offset-4 transition hover:text-cream"
+        >
+          {modo === "password"
+            ? "¿Olvidaste tu contraseña? Entra con un enlace"
+            : "Volver a entrar con contraseña"}
+        </button>
       </form>
       <p className="mt-8 border-t border-cream/15 pt-6 text-sm text-cream/70">
         ¿Eres creadora o creador?{" "}
