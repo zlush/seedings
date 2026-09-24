@@ -1,6 +1,7 @@
 import "server-only";
 import { matchContactByEmail, type CampaignTotals } from "./ghl";
 import { normalizarHandle } from "./ig-handle";
+import { debeEscribirIg } from "./ig-contacto";
 
 // ============================================================================
 // Cliente de GoHighLevel (LeadConnector API v2).
@@ -218,6 +219,37 @@ export async function fetchContactByInstagram(username: string): Promise<Contact
     if (details?.instagram === clean) return details;
   }
   return null;
+}
+
+// Escribe el @ que resolvimos en el campo IG del contacto que disparó el aviso.
+//
+// Es el contacto que crea Instagram al llegar el DM: sin teléfono, sin email y a
+// veces sin nombre. Nosotros sí sabemos quién es, porque fuimos a mirar el perfil
+// y confirmamos que la historia etiqueta a la marca. Devuelve qué hizo, para el
+// log. Best-effort: si el CRM falla, la historia ya quedó guardada.
+export async function sincronizarIgDelContacto(
+  contactId: string,
+  handle: string,
+): Promise<string> {
+  const ids = await fieldIds();
+  const campo = ids.get(CRM_INSTAGRAM_FIELDS[0]);
+  if (!campo) return "el CRM no tiene el campo IG";
+
+  const { contact } = await ghl<{ contact: Record<string, unknown> }>(
+    "GET",
+    `/contacts/${contactId}`,
+  );
+  const actual = ((contact.customFields ?? []) as Array<Record<string, unknown>>).find(
+    (f) => String(f.id) === campo,
+  );
+  const valor = actual ? String(actual.value ?? actual.field_value ?? "") : "";
+
+  if (!debeEscribirIg(valor, handle)) return `IG sin cambios (${JSON.stringify(valor)})`;
+
+  await ghl("PUT", `/contacts/${contactId}`, {
+    customFields: [{ id: campo, field_value: handle }],
+  });
+  return `IG ${valor ? `${JSON.stringify(valor)} → ` : ""}${handle}`;
 }
 
 // Actualiza un contacto EXISTENTE. A diferencia de upsert, nunca crea uno

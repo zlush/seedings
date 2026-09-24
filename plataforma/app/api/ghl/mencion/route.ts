@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { normalizarHandle } from "@/lib/ig-handle";
 import { capturarStories } from "@/lib/captura.server";
+import { ghlEnabled, sincronizarIgDelContacto } from "@/lib/ghl.server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { filaMencion, type EntradaMencion } from "@/lib/mencion-log";
 
@@ -185,13 +186,27 @@ export async function POST(req: Request) {
     // sinCache obligatorio: el caché de 5 min haría perder justo la historia
     // que acabamos de venir a buscar.
     const r = await capturarStories(handle, { soloMarca: true, sinCache: true });
+
+    // Haber encontrado una historia que etiqueta a la marca es la prueba de que
+    // el @ es el correcto. Recién ahí se escribe en el CRM: el contacto que
+    // disparó el aviso deja de ser anónimo y la próxima mención sí lo encuentra.
+    let notaIg = "";
+    const contactId = campo("contact_id") ?? campo("contactId");
+    if (contactId && ghlEnabled() && r.guardadas + r.omitidas > 0) {
+      try {
+        notaIg = ` · ${await sincronizarIgDelContacto(contactId, handle)}`;
+      } catch (e) {
+        notaIg = ` · IG no se pudo escribir: ${e instanceof Error ? e.message : "error"}`;
+      }
+    }
+
     await registrar({
       ...comun,
       handle,
       resultado: r.guardadas > 0 ? "capturado" : "sin-historia",
       nota: `guardadas ${r.guardadas} · omitidas ${r.omitidas} · descartadas ${r.descartadas}${
         r.crm ? ` · crm: ${r.crm}` : ""
-      }`,
+      }${notaIg}`,
     });
     return NextResponse.json({
       ok: true,
