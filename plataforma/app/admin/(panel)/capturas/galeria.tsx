@@ -98,9 +98,16 @@ export function Galeria({ capturas, filtro }: { capturas: CapturaGuardada[]; fil
                 >
                   {c.url ? (
                     c.media_type === "VIDEO" ? (
+                      // El "#t=0.1" pide el primer fotograma: sin eso, iOS deja
+                      // el recuadro en negro porque ignora preload="metadata".
+                      // Va muted y playsInline para que el navegador acepte
+                      // pintarlo; se reproduce desde el enlace "Ver", no aquí,
+                      // porque este recuadro es el botón de selección.
                       <video
-                        src={c.url}
+                        src={`${c.url}#t=0.1`}
                         preload="metadata"
+                        muted
+                        playsInline
                         className="aspect-[9/16] w-full object-cover"
                       />
                     ) : (
@@ -124,9 +131,22 @@ export function Galeria({ capturas, filtro }: { capturas: CapturaGuardada[]; fil
                   {horaPublicacion(c.taken_at)}
                 </p>
                 {c.url && (
-                  <a href={c.url} download className="text-xs underline text-cream/60">
-                    Descargar
-                  </a>
+                  <span className="flex gap-3">
+                    {/* Reproducir dentro del recuadro pelearía con el botón de
+                        selección: se abre aparte, donde el navegador pone sus
+                        propios controles. */}
+                    <a
+                      href={c.url}
+                      target="_blank"
+                      rel="noopener"
+                      className="text-xs underline text-cream/60 hover:text-cream"
+                    >
+                      Ver
+                    </a>
+                    <a href={c.url} download className="text-xs underline text-cream/60 hover:text-cream">
+                      Descargar
+                    </a>
+                  </span>
                 )}
               </li>
             ))}
