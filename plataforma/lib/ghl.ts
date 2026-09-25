@@ -32,3 +32,21 @@ export function matchContactByEmail<T extends { email: string | null }>(
   const clean = email.trim().toLowerCase();
   return contacts.find((c) => c.email?.toLowerCase() === clean);
 }
+
+// Cuando varios contactos tienen el mismo @ en el campo IG, cuál usar.
+//
+// Pasa desde que la plataforma escribe el @ en el contacto que crea Instagram al
+// llegar el DM: queda duplicado con el contacto real de la creadora. GHL no
+// garantiza el orden de la búsqueda, y si se elige el anónimo, el "Gracias" por
+// WhatsApp no tiene a qué número ir. Se prefiere el que tiene teléfono, después
+// el que tiene email.
+export function elegirContacto<T extends { phone?: string | null; email?: string | null }>(
+  candidatos: T[],
+): T | null {
+  if (!candidatos.length) return null;
+  return (
+    candidatos.find((c) => c.phone?.trim()) ??
+    candidatos.find((c) => c.email?.trim()) ??
+    candidatos[0]
+  );
+}

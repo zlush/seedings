@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeCampaignTotals, matchContactByEmail } from "./ghl";
+import { computeCampaignTotals, matchContactByEmail, elegirContacto } from "./ghl";
 
 describe("computeCampaignTotals", () => {
   it("suma el último snapshot de cada story", () => {
@@ -47,5 +47,30 @@ describe("matchContactByEmail", () => {
 
   it("devuelve undefined si no hay match exacto", () => {
     expect(matchContactByEmail(contacts, "nadie@gmail.com")).toBeUndefined();
+  });
+});
+
+describe("elegirContacto", () => {
+  // El contacto real de la creadora y el que crea Instagram al llegar el DM
+  // pueden terminar con el mismo @ en el campo IG.
+  const real = { id: "real", phone: "+56977064051", email: "isi@gmail.com" };
+  const anonimo = { id: "anonimo", phone: "", email: "" };
+
+  it("prefiere el contacto con teléfono, sin importar el orden en que llega", () => {
+    expect(elegirContacto([anonimo, real])?.id).toBe("real");
+    expect(elegirContacto([real, anonimo])?.id).toBe("real");
+  });
+
+  it("sin teléfono en ninguno, prefiere el que tiene email", () => {
+    const conEmail = { id: "conEmail", phone: "", email: "a@b.cl" };
+    expect(elegirContacto([anonimo, conEmail])?.id).toBe("conEmail");
+  });
+
+  it("con uno solo, devuelve ese aunque esté vacío", () => {
+    expect(elegirContacto([anonimo])?.id).toBe("anonimo");
+  });
+
+  it("sin candidatos devuelve null", () => {
+    expect(elegirContacto([])).toBeNull();
   });
 });

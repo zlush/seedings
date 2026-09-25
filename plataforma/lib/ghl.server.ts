@@ -1,5 +1,5 @@
 import "server-only";
-import { matchContactByEmail, type CampaignTotals } from "./ghl";
+import { matchContactByEmail, elegirContacto, type CampaignTotals } from "./ghl";
 import { normalizarHandle } from "./ig-handle";
 import { debeEscribirIg } from "./ig-contacto";
 
@@ -214,11 +214,14 @@ export async function fetchContactByInstagram(username: string): Promise<Contact
     ],
   });
 
+  // Se juntan todos los que calzan exacto antes de elegir: quedarse con el
+  // primero dependía del orden de GHL, que no está garantizado.
+  const calzan: ContactDetails[] = [];
   for (const c of data.contacts ?? []) {
     const details = await contactDetailsById(c.id);
-    if (details?.instagram === clean) return details;
+    if (details?.instagram === clean) calzan.push(details);
   }
-  return null;
+  return elegirContacto(calzan);
 }
 
 // Escribe el @ que resolvimos en el campo IG del contacto que disparó el aviso.
