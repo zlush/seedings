@@ -2,6 +2,7 @@ import "server-only";
 import { matchContactByEmail, elegirContacto, type CampaignTotals } from "./ghl";
 import { normalizarHandle } from "./ig-handle";
 import { debeEscribirIg } from "./ig-contacto";
+import { noMolestarPorCorreo } from "./invitacion";
 
 // ============================================================================
 // Cliente de GoHighLevel (LeadConnector API v2).
@@ -135,6 +136,7 @@ export type ContactDetails = {
   instagram: string;
   campaign: string;
   fields: Record<string, string>; // resto de campos con valor, para buscar
+  noMolestar: boolean; // pidió que no se le escriba por correo
 };
 
 // Trae la ficha del contacto (nombre, IG, campaña activa, etc.) para copiarla
@@ -186,6 +188,7 @@ async function contactDetailsById(id: string): Promise<ContactDetails | null> {
     instagram: normalizarHandle(pick(CRM_INSTAGRAM_FIELDS)) ?? "",
     campaign: pick(CRM_CAMPAIGN_FIELDS),
     fields,
+    noMolestar: noMolestarPorCorreo(contact),
   };
 }
 

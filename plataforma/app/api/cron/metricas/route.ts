@@ -3,9 +3,13 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { decrypt } from "@/lib/crypto";
 import { graphGet, flattenInsights, STORY_METRICS, GRAPH, IG_GRAPH, type InsightEntry } from "@/lib/graph";
 import { historiasEnEseInstante } from "@/lib/mentions";
-import { decidirEstado, buscarCreadora } from "@/lib/metricas";
+import { decidirEstado, buscarCreadora, ESTADOS_ABIERTOS } from "@/lib/metricas";
 import { esTokenRevocado } from "@/lib/token";
 import { marcarDesconectado, type IgStory } from "@/lib/stories.server";
+import { debeInvitar } from "@/lib/invitacion";
+import { ghlEnabled, fetchContactByInstagram } from "@/lib/ghl.server";
+import { sendConnectInvite } from "@/lib/access.server";
+import { normalizarHandle } from "@/lib/ig-handle";
 
 export const maxDuration = 300;
 
@@ -48,7 +52,9 @@ export async function GET(request: NextRequest) {
     .from("historias_capturadas")
     .select("id, username, taken_at, expires_at, metrics_at")
     .eq("menciona_marca", true)
-    .or("metrics_state.is.null,metrics_state.neq.final")
+    // Solo lo que todavía puede cambiar: "final" y "expiro_sin_medir" son
+    // definitivos y antes se volvían a revisar cada 2 horas para siempre.
+    .or(`metrics_state.is.null,metrics_state.in.(${ESTADOS_ABIERTOS.join(",")})`)
     .order("taken_at", { ascending: false })
     .limit(200);
 
@@ -72,6 +78,55 @@ export async function GET(request: NextRequest) {
 
   const resumen = { sin_conexion: 0, midiendo: 0, final: 0, expiro_sin_medir: 0, errores: [] as string[] };
 
+  // Invitación automática a conectar, apagada hasta que Meta apruebe la app:
+  // antes de eso, invitar a alguien que no es tester la manda a una puerta
+  // cerrada. Con el interruptor apagado no sale nada, pero el reporte dice a
+  // quiénes se habría invitado. Todo es best-effort: si el CRM falla, las
+  // métricas siguen igual.
+  const activada = process.env.INVITACION_AUTOMATICA === "1";
+  const invitaciones = { activada, enviadas: [] as string[], omitidas: {} as Record<string, string[]> };
+  const omitir = (motivo: string, username: string) => {
+    (invitaciones.omitidas[motivo] ??= []).push(`@${username}`);
+  };
+
+  const invitar = async (username: string) => {
+    if (!ghlEnabled()) return omitir("sin_crm", username);
+    const handle = normalizarHandle(username) ?? username;
+    try {
+      // Sin el registro no hay cómo respetar "una vez cada 30 días": mejor no
+      // enviar nada que arriesgar escribirle en cada pasada.
+      const { data: previa, error: errTabla } = await db
+        .from("invitaciones_conexion")
+        .select("enviado_at")
+        .eq("username", handle)
+        .order("enviado_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (errTabla) return omitir("sin_tabla_de_registro", username);
+
+      const contacto = await fetchContactByInstagram(handle);
+      const decision = debeInvitar({
+        activada,
+        conectada: false,
+        contacto: contacto ? { id: contacto.id, email: contacto.email, noMolestar: contacto.noMolestar } : null,
+        ultimaInvitacion: (previa?.enviado_at as string | undefined) ?? null,
+        ahora,
+      });
+      if (!decision.invitar) return omitir(decision.motivo, username);
+      if (!contacto) return;
+
+      const envio = await sendConnectInvite({ id: contacto.id, email: contacto.email, name: contacto.name });
+      if (envio.error) return omitir(`error: ${envio.error}`, username);
+
+      await db
+        .from("invitaciones_conexion")
+        .insert({ username: handle, contact_id: contacto.id, email: contacto.email });
+      invitaciones.enviadas.push(`@${username}`);
+    } catch (e) {
+      omitir(`error: ${e instanceof Error ? e.message : "error"}`, username);
+    }
+  };
+
   const cerrar = async (f: Fila, huboLectura: boolean) => {
     const estado = decidirEstado({ expiresAt: f.expires_at, ahora, huboLectura });
     if (!estado) return;
@@ -91,6 +146,7 @@ export async function GET(request: NextRequest) {
         await db.from("historias_capturadas").update({ metrics_state: final }).eq("id", f.id);
         resumen[final]++;
       }
+      await invitar(username);
       continue;
     }
 
@@ -158,5 +214,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: true, revisadas: filas.length, ...resumen });
+  return NextResponse.json({ ok: true, revisadas: filas.length, ...resumen, invitaciones });
 }

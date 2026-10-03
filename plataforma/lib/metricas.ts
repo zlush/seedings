@@ -14,6 +14,10 @@ export const VENTANA_FINAL_MS = 150 * 60 * 1000; // 2 h 30 min
 
 export type EstadoMetricas = "sin_conexion" | "midiendo" | "final" | "expiro_sin_medir";
 
+// Lo que todavía puede cambiar y por eso se revisa en cada pasada. "final" y
+// "expiro_sin_medir" son definitivos: la historia ya no existe en Instagram.
+export const ESTADOS_ABIERTOS: EstadoMetricas[] = ["sin_conexion", "midiendo"];
+
 export function decidirEstado(e: {
   expiresAt: string | null | undefined;
   ahora: number;

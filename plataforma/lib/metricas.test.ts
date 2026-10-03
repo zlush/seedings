@@ -1,5 +1,18 @@
 import { describe, it, expect } from "vitest";
-import { decidirEstado, buscarCreadora, VENTANA_FINAL_MS } from "./metricas";
+import { decidirEstado, buscarCreadora, VENTANA_FINAL_MS, ESTADOS_ABIERTOS } from "./metricas";
+
+// La pasada solo debe mirar lo que todavía puede cambiar. "expiro_sin_medir"
+// quedaba afuera del filtro y se revisaba cada 2 horas para siempre.
+describe("ESTADOS_ABIERTOS", () => {
+  it("no incluye los estados que ya no pueden cambiar", () => {
+    expect(ESTADOS_ABIERTOS).not.toContain("final");
+    expect(ESTADOS_ABIERTOS).not.toContain("expiro_sin_medir");
+  });
+
+  it("incluye los que todavía pueden recibir una lectura", () => {
+    expect(ESTADOS_ABIERTOS).toEqual(expect.arrayContaining(["sin_conexion", "midiendo"]));
+  });
+});
 
 const AHORA = Date.UTC(2026, 8, 23, 18, 0);
 const h = (horas: number) => new Date(AHORA + horas * 3600_000).toISOString();

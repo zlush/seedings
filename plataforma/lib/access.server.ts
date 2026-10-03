@@ -58,6 +58,54 @@ export async function sendAdminAccessEmail(email: string): Promise<{ ok?: boolea
   return { ok: true };
 }
 
+// Invitación a conectar Instagram para una creadora que etiquetó a la marca.
+//
+// El enlace hace dos cosas de un solo clic: la deja con sesión iniciada y la
+// lleva directo a autorizar Instagram (next=/api/auth/ig). Si todavía no tenía
+// cuenta en la plataforma, se le crea, igual que en el registro abierto.
+export async function sendConnectInvite(contacto: {
+  id: string;
+  email: string;
+  name: string;
+}): Promise<{ ok?: boolean; error?: string }> {
+  const clean = contacto.email.trim().toLowerCase();
+  if (!clean.includes("@")) return { error: "Correo inválido." };
+  if (!ghlEnabled()) return { error: "El envío de correos no está configurado." };
+
+  const db = createAdminClient();
+  await db.auth.admin.createUser({ email: clean, email_confirm: true }).catch(() => {});
+
+  const { data, error } = await db.auth.admin.generateLink({ type: "magiclink", email: clean });
+  if (error || !data.properties) return { error: "No pudimos generar el enlace." };
+
+  const link = `${siteUrl()}/auth/confirm?token_hash=${data.properties.hashed_token}&type=magiclink&next=${encodeURIComponent("/api/auth/ig")}`;
+  const nombre = contacto.name.trim().split(/\s+/)[0] ?? "";
+
+  try {
+    await sendGhlEmail(
+      contacto.id,
+      "Gracias por etiquetarnos: conecta tu Instagram",
+      emailHtml({
+        eyebrow: "Seedings Lab · Creadores",
+        title: "Vimos tu historia",
+        body:
+          `Hola${nombre ? ` ${nombre}` : ""}: vimos que etiquetaste a <strong>@seedings.cl</strong> en tu historia de Instagram. ¡Gracias!` +
+          `<br><br>Si conectas tu cuenta, medimos solos el alcance y las reproducciones de tus historias de campaña, sin que tengas que mandarnos capturas.` +
+          `<br><br>Es un solo toque: el botón te deja dentro de la plataforma y te lleva directo a conectar Instagram. Hazlo desde <strong>Chrome o Safari</strong>, no desde dentro de Instagram.`,
+        ctaLabel: "Conectar mi Instagram",
+        link,
+        footer:
+          "Te escribimos porque etiquetaste a Seedings en una historia. Si no quieres recibir este tipo de mensajes, responde este correo y no te volveremos a escribir.",
+        preheader: "Conecta tu Instagram y medimos tus historias sin capturas.",
+      }),
+    );
+  } catch (e) {
+    return { error: `No pudimos enviar el correo: ${e instanceof Error ? e.message : "error"}` };
+  }
+
+  return { ok: true };
+}
+
 // Genera el magic link y lo envía por GHL. `next` es la ruta post-login.
 export async function sendAccessEmail(
   email: string,
