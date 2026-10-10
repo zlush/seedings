@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { SwRegister } from "./sw-register";
+import { getLang } from "@/lib/i18n.server";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -31,13 +32,14 @@ export const viewport: Viewport = {
   themeColor: "#3A1A1D",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const lang = await getLang();
   return (
-    <html lang="es" className={`${fraunces.variable} ${inter.variable} h-full antialiased`}>
+    <html lang={lang} className={`${fraunces.variable} ${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <SwRegister />
         {children}

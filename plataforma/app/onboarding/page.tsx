@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ghlEnabled, findContactByEmail } from "@/lib/ghl.server";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n.server";
 import { desconectarInstagram } from "./actions";
 import { RegistroBoton } from "./registro-boton";
 import { LogoutButton } from "../logout-button";
@@ -10,30 +12,14 @@ export const dynamic = "force-dynamic";
 // Formulario de registro oficial (vive en GHL; alimenta los workflows del CRM).
 const REGISTRO_FORM_URL = "https://link.seedings.cl/widget/form/ewXDwMDGrEnRlknSl2Eo";
 
-const ERRORS: Record<string, string> = {
-  state: "No pudimos verificar la conexión. Vuelve a tocar Conectar Instagram.",
-  "ig-es-marca":
-    "Conectaste la cuenta de Seedings (@seedings.cl), no la tuya. Entra a instagram.com, sal de esa cuenta, entra con tu cuenta personal y vuelve a tocar Conectar Instagram.",
-  "state-expired":
-    "Pasaron más de 30 minutos desde que empezaste. Vuelve a tocar Conectar Instagram y hazlo de una sola vez.",
-  "no-ig":
-    "No encontramos una cuenta de Instagram profesional vinculada a una página de Facebook. Tu Instagram debe ser Creador o Empresa y estar conectado a una página. Escríbenos y te ayudamos en dos minutos.",
-  save: "No pudimos guardar la conexión. Reintenta.",
-  graph: "Instagram rechazó la conexión. Reintenta.",
-  "ig-denied": "Cancelaste la conexión. Cuando quieras, reintenta.",
-  // El camino directo de Instagram sigue sin ser aprobado por Meta.
-  "ig-token":
-    "Esa vía todavía está en pruebas y Meta no la habilita aún. Usa el botón Conectar de arriba, que es el que funciona.",
-  "ig-profile": "No pudimos leer tu perfil de Instagram. Reintenta.",
-  "ig-config": "La conexión no está configurada todavía. Avísanos por WhatsApp.",
-};
-
 export default async function OnboardingPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string; connected?: string }>;
 }) {
   const { error, connected } = await searchParams;
+  const lang = await getLang();
+  const tx = t(lang).onboarding;
 
   const supabase = await createClient();
   const {
@@ -70,6 +56,8 @@ export default async function OnboardingPage({
   }
 
   // ---- Paso 1 · Registro -------------------------------------------------------
+  // Queda en español: el formulario de registro es de GHL y no sale en el flujo
+  // que se graba para Meta.
   if (!isRegistered) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-10">
@@ -108,24 +96,17 @@ export default async function OnboardingPage({
         <div className="h-[3px] w-[85%] rounded-full bg-terra" />
       </div>
       <p className="mt-5 text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
-        Paso 2 de 2
+        {tx.step}
       </p>
-      <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight">
-        Conecta tus redes sociales
-      </h1>
-      <p className="mt-3 leading-relaxed text-cream/70">
-        Vincula tu cuenta para que midamos tus Stories automáticamente. La autorización la maneja
-        Meta — nosotros nunca vemos tu contraseña.
-      </p>
+      <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight">{tx.title}</h1>
+      <p className="mt-3 leading-relaxed text-cream/70">{tx.intro}</p>
 
       {connected && !isConnected && (
-        <p className="mt-5 rounded-md border border-gold/50 bg-gold/10 p-4 text-sm">
-          Se completó la autorización pero no quedó registrada. Reintenta.
-        </p>
+        <p className="mt-5 rounded-md border border-gold/50 bg-gold/10 p-4 text-sm">{tx.notSaved}</p>
       )}
-      {error && ERRORS[error] && (
+      {error && tx.errors[error] && (
         <p className="mt-5 rounded-md border border-terra/60 bg-terra/15 p-4 text-sm leading-relaxed">
-          {ERRORS[error]}
+          {tx.errors[error]}
         </p>
       )}
 
@@ -137,9 +118,7 @@ export default async function OnboardingPage({
         <div className="flex-1">
           <p className="font-semibold">Instagram</p>
           <p className="text-sm text-cream/60">
-            {isConnected
-              ? `Conectado como @${creator!.instagram_username}`
-              : "Entras con tu propia clave de Instagram"}
+            {isConnected ? tx.connectedAs(creator!.instagram_username ?? "") : tx.ownPassword}
           </p>
         </div>
         {isConnected ? (
@@ -149,7 +128,7 @@ export default async function OnboardingPage({
                 type="submit"
                 className="text-xs text-cream/45 underline underline-offset-4 transition hover:text-cream"
               >
-                Desconectar
+                {tx.disconnect}
               </button>
             </form>
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gold text-lg font-bold text-wine">
@@ -161,7 +140,7 @@ export default async function OnboardingPage({
             href="/api/auth/ig"
             className="rounded-full bg-cream px-5 py-2.5 text-sm font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
           >
-            Conectar
+            {tx.connect}
           </a>
         )}
       </div>
@@ -173,10 +152,10 @@ export default async function OnboardingPage({
         </span>
         <div className="flex-1">
           <p className="font-semibold">TikTok</p>
-          <p className="text-sm text-cream/60">Conecta tu cuenta de TikTok</p>
+          <p className="text-sm text-cream/60">{tx.tiktok}</p>
         </div>
         <span className="rounded-full border border-cream/30 px-4 py-2 text-xs font-semibold text-cream/60">
-          Próximamente
+          {tx.soon}
         </span>
       </div>
 
@@ -186,18 +165,18 @@ export default async function OnboardingPage({
           href="/campana"
           className="mt-8 inline-flex items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
         >
-          Siguiente <span className="font-display italic">→</span>
+          {tx.next} <span className="font-display italic">→</span>
         </Link>
       ) : (
         <>
           <span className="mt-8 inline-flex cursor-not-allowed items-center justify-center rounded-full bg-cream/20 px-7 py-4 font-semibold text-cream/40">
-            Siguiente
+            {tx.next}
           </span>
           <Link
             href="/campana"
             className="mt-4 text-center text-sm text-cream/60 underline underline-offset-4 hover:text-cream"
           >
-            Omitir por ahora
+            {tx.skip}
           </Link>
         </>
       )}
@@ -205,28 +184,27 @@ export default async function OnboardingPage({
       {!isConnected && (
         <div className="mt-6 rounded-md border border-cream/20 bg-wine-deep/40 p-4">
           <p className="text-[11px] font-semibold uppercase tracking-[.14em] text-cream/60">
-            Antes de conectar
+            {tx.before}
           </p>
           <p className="mt-2 text-sm leading-relaxed text-cream/70">
-            Tu Instagram tiene que ser <b className="text-paper">Creador</b> o{" "}
-            <b className="text-paper">Empresa</b>. Si es una cuenta personal, Instagram te ofrece
-            cambiarla durante la conexión; si te complica, escríbenos y lo vemos contigo.
+            {tx.acctA} <b className="text-paper">{tx.creator}</b> {tx.or}{" "}
+            <b className="text-paper">{tx.business}</b>
+            {tx.acctB}
           </p>
           <p className="mt-3 text-xs leading-relaxed text-cream/40">
-            Tip para el teléfono: si la pantalla se queda cargando, mantén presionado
-            &quot;Conectar&quot; y elige <b>Abrir en el navegador</b>.
+            {tx.tipA} {tx.tipConnect} {tx.tipB} <b>{tx.tipOpen}</b>.
           </p>
           <a
             href="/api/auth/instagram"
             className="mt-4 inline-block text-xs text-cream/35 underline underline-offset-4 hover:text-cream/60"
           >
-            ¿Prefieres autorizar con Facebook? Entra por aquí
+            {tx.facebook}
           </a>
         </div>
       )}
 
       <p className="mt-8 text-sm text-cream/50">
-        ¿No eres tú ({user?.email})? <LogoutButton />
+        {tx.notYou(user?.email ?? "")} <LogoutButton lang={lang} />
       </p>
     </main>
   );

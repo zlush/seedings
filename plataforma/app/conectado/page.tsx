@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n.server";
 
 export const metadata = { title: "Instagram conectado — Seedings" };
 
@@ -12,28 +14,27 @@ export default async function ConectadoPage({
 }) {
   const { ig } = await searchParams;
   const handle = (ig ?? "").replace(/[^A-Za-z0-9._]/g, "").slice(0, 30);
+  const tx = t(await getLang()).conectado;
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-12">
-      <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">Listo</p>
-      <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight">
-        Tu Instagram quedó conectado
-      </h1>
+      <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">{tx.eyebrow}</p>
+      <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight">{tx.title}</h1>
       <div className="mt-6 rounded-md border border-gold/50 bg-gold/10 p-5 leading-relaxed">
         {handle ? (
           <>
-            Conectamos <b className="text-paper">@{handle}</b> a tu cuenta de Seedings.
+            {tx.withHandleA} <b className="text-paper">@{handle}</b> {tx.withHandleB}
           </>
         ) : (
-          "Conectamos tu Instagram a tu cuenta de Seedings."
+          tx.noHandle
         )}{" "}
-        Ya puedes cerrar esta ventana.
+        {tx.close}
       </div>
       <Link
         href="/campana"
         className="mt-7 inline-flex items-center justify-center rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
       >
-        Ir a mi campaña
+        {tx.go}
       </Link>
     </main>
   );

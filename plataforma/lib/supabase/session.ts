@@ -1,8 +1,21 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { LANG_COOKIE, parseLang } from "@/lib/i18n";
 
 // Refresca la sesión en cada request y protege las rutas privadas.
 export async function updateSession(request: NextRequest) {
+  // ?lang=en|es fija el idioma en una cookie. Va en la cookie y no solo en la
+  // URL porque el flujo pasa por el login de Instagram y vuelve: un parámetro
+  // se perdería en ese viaje. Se escribe también en la request para que esta
+  // misma página ya salga en el idioma pedido.
+  const lang = parseLang(request.nextUrl.searchParams.get("lang"));
+  if (lang) request.cookies.set(LANG_COOKIE, lang);
+  const conIdioma = (res: NextResponse) => {
+    if (lang)
+      res.cookies.set(LANG_COOKIE, lang, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+    return res;
+  };
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -36,8 +49,8 @@ export async function updateSession(request: NextRequest) {
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    return conIdioma(NextResponse.redirect(url));
   }
 
-  return supabaseResponse;
+  return conIdioma(supabaseResponse);
 }

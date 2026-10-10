@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { t, type Lang } from "@/lib/i18n";
 
 type LiveStory = {
   id: string;
@@ -15,7 +16,9 @@ type LiveStory = {
 
 type Msg = { kind: "ok" | "warn" | "err"; text: string };
 
-export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
+export function PublicarBoton({ assignmentId, lang = "es" }: { assignmentId?: string; lang?: Lang }) {
+  const tt = t(lang);
+  const tx = tt.publicar;
   const router = useRouter();
   const [stage, setStage] = useState<"idle" | "picking">("idle");
   const [stories, setStories] = useState<LiveStory[]>([]);
@@ -30,15 +33,12 @@ export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
       const res = await fetch("/api/stories/live");
       const data = await res.json();
       if (!res.ok) {
-        setMsg({ kind: "err", text: data.error ?? "No pudimos leer tus Stories." });
+        setMsg({ kind: "err", text: data.error ?? tx.readError });
         return;
       }
       const live: LiveStory[] = data.stories ?? [];
       if (live.length === 0) {
-        setMsg({
-          kind: "warn",
-          text: "No tienes Stories activas ahora. Publica tu Story de la campaña en Instagram y vuelve a tocar el botón.",
-        });
+        setMsg({ kind: "warn", text: tx.noStories });
         return;
       }
       setStories(live);
@@ -48,7 +48,7 @@ export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
       );
       setStage("picking");
     } catch {
-      setMsg({ kind: "err", text: "Error de conexión. Reintenta." });
+      setMsg({ kind: "err", text: tx.connError });
     } finally {
       setLoading(false);
     }
@@ -73,19 +73,16 @@ export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMsg({ kind: "err", text: data.error ?? "No se pudo guardar." });
+        setMsg({ kind: "err", text: data.error ?? tx.saveError });
       } else if ((data.snapshots ?? 0) === 0) {
-        setMsg({
-          kind: "warn",
-          text: "Guardamos tu Story. Instagram libera las métricas cuando tenga suficientes visualizaciones — las capturamos solos cada pocas horas.",
-        });
+        setMsg({ kind: "warn", text: tx.savedNoMetrics });
       } else {
-        setMsg({ kind: "ok", text: "¡Listo! Guardamos tu Story y sus métricas." });
+        setMsg({ kind: "ok", text: tx.savedOk });
       }
       setStage("idle");
       router.refresh();
     } catch {
-      setMsg({ kind: "err", text: "Error de conexión. Reintenta." });
+      setMsg({ kind: "err", text: tx.connError });
     } finally {
       setLoading(false);
     }
@@ -100,10 +97,8 @@ export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
   if (stage === "picking") {
     return (
       <div>
-        <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
-          ¿Cuál es tu Story de la campaña?
-        </p>
-        <p className="mt-1 text-sm text-cream/60">Toca la(s) que correspondan a Seedings.</p>
+        <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">{tx.which}</p>
+        <p className="mt-1 text-sm text-cream/60">{tx.tap}</p>
 
         <div className="mt-4 grid grid-cols-3 gap-3">
           {stories.map((s) => {
@@ -129,7 +124,7 @@ export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
                 )}
                 {s.already && (
                   <span className="absolute bottom-1 left-1 rounded bg-wine/80 px-1.5 py-0.5 text-[10px] text-cream/80">
-                    {s.source === "mention" ? "🌱 por mención" : "ya medida"}
+                    {s.source === "mention" ? tx.byMention : tx.already}
                   </span>
                 )}
               </button>
@@ -143,13 +138,13 @@ export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
             disabled={loading || selected.size === 0}
             className="flex-1 rounded-full bg-cream px-6 py-3 font-semibold text-wine transition hover:bg-paper disabled:opacity-50"
           >
-            {loading ? "Guardando…" : `Confirmar ${selected.size > 0 ? `(${selected.size})` : ""}`}
+            {loading ? tx.saving : `${tx.confirm} ${selected.size > 0 ? `(${selected.size})` : ""}`}
           </button>
           <button
             onClick={() => setStage("idle")}
             className="rounded-full border border-cream/40 px-5 py-3 text-sm font-semibold hover:border-cream"
           >
-            Cancelar
+            {tt.cancel}
           </button>
         </div>
         {msg && <p className={`mt-3 rounded-md border p-4 text-sm ${colors[msg.kind]}`}>{msg.text}</p>}
@@ -164,7 +159,7 @@ export function PublicarBoton({ assignmentId }: { assignmentId?: string }) {
         disabled={loading}
         className="inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-cream px-7 py-4 font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper disabled:opacity-50"
       >
-        {loading ? "Buscando tus Stories…" : "Ya publiqué mi Story"}
+        {loading ? tx.searching : tx.published}
         {!loading && <span className="font-display italic">→</span>}
       </button>
       {msg && (

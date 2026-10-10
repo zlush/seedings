@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { VAPID_PUBLIC_KEY } from "@/lib/push-keys";
+import { t, type Lang } from "@/lib/i18n";
 
 function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);
@@ -14,7 +15,8 @@ function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
 
 type State = "loading" | "unsupported" | "ios-not-installed" | "off" | "on" | "denied";
 
-export function ActivarAvisos() {
+export function ActivarAvisos({ lang = "es" }: { lang?: Lang }) {
+  const tx = t(lang).avisos;
   const [state, setState] = useState<State>("loading");
   const [busy, setBusy] = useState(false);
 
@@ -59,28 +61,18 @@ export function ActivarAvisos() {
 
   if (state === "loading" || state === "unsupported") return null;
 
-  if (state === "on")
-    return (
-      <p className="mt-3 text-xs text-cream/50">
-        🔔 Avisos activados — te notificaremos las novedades de tu campaña.
-      </p>
-    );
+  if (state === "on") return <p className="mt-3 text-xs text-cream/50">{tx.on}</p>;
 
   if (state === "ios-not-installed")
     return (
       <p className="mt-3 rounded-md border border-cream/20 bg-wine-deep/50 p-3.5 text-xs leading-relaxed text-cream/70">
-        📲 <b className="text-cream">Instala la app para recibir avisos:</b> toca{" "}
-        <b className="text-cream">Compartir</b> en Safari y luego{" "}
-        <b className="text-cream">“Agregar a pantalla de inicio”</b>. Después actívalos aquí.
+        📲 <b className="text-cream">{tx.iosTitle}</b> {tx.iosA} <b className="text-cream">{tx.iosShare}</b>{" "}
+        {tx.iosB} <b className="text-cream">{tx.iosAdd}</b>
+        {tx.iosC}
       </p>
     );
 
-  if (state === "denied")
-    return (
-      <p className="mt-3 text-xs text-cream/50">
-        Los avisos están bloqueados en tu navegador. Actívalos en la configuración del sitio.
-      </p>
-    );
+  if (state === "denied") return <p className="mt-3 text-xs text-cream/50">{tx.denied}</p>;
 
   return (
     <button
@@ -88,7 +80,7 @@ export function ActivarAvisos() {
       disabled={busy}
       className="mt-3 w-full rounded-full border border-cream/40 px-5 py-3 text-sm font-semibold transition hover:border-cream disabled:opacity-50"
     >
-      {busy ? "Activando…" : "🔔 Activar avisos de mi campaña"}
+      {busy ? tx.activating : tx.button}
     </button>
   );
 }

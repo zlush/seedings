@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { resolveBrandToken, fetchBrandDashboard } from "@/lib/marca.server";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n.server";
 
 export const dynamic = "force-dynamic";
 
@@ -14,33 +16,28 @@ export default async function MarcaPage({ params }: { params: Promise<{ token: s
   const brand = await resolveBrandToken(token);
   if (!brand) notFound();
 
+  const tt = t(await getLang());
+  const tx = tt.marca;
   const { marca, totales, filas, media } = await fetchBrandDashboard(brand);
-  const fmt = (n: number) => n.toLocaleString("es-CL");
+  const fmt = (n: number) => n.toLocaleString(tt.locale);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-5xl px-6 py-12">
-      <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
-        🌱 Seedings · Reporte
-      </p>
+      <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">{tx.eyebrow}</p>
       <h1 className="font-display mt-3 text-4xl font-semibold tracking-tight">{marca}</h1>
-      <p className="mt-2 text-sm text-cream/60">
-        {totales.creadores} creador{totales.creadores === 1 ? "" : "es"} · {totales.historias}{" "}
-        historia{totales.historias === 1 ? "" : "s"}
-      </p>
+      <p className="mt-2 text-sm text-cream/60">{tx.summary(totales.creadores, totales.historias)}</p>
 
       {/* Totales */}
       <div className="mt-8 grid grid-cols-3 gap-6 border-t border-cream/20 pt-6">
         {(
           [
-            [totales.alcance, "Alcance"],
-            [totales.reproducciones, "Reproducciones"],
-            [totales.interacciones, "Interacciones"],
+            [totales.alcance, tt.metric.reach],
+            [totales.reproducciones, tt.metric.views],
+            [totales.interacciones, tt.metric.total_interactions],
           ] as const
         ).map(([n, label]) => (
           <div key={label}>
-            <div className="font-display text-4xl font-semibold leading-none tracking-tight">
-              {fmt(n)}
-            </div>
+            <div className="font-display text-4xl font-semibold leading-none tracking-tight">{fmt(n)}</div>
             <div className="mt-2 text-[11px] font-medium uppercase tracking-[.08em] text-cream/60">
               {label}
             </div>
@@ -52,14 +49,12 @@ export default async function MarcaPage({ params }: { params: Promise<{ token: s
         href={`/api/marca/${token}/reporte`}
         className="mt-7 inline-block rounded-full bg-cream px-5 py-2.5 text-sm font-semibold text-wine transition hover:-translate-y-0.5 hover:bg-paper"
       >
-        Descargar reporte (CSV) ↓
+        {tx.csv}
       </a>
 
       {/* Material */}
-      <h2 className="font-display mt-12 text-2xl font-semibold tracking-tight">El material</h2>
-      <p className="mt-1.5 text-sm text-cream/60">
-        Todo lo que publicaron los creadores. Puedes descargarlo y reutilizarlo en tus redes.
-      </p>
+      <h2 className="font-display mt-12 text-2xl font-semibold tracking-tight">{tx.material}</h2>
+      <p className="mt-1.5 text-sm text-cream/60">{tx.materialSub}</p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {media.map((m) => (
@@ -76,11 +71,11 @@ export default async function MarcaPage({ params }: { params: Promise<{ token: s
                   />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.previewUrl} alt="Contenido" className="h-full w-full object-cover" />
+                  <img src={m.previewUrl} alt="" className="h-full w-full object-cover" />
                 )
               ) : (
                 <div className="flex h-full items-center justify-center text-xs text-cream/40">
-                  Sin vista previa
+                  {tx.noPreview}
                 </div>
               )}
             </div>
@@ -95,7 +90,7 @@ export default async function MarcaPage({ params }: { params: Promise<{ token: s
                   download
                   className="mt-2 inline-block rounded-full bg-cream px-3.5 py-1.5 text-xs font-semibold text-wine transition hover:bg-paper"
                 >
-                  Descargar ↓
+                  {tx.download}
                 </a>
               )}
             </div>
@@ -105,21 +100,19 @@ export default async function MarcaPage({ params }: { params: Promise<{ token: s
 
       {media.length === 0 && (
         <p className="mt-6 rounded-md border border-cream/20 bg-wine-deep/50 p-8 text-center text-sm text-cream/60">
-          Todavía no hay material publicado.
+          {tx.empty}
         </p>
       )}
 
       {/* Detalle por creador */}
       {filas.length > 0 && (
         <>
-          <h2 className="font-display mt-12 text-2xl font-semibold tracking-tight">
-            Detalle por creador
-          </h2>
+          <h2 className="font-display mt-12 text-2xl font-semibold tracking-tight">{tx.byCreator}</h2>
           <div className="mt-5 overflow-x-auto rounded-md border border-cream/20">
             <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr className="border-b border-cream/20 bg-wine-deep/60 text-left">
-                  {["Creador", "Campaña", "Fecha", "Alcance", "Reprod.", "Interac."].map((h) => (
+                  {tx.cols.map((h) => (
                     <th
                       key={h}
                       className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[.08em] text-cream/60"
@@ -146,10 +139,7 @@ export default async function MarcaPage({ params }: { params: Promise<{ token: s
         </>
       )}
 
-      <footer className="mt-14 border-t border-cream/15 pt-6 text-xs text-cream/50">
-        Reporte generado por Seedings · los números vienen de los insights de Instagram de cada
-        creador.
-      </footer>
+      <footer className="mt-14 border-t border-cream/15 pt-6 text-xs text-cream/50">{tx.footer}</footer>
     </main>
   );
 }

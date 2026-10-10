@@ -2,27 +2,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { fechaHoraChile } from "@/lib/fecha";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n.server";
 import { PublicarBoton } from "../publicar-boton";
 import { SubirStory } from "../subir-story";
 import { ActivarAvisos } from "../activar-avisos";
 
 export const dynamic = "force-dynamic";
 
-const PIPELINE = [
-  { key: "pending", label: "Por publicar" },
-  { key: "shipped", label: "Producto recibido" },
-  { key: "published", label: "Publicada" },
-  { key: "metrics_ready", label: "Métricas listas" },
-] as const;
+const PIPELINE = ["pending", "shipped", "published", "metrics_ready"] as const;
 
-const METRIC_LABELS: Record<string, string> = {
-  reach: "Alcance",
-  views: "Reproducciones",
-  total_interactions: "Interacciones",
-  replies: "Respuestas",
-  shares: "Compartidas",
-  profile_visits: "Visitas perfil",
-};
+const METRICAS = ["reach", "views", "total_interactions", "replies", "shares", "profile_visits"] as const;
 
 export default async function CampanaCreadorPage({
   params,
@@ -30,6 +20,10 @@ export default async function CampanaCreadorPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const lang = await getLang();
+  const tt = t(lang);
+  const tx = tt.campana;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -74,16 +68,17 @@ export default async function CampanaCreadorPage({
     .eq("campaign_creator_id", assignment.id)
     .order("published_at", { ascending: false });
 
-  const stepIndex = PIPELINE.findIndex((p) => p.key === assignment.status);
+  const stepIndex = PIPELINE.findIndex((p) => p === assignment.status);
+  const status = tt.status as Record<string, string>;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-lg px-6 py-12">
       <Link href="/campana" className="text-sm text-cream/60 hover:text-cream">
-        ← Mis campañas
+        {tx.back}
       </Link>
 
       <p className="mt-4 text-[11px] uppercase tracking-[.14em] text-cream/60">
-        {campaign.brands?.name ?? "Marca"} · @{creator.instagram_username}
+        {campaign.brands?.name ?? tt.brandFallback} · @{creator.instagram_username}
       </p>
       <h1 className="font-display mt-1 text-3xl font-semibold tracking-tight">{campaign.name}</h1>
 
@@ -91,7 +86,7 @@ export default async function CampanaCreadorPage({
       <div className="mt-8">
         <div className="flex items-baseline justify-between">
           <span className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
-            {PIPELINE[stepIndex]?.label ?? assignment.status}
+            {status[assignment.status] ?? assignment.status}
           </span>
           <span className="font-display text-lg font-semibold text-cream/90">
             {String(stepIndex + 1).padStart(2, "0")}
@@ -110,21 +105,21 @@ export default async function CampanaCreadorPage({
       <section className="mt-8 rounded-md border border-cream/20 bg-wine-deep/50 p-6">
         <div className="flex items-center gap-2.5">
           <span className="inline-block h-[7px] w-[7px] rounded-full bg-terra" />
-          <h2 className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">Brief</h2>
+          <h2 className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">{tx.brief}</h2>
         </div>
         <p className="mt-4 whitespace-pre-wrap leading-relaxed text-cream/90">
-          {campaign.brief ?? "Sin brief todavía."}
+          {campaign.brief ?? tx.noBrief}
         </p>
         {campaign.deadline && (
           <p className="mt-5 border-t border-cream/15 pt-4 text-sm text-cream/70">
-            Fecha límite: <b className="font-display text-base text-paper">{campaign.deadline}</b>
+            {tt.campanas.deadline} <b className="font-display text-base text-paper">{campaign.deadline}</b>
           </p>
         )}
         {briefImages.length > 0 && (
           <div className="mt-5 grid grid-cols-2 gap-3">
             {briefImages.map((src) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={src} src={src} alt="Referencia del brief" className="rounded-md" />
+              <img key={src} src={src} alt={tx.briefImage} className="rounded-md" />
             ))}
           </div>
         )}
@@ -133,20 +128,18 @@ export default async function CampanaCreadorPage({
       {/* Elegir la historia de ESTA campaña */}
       <section className="mt-6">
         <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
-          Tu historia de esta campaña
+          {tx.storyTitle}
         </p>
-        <p className="mt-1 mb-3 text-sm text-cream/60">
-          Publica tu historia y elige cuál es la de esta campaña — medimos sus resultados solos.
-        </p>
-        <PublicarBoton assignmentId={assignment.id} />
-        <SubirStory assignmentId={assignment.id} />
-        <ActivarAvisos />
+        <p className="mt-1 mb-3 text-sm text-cream/60">{tx.storyBody}</p>
+        <PublicarBoton assignmentId={assignment.id} lang={lang} />
+        <SubirStory assignmentId={assignment.id} lang={lang} />
+        <ActivarAvisos lang={lang} />
       </section>
 
       {/* Métricas */}
       <section className="mt-10">
         <h2 className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
-          Métricas ({stories?.length ?? 0})
+          {tx.metrics(stories?.length ?? 0)}
         </h2>
         {(stories ?? []).map((s) => {
           const snaps = (s.story_metrics ?? []) as Array<Record<string, number | string | null>>;
@@ -157,41 +150,36 @@ export default async function CampanaCreadorPage({
             <div key={s.id} className="mt-4 rounded-md border border-cream/20 bg-wine-deep/50 p-6">
               <div className="flex items-center justify-between text-sm text-cream/60">
                 <span>
-                  {s.media_type === "VIDEO" ? "Video" : "Imagen"} ·{" "}
-                  {fechaHoraChile(s.published_at as string | null)}
+                  {s.media_type === "VIDEO" ? tx.video : tx.image} ·{" "}
+                  {fechaHoraChile(s.published_at as string | null, tt.locale)}
                 </span>
                 {s.permalink && (
                   <a href={s.permalink} target="_blank" className="underline underline-offset-4 hover:text-cream">
-                    ver en IG
+                    {tx.viewOnIg}
                   </a>
                 )}
               </div>
               {latest ? (
                 <div className="mt-5 grid grid-cols-3 gap-x-5 gap-y-7 border-t border-cream/20 pt-6">
-                  {Object.entries(METRIC_LABELS).map(([key, label]) => (
+                  {METRICAS.map((key) => (
                     <div key={key}>
                       <div className="font-display text-3xl font-semibold leading-none tracking-tight">
-                        {Number(latest[key] ?? 0).toLocaleString("es-CL")}
+                        {Number(latest[key] ?? 0).toLocaleString(tt.locale)}
                       </div>
                       <div className="mt-2 text-[11px] font-medium uppercase tracking-[.08em] text-cream/60">
-                        {label}
+                        {tt.metric[key]}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="mt-3 text-sm leading-relaxed text-cream/60">
-                  Instagram libera las métricas cuando tu historia tiene suficientes
-                  visualizaciones. Se actualiza solo mientras esté activa.
-                </p>
+                <p className="mt-3 text-sm leading-relaxed text-cream/60">{tx.pending}</p>
               )}
             </div>
           );
         })}
         {(stories ?? []).length === 0 && (
-          <p className="mt-3 text-sm leading-relaxed text-cream/60">
-            Cuando elijas tu historia arriba, sus métricas aparecerán aquí.
-          </p>
+          <p className="mt-3 text-sm leading-relaxed text-cream/60">{tx.empty}</p>
         )}
       </section>
     </main>

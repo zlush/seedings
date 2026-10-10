@@ -3,25 +3,28 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { t, type Lang, type Textos } from "@/lib/i18n";
 
-async function uploadDirect(file: File, kind: "media" | "screenshot"): Promise<string> {
+async function uploadDirect(file: File, kind: "media" | "screenshot", tx: Textos["subir"]): Promise<string> {
   const res = await fetch("/api/stories/upload-url", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mime: file.type, kind }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? "No se pudo preparar la subida.");
+  if (!res.ok) throw new Error(data.error ?? tx.prepError);
 
   const supabase = createClient();
   const { error } = await supabase.storage
     .from("story-backups")
     .uploadToSignedUrl(data.path, data.token, file);
-  if (error) throw new Error("La subida falló. Reintenta.");
+  if (error) throw new Error(tx.uploadError);
   return data.path as string;
 }
 
-export function SubirStory({ assignmentId }: { assignmentId?: string }) {
+export function SubirStory({ assignmentId, lang = "es" }: { assignmentId?: string; lang?: Lang }) {
+  const tt = t(lang);
+  const tx = tt.subir;
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [media, setMedia] = useState<File | null>(null);
@@ -43,8 +46,8 @@ export function SubirStory({ assignmentId }: { assignmentId?: string }) {
     setLoading(true);
     setMsg(null);
     try {
-      const mediaPath = await uploadDirect(media, "media");
-      const screenshotPath = screenshot ? await uploadDirect(screenshot, "screenshot") : undefined;
+      const mediaPath = await uploadDirect(media, "media", tx);
+      const screenshotPath = screenshot ? await uploadDirect(screenshot, "screenshot", tx) : undefined;
 
       const res = await fetch("/api/stories/manual", {
         method: "POST",
@@ -59,20 +62,15 @@ export function SubirStory({ assignmentId }: { assignmentId?: string }) {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "No se pudo guardar.");
+      if (!res.ok) throw new Error(data.error ?? tx.saveError);
 
-      setMsg({
-        ok: true,
-        text: data.metricsSaved
-          ? "¡Story y métricas guardadas! Gracias 🌱"
-          : "¡Story guardada! Si tienes los números de tus insights, agrégalos la próxima vez.",
-      });
+      setMsg({ ok: true, text: data.metricsSaved ? tx.savedMetrics : tx.savedNoMetrics });
       setOpen(false);
       setMedia(null);
       setScreenshot(null);
       router.refresh();
     } catch (e) {
-      setMsg({ ok: false, text: e instanceof Error ? e.message : "Error. Reintenta." });
+      setMsg({ ok: false, text: e instanceof Error ? e.message : tx.genericError });
     } finally {
       setLoading(false);
     }
@@ -88,7 +86,7 @@ export function SubirStory({ assignmentId }: { assignmentId?: string }) {
           onClick={() => setOpen(true)}
           className="text-sm text-cream/60 underline underline-offset-4 hover:text-cream"
         >
-          ¿Tu story ya no está visible en Instagram? Súbela aquí →
+          {tx.open}
         </button>
         {msg && (
           <p
@@ -105,15 +103,12 @@ export function SubirStory({ assignmentId }: { assignmentId?: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-4 rounded-md border border-cream/20 bg-wine-deep/50 p-5">
-      <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">
-        Subir story pasada las 24h
-      </p>
+      <p className="text-[12.5px] font-semibold uppercase tracking-[.16em] text-cream/70">{tx.title}</p>
       <p className="mt-2 text-sm leading-relaxed text-cream/70">
-        Descarga el video/foto desde tu <b>archivo de Instagram</b> (Perfil → ☰ → Archivo) y
-        súbelo. Tus números siguen en IG: Insights de la story → tráelos aquí.
+        {tx.helpA} <b>{tx.helpBold}</b> {tx.helpB}
       </p>
 
-      <label className="mt-4 block text-xs text-cream/60">La story (video o imagen) *</label>
+      <label className="mt-4 block text-xs text-cream/60">{tx.media}</label>
       <input
         type="file"
         required
@@ -122,7 +117,7 @@ export function SubirStory({ assignmentId }: { assignmentId?: string }) {
         className="mt-1 w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-cream file:px-4 file:py-2 file:text-sm file:font-semibold file:text-wine"
       />
 
-      <label className="mt-4 block text-xs text-cream/60">¿Cuándo la publicaste?</label>
+      <label className="mt-4 block text-xs text-cream/60">{tx.when}</label>
       <input
         type="date"
         value={publishedAt}
@@ -130,22 +125,14 @@ export function SubirStory({ assignmentId }: { assignmentId?: string }) {
         className={`mt-1 w-full ${inputCls}`}
       />
 
-      <p className="mt-4 text-xs text-cream/60">Tus métricas (de los Insights de IG — opcional pero ideal):</p>
+      <p className="mt-4 text-xs text-cream/60">{tx.metrics}</p>
       <div className="mt-2 grid grid-cols-2 gap-2">
-        {(
-          [
-            ["reach", "Alcance"],
-            ["views", "Reproducciones"],
-            ["total_interactions", "Interacciones"],
-            ["replies", "Respuestas"],
-            ["shares", "Compartidas"],
-          ] as const
-        ).map(([key, label]) => (
+        {(["reach", "views", "total_interactions", "replies", "shares"] as const).map((key) => (
           <input
             key={key}
             type="number"
             min={0}
-            placeholder={label}
+            placeholder={tt.metric[key]}
             value={metrics[key]}
             onChange={(e) => setMetrics((m) => ({ ...m, [key]: e.target.value }))}
             className={inputCls}
@@ -153,9 +140,7 @@ export function SubirStory({ assignmentId }: { assignmentId?: string }) {
         ))}
       </div>
 
-      <label className="mt-4 block text-xs text-cream/60">
-        Captura de tus insights (opcional, como respaldo)
-      </label>
+      <label className="mt-4 block text-xs text-cream/60">{tx.screenshot}</label>
       <input
         type="file"
         accept="image/*"
@@ -169,14 +154,14 @@ export function SubirStory({ assignmentId }: { assignmentId?: string }) {
           disabled={loading || !media}
           className="flex-1 rounded-full bg-cream px-6 py-3 font-semibold text-wine transition hover:bg-paper disabled:opacity-50"
         >
-          {loading ? "Subiendo…" : "Subir story"}
+          {loading ? tx.uploading : tx.upload}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="rounded-full border border-cream/40 px-5 py-3 text-sm font-semibold hover:border-cream"
         >
-          Cancelar
+          {tt.cancel}
         </button>
       </div>
       {msg && !msg.ok && (
