@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { normalizarHandle } from "@/lib/ig-handle";
-import { capturarStories } from "@/lib/captura.server";
+import { candidatosHandle } from "@/lib/mencion-ghl";
+import { capturarStories, capturarDesdeCrm } from "@/lib/captura.server";
 import { ghlEnabled, sincronizarIgDelContacto } from "@/lib/ghl.server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { filaMencion, type EntradaMencion } from "@/lib/mencion-log";
@@ -113,114 +113,93 @@ export async function POST(req: Request) {
     );
   }
 
-  // GHL puede mandar el @ con distintos nombres de campo según cómo se arme
-  // la acción; se aceptan varios para no depender de un mapeo exacto.
-  // Además de lo que se configure en Custom Data, GHL manda los campos del
-  // contacto en el mismo cuerpo. Se usan como respaldo: si alguien olvida
-  // configurar el par `ig`, el @ igual se encuentra.
-  const crudo =
-    campo("ig") ??
-    campo("instagram") ??
-    campo("creador") ??
-    campo("IG") ??
-    campo("url_instagram") ??
-    searchParams.get("ig") ??
-    // Último recurso: el NOMBRE del contacto. GHL crea los contactos que
-    // llegan por DM de Instagram usando el handle como nombre ("andreasanhuezac")
-    // y deja vacío el campo IG personalizado, así que sin esto toda creadora
-    // nueva falla en su primera mención.
-    //
-    // Es seguro aunque el nombre no sea un handle: normalizarHandle descarta
-    // cualquier cosa con espacios ("Andrea Davinson" → null), y si aun así se
-    // consultara un perfil equivocado, el filtro por mención a la marca hace
-    // que no se guarde nada. El costo de una corazonada errada es la consulta
-    // a Apify, no un dato falso en la base.
-    campo("full_name") ??
-    campo("first_name") ??
-    "";
+  // Candidatos a @, en orden: campos de Instagram, el TT (donde un formulario
+  // dejó el @) y el nombre del contacto. Ver lib/mencion-ghl.ts.
+  const candidatos = candidatosHandle(body);
+  const contactId = campo("contact_id") ?? campo("contactId");
+  const nombre = campo("full_name") ?? campo("first_name") ?? "";
+  // La mención llega segundos antes que el aviso; 30 min cubre reintentos.
+  const desde = Date.now() - 30 * 60 * 1000;
 
-  const handle = normalizarHandle(crudo);
-  if (!handle) {
-    await registrar({
-      ...comun,
-      handle: null,
-      resultado: "sin-handle",
-      nota: crudo ? `recibido ${JSON.stringify(crudo)}` : "no llegó ningún campo con el @",
-    });
-    // Igual que con la clave: decir QUÉ campos llegaron y cuáles venían vacíos.
-    // Sin esto, un "@ vacío" no distingue entre "el par ig no está configurado"
-    // y "el contacto no tiene el campo IG cargado en el CRM", que se arreglan
-    // en lugares distintos.
-    const vistos: Record<string, string> = {};
-    for (const n of ["ig", "instagram", "creador", "IG", "url_instagram", "id_instagram"]) {
-      for (const [dónde, fuente] of [
-        ["customData", custom],
-        ["cuerpo", body],
-      ] as const) {
-        if (n in fuente) vistos[`${dónde}.${n}`] = String(fuente[n] ?? "") || "(vacío)";
-      }
+  const notas: string[] = [];
+  // Máximo dos consultas pagadas por aviso: cada una tarda ~30 s y el límite
+  // de la función es 120 s, que debe alcanzar también para el respaldo.
+  for (const handle of candidatos.slice(0, 2)) {
+    const previa = ultima.get(handle);
+    if (previa && Date.now() - previa < ESPERA_MS) {
+      await registrar({ ...comun, handle, resultado: "omitido" });
+      return NextResponse.json({ ok: true, motivo: "Consultado hace muy poco; se omite.", handle });
     }
-    return NextResponse.json(
-      {
-        ok: false,
-        motivo: "Sin @ de Instagram utilizable.",
-        recibido: crudo,
-        recibi: {
-          camposDeInstagram: vistos,
-          contacto: campo("full_name") ?? campo("first_name") ?? "(sin nombre)",
-          pista: "El contacto no tiene el campo IG cargado en el CRM, o el par 'ig' no está en Custom Data.",
-        },
-      },
-      { status: 400 },
-    );
-  }
+    ultima.set(handle, Date.now());
 
-  const previa = ultima.get(handle);
-  if (previa && Date.now() - previa < ESPERA_MS) {
-    await registrar({ ...comun, handle, resultado: "omitido" });
-    return NextResponse.json({ ok: true, motivo: "Consultado hace muy poco; se omite.", handle });
-  }
-  ultima.set(handle, Date.now());
-
-  try {
-    // sinCache obligatorio: el caché de 5 min haría perder justo la historia
-    // que acabamos de venir a buscar.
-    const r = await capturarStories(handle, { soloMarca: true, sinCache: true });
-
-    // Haber encontrado una historia que etiqueta a la marca es la prueba de que
-    // el @ es el correcto. Recién ahí se escribe en el CRM: el contacto que
-    // disparó el aviso deja de ser anónimo y la próxima mención sí lo encuentra.
-    let notaIg = "";
-    const contactId = campo("contact_id") ?? campo("contactId");
-    if (contactId && ghlEnabled() && r.guardadas + r.omitidas > 0) {
-      try {
-        notaIg = ` · ${await sincronizarIgDelContacto(contactId, handle)}`;
-      } catch (e) {
-        notaIg = ` · IG no se pudo escribir: ${e instanceof Error ? e.message : "error"}`;
+    try {
+      // sinCache obligatorio: el caché de 5 min haría perder justo la historia
+      // que acabamos de venir a buscar.
+      const r = await capturarStories(handle, { soloMarca: true, sinCache: true, contactId });
+      if (r.guardadas + r.omitidas === 0) {
+        notas.push(`@${handle}: ${r.encontradas} historias, ninguna etiqueta a la marca`);
+        continue;
       }
-    }
 
-    await registrar({
-      ...comun,
-      handle,
-      resultado: r.guardadas > 0 ? "capturado" : "sin-historia",
-      nota: `guardadas ${r.guardadas} · omitidas ${r.omitidas} · descartadas ${r.descartadas}${
-        r.crm ? ` · crm: ${r.crm}` : ""
-      }${notaIg}`,
-    });
-    return NextResponse.json({
-      ok: true,
-      handle,
-      // false = era un sticker o una imagen, no una mención real.
-      mencionReal: r.guardadas > 0,
-      guardadas: r.guardadas,
-      omitidas: r.omitidas,
-      descartadas: r.descartadas,
-      crm: r.crm,
-    });
-  } catch (e) {
-    const motivo = e instanceof Error ? e.message : "Falló la consulta.";
-    await registrar({ ...comun, handle, resultado: "error", nota: motivo });
-    return NextResponse.json({ ok: false, motivo }, { status: 502 });
+      // Haber encontrado una historia que etiqueta a la marca es la prueba de
+      // que el @ es el correcto. Recién ahí se escribe en el CRM: el contacto
+      // deja de ser anónimo y la próxima mención lo encuentra directo.
+      let notaIg = "";
+      if (contactId && ghlEnabled()) {
+        try {
+          notaIg = ` · ${await sincronizarIgDelContacto(contactId, handle)}`;
+        } catch (e) {
+          notaIg = ` · IG no se pudo escribir: ${e instanceof Error ? e.message : "error"}`;
+        }
+      }
+
+      await registrar({
+        ...comun,
+        handle,
+        resultado: r.guardadas > 0 ? "capturado" : "sin-historia",
+        nota: `guardadas ${r.guardadas} · omitidas ${r.omitidas} · descartadas ${r.descartadas}${
+          r.crm ? ` · crm: ${r.crm}` : ""
+        }${notaIg}`,
+      });
+      return NextResponse.json({
+        ok: true,
+        handle,
+        mencionReal: r.guardadas > 0,
+        guardadas: r.guardadas,
+        omitidas: r.omitidas,
+        descartadas: r.descartadas,
+        crm: r.crm,
+      });
+    } catch (e) {
+      notas.push(`@${handle}: ${e instanceof Error ? e.message : "falló la consulta"}`);
+    }
   }
+
+  // Ningún @ sirvió (no hay, está mal escrito o la cuenta es privada). La
+  // historia igual está: el CRM guarda una copia del archivo de la mención.
+  if (contactId && ghlEnabled()) {
+    try {
+      // Se rotula con el nombre: un candidato que no trajo la historia no está
+      // confirmado como su @ (el TT puede ser de verdad su TikTok).
+      const r = await capturarDesdeCrm(contactId, nombre || candidatos[0] || contactId, desde);
+      notas.push(r.nota);
+      await registrar({
+        ...comun,
+        handle: candidatos[0] ?? null,
+        resultado: r.guardada ? "capturado" : "sin-historia",
+        nota: notas.join(" · "),
+      });
+      return NextResponse.json({ ok: true, origen: "crm", guardada: r.guardada, nota: r.nota });
+    } catch (e) {
+      notas.push(`respaldo CRM falló: ${e instanceof Error ? e.message : "error"}`);
+    }
+  }
+
+  await registrar({
+    ...comun,
+    handle: candidatos[0] ?? null,
+    resultado: candidatos.length ? "error" : "sin-handle",
+    nota: [nombre ? `recibido ${JSON.stringify(nombre)}` : "", ...notas].filter(Boolean).join(" · "),
+  });
+  return NextResponse.json({ ok: false, motivo: "No se pudo capturar la historia.", notas }, { status: 502 });
 }

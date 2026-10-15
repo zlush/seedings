@@ -3,6 +3,7 @@ import { matchContactByEmail, elegirContacto, type CampaignTotals } from "./ghl"
 import { normalizarHandle } from "./ig-handle";
 import { debeEscribirIg } from "./ig-contacto";
 import { noMolestarPorCorreo } from "./invitacion";
+import type { MensajeGhl } from "./mencion-ghl";
 
 // ============================================================================
 // Cliente de GoHighLevel (LeadConnector API v2).
@@ -281,6 +282,24 @@ export async function upsertContactFields(
     customFields,
   });
   return data.contact.id;
+}
+
+// Los últimos mensajes de todas las conversaciones del contacto. Un contacto
+// que escribe por WhatsApp e Instagram puede tener más de una.
+export async function mensajesDelContacto(contactId: string): Promise<MensajeGhl[]> {
+  const { conversations } = await ghl<{ conversations?: Array<{ id: string }> }>(
+    "GET",
+    `/conversations/search?locationId=${loc()}&contactId=${contactId}`,
+  );
+  const out: MensajeGhl[] = [];
+  for (const c of conversations ?? []) {
+    const r = await ghl<{ messages?: { messages?: MensajeGhl[] } }>(
+      "GET",
+      `/conversations/${c.id}/messages?limit=30`,
+    );
+    out.push(...(r.messages?.messages ?? []));
+  }
+  return out;
 }
 
 export async function addTags(contactId: string, tags: string[]): Promise<void> {

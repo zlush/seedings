@@ -3,7 +3,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { getBrandAccount } from "@/lib/brand.server";
 import { traerStoriesPublicas } from "@/lib/ig-stories.server";
 import { mencionaA, type StoryPublica } from "@/lib/ig-stories";
-import { ghlEnabled, fetchContactByInstagram, addTags } from "@/lib/ghl.server";
+import { ghlEnabled, fetchContactByInstagram, addTags, mensajesDelContacto } from "@/lib/ghl.server";
+import { adjuntoDeMencion } from "@/lib/mencion-ghl";
 import { construirPayloadCaptura } from "@/lib/captura";
 
 const BUCKET = "story-backups";
@@ -31,7 +32,7 @@ export type ResumenCaptura = {
 
 export async function capturarStories(
   handle: string,
-  opts: { soloMarca?: boolean; sinCache?: boolean } = {},
+  opts: { soloMarca?: boolean; sinCache?: boolean; contactId?: string } = {},
 ): Promise<ResumenCaptura> {
   const db = createAdminClient();
   const brand = await getBrandAccount();
@@ -135,7 +136,7 @@ export async function capturarStories(
   // disparar el workflow de GHL.
   if (nuevasConMarca.length > 0) {
     const creador = elegidas[0]?.usuario || handle;
-    resumen.crm = await avisarMencionAlCrm(creador, nuevasConMarca);
+    resumen.crm = await avisarMencionAlCrm(creador, nuevasConMarca, opts.contactId);
   }
 
   return resumen;
@@ -150,7 +151,15 @@ const HORAS_URL = 24;
 //   2) El webhook — deja que el workflow haga lo que quiera sin tocar código.
 // Todo best-effort: si el CRM falla, las historias ya quedaron guardadas.
 // Nunca crea contactos: un perfil raspado no es fuente confiable para eso.
-export async function avisarMencionAlCrm(username: string, rutas: string[]): Promise<string> {
+//
+// Si el aviso vino de un contacto concreto, se usa ese contactId: buscarlo por
+// el @ falla justo en la primera mención, porque el campo IG se acaba de
+// escribir y la búsqueda del CRM tarda en verlo. Así se perdía el "Gracias".
+export async function avisarMencionAlCrm(
+  username: string,
+  rutas: string[],
+  contactIdConocido?: string,
+): Promise<string> {
   const notas: string[] = [];
   const db = createAdminClient();
 
@@ -158,8 +167,7 @@ export async function avisarMencionAlCrm(username: string, rutas: string[]): Pro
   let contactId: string | null = null;
   if (ghlEnabled()) {
     try {
-      const contacto = await fetchContactByInstagram(username);
-      contactId = contacto?.id ?? null;
+      contactId = contactIdConocido ?? (await fetchContactByInstagram(username))?.id ?? null;
       if (!contactId) notas.push(`@${username} no está en el CRM`);
       else {
         await addTags(contactId, [TAG_MENCION]);
@@ -200,6 +208,60 @@ export async function avisarMencionAlCrm(username: string, rutas: string[]): Pro
   }
 
   return notas.join(" · ");
+}
+
+// Captura sin @: toma el archivo de la Story Mention desde la conversación del
+// CRM. Es el respaldo cuando el contacto no tiene un @ que funcione (creada por
+// DM con su nombre de pantalla, @ en otro campo, cuenta privada). `etiqueta` es
+// lo que se muestra como creador: su @ si se conoce, si no su nombre.
+export async function capturarDesdeCrm(
+  contactId: string,
+  etiqueta: string,
+  desde: number,
+): Promise<{ guardada: boolean; nota: string }> {
+  const db = createAdminClient();
+  const adj = adjuntoDeMencion(await mensajesDelContacto(contactId), { desde });
+  if (!adj) return { guardada: false, nota: "sin adjunto de Instagram en la conversación" };
+
+  const mediaId = `ghl:${adj.messageId}`;
+  const { data: previa } = await db
+    .from("historias_capturadas")
+    .select("id")
+    .eq("ig_media_id", mediaId)
+    .maybeSingle();
+  if (previa) return { guardada: false, nota: "ya capturada desde el CRM" };
+
+  const res = await fetch(adj.url);
+  if (!res.ok) throw new Error(`el CRM respondió ${res.status} al bajar el archivo`);
+  // El tipo lo dice la respuesta: hay adjuntos .webp y URLs sin extensión.
+  const tipo = res.headers.get("content-type") ?? "";
+  const esVideo = tipo ? tipo.startsWith("video") : adj.esVideo;
+  const buf = Buffer.from(await res.arrayBuffer());
+
+  const path = `descargador/crm-${contactId}/${adj.messageId}.${esVideo ? "mp4" : "jpg"}`;
+  const { error: upErr } = await db.storage
+    .from(BUCKET)
+    .upload(path, buf, { contentType: tipo || (esVideo ? "video/mp4" : "image/jpeg"), upsert: true });
+  if (upErr) throw new Error(`storage: ${upErr.message}`);
+
+  const { error: dbErr } = await db.from("historias_capturadas").insert({
+    username: etiqueta,
+    ig_media_id: mediaId,
+    media_type: esVideo ? "VIDEO" : "IMAGE",
+    media_backup_path: path,
+    taken_at: adj.fecha,
+    expires_at: new Date(Date.parse(adj.fecha) + 24 * 3600_000).toISOString(),
+    menciones: [],
+    // Llegó como mención a la cuenta de la marca; no hay stickers que leer.
+    menciona_marca: true,
+  });
+  if (dbErr) {
+    await db.storage.from(BUCKET).remove([path]).catch(() => {});
+    throw new Error(`base: ${dbErr.message}`);
+  }
+
+  const crm = await avisarMencionAlCrm(etiqueta, [path], contactId);
+  return { guardada: true, nota: `desde el CRM (${esVideo ? "video" : "imagen"}) · crm: ${crm}` };
 }
 
 export type CapturaGuardada = {
