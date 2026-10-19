@@ -17,6 +17,11 @@ describe("candidatosHandle", () => {
     expect(candidatosHandle({ IG: "Andrea ", customData: { ig: "andrea" } })).toEqual(["andrea"]);
   });
 
+  it("no usa el primer nombre: @paula o @cata son cuentas ajenas", () => {
+    expect(candidatosHandle({ IG: "", full_name: "Paula Antonia", first_name: "Paula" })).toEqual([]);
+    expect(candidatosHandle({ full_name: "Cata <3", first_name: "Cata" })).toEqual([]);
+  });
+
   it("descarta nombres de pantalla con espacios: no son un @", () => {
     expect(candidatosHandle({ IG: "", TT: "", full_name: "Paula Barria" })).toEqual([]);
   });

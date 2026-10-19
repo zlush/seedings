@@ -8,7 +8,12 @@ import { handlesUnicos } from "./ig-handle";
 // (konopuebla, jesucossio: confirmados el 2026-10-15). Probar un candidato
 // equivocado cuesta una consulta, no un dato falso: solo se guarda lo que
 // etiqueta a la marca.
-const CAMPOS = ["ig", "instagram", "creador", "IG", "url_instagram", "TT", "full_name", "first_name"];
+//
+// El primer nombre NO entra: "Paula" o "Cata" se normalizan a @paula o @cata,
+// cuentas de desconocidos. Cada una era una consulta pagada perdida (15/10).
+// El nombre completo sí, porque Instagram nombra a algunos contactos con el @
+// ("andreasanhuezac"), y uno con espacios se descarta solo.
+const CAMPOS = ["ig", "instagram", "creador", "IG", "url_instagram", "TT", "full_name"];
 
 export function candidatosHandle(body: Record<string, unknown>): string[] {
   const custom =
