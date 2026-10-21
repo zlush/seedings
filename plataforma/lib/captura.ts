@@ -69,3 +69,26 @@ export function horaPublicacion(iso: string | null | undefined): string {
   const cero = (v: string) => v.padStart(2, "0");
   return `${cero(partes.day)}-${cero(partes.month)} ${cero(partes.hour)}:${cero(partes.minute)}`;
 }
+
+// Opción del filtro para las capturas que no tienen campaña asignada.
+export const SIN_CAMPANA = "(sin campaña)";
+
+// Campaña escrita a mano en la galería. Vacío o "(sin campaña)" la quita.
+export function campanaEditada(texto: string | null | undefined): string | null {
+  const t = (texto ?? "").trim();
+  if (!t || t === SIN_CAMPANA) return null;
+  return t.slice(0, 120);
+}
+
+export type FiltroCampana ={ tipo: "contiene"; patron: string } | { tipo: "sin" };
+
+// El filtro de campaña es texto libre: "spot" trae "Camp. Spot Essence" y
+// "Campaña Difusor Spot Essence", porque los nombres del CRM no son uniformes.
+// Devuelve el patrón ILIKE con los comodines escritos por el usuario escapados.
+export function filtroCampana(texto: string | null | undefined): FiltroCampana | null {
+  const t = (texto ?? "").trim();
+  if (!t) return null;
+  if (t === SIN_CAMPANA) return { tipo: "sin" };
+  const escapado = t.replace(/[\\%_]/g, (c) => "\\" + c);
+  return { tipo: "contiene", patron: `%${escapado}%` };
+}

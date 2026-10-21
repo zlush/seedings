@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { candidatosHandle } from "@/lib/mencion-ghl";
+import { candidatosHandle, campanaDelAviso } from "@/lib/mencion-ghl";
 import { capturarStories, capturarDesdeCrm } from "@/lib/captura.server";
 import { ghlEnabled, sincronizarIgDelContacto } from "@/lib/ghl.server";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -118,6 +118,7 @@ export async function POST(req: Request) {
   const candidatos = candidatosHandle(body);
   const contactId = campo("contact_id") ?? campo("contactId");
   const nombre = campo("full_name") ?? campo("first_name") ?? "";
+  const campana = campanaDelAviso(body);
   // La mención llega segundos antes que el aviso; 30 min cubre reintentos.
   const desde = Date.now() - 30 * 60 * 1000;
 
@@ -135,7 +136,7 @@ export async function POST(req: Request) {
     try {
       // sinCache obligatorio: el caché de 5 min haría perder justo la historia
       // que acabamos de venir a buscar.
-      const r = await capturarStories(handle, { soloMarca: true, sinCache: true, contactId });
+      const r = await capturarStories(handle, { soloMarca: true, sinCache: true, contactId, campana });
       if (r.guardadas + r.omitidas === 0) {
         notas.push(`@${handle}: ${r.encontradas} historias, ninguna etiqueta a la marca`);
         continue;
@@ -181,7 +182,7 @@ export async function POST(req: Request) {
     try {
       // Se rotula con el nombre: un candidato que no trajo la historia no está
       // confirmado como su @ (el TT puede ser de verdad su TikTok).
-      const r = await capturarDesdeCrm(contactId, nombre || candidatos[0] || contactId, desde);
+      const r = await capturarDesdeCrm(contactId, nombre || candidatos[0] || contactId, desde, campana);
       notas.push(r.nota);
       await registrar({
         ...comun,

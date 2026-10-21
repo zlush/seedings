@@ -5,7 +5,7 @@ import { traerStoriesPublicas } from "@/lib/ig-stories.server";
 import { mencionaA, type StoryPublica } from "@/lib/ig-stories";
 import { ghlEnabled, fetchContactByInstagram, addTags, mensajesDelContacto } from "@/lib/ghl.server";
 import { adjuntoDeMencion } from "@/lib/mencion-ghl";
-import { construirPayloadCaptura } from "@/lib/captura";
+import { construirPayloadCaptura, filtroCampana } from "@/lib/captura";
 
 const BUCKET = "story-backups";
 
@@ -32,7 +32,7 @@ export type ResumenCaptura = {
 
 export async function capturarStories(
   handle: string,
-  opts: { soloMarca?: boolean; sinCache?: boolean; contactId?: string } = {},
+  opts: { soloMarca?: boolean; sinCache?: boolean; contactId?: string; campana?: string | null } = {},
 ): Promise<ResumenCaptura> {
   const db = createAdminClient();
   const brand = await getBrandAccount();
@@ -107,6 +107,8 @@ export async function capturarStories(
         duration_seconds: s.duracion ?? null,
         menciones: s.menciones,
         menciona_marca: mencionaA(s, marca),
+        campana: opts.campana ?? null,
+        contact_id: opts.contactId ?? null,
       });
       // Carrera contra otra captura simultánea: la fila ya existe, no es error.
       // El archivo subió con upsert sobre la misma ruta, así que se queda.
@@ -218,6 +220,7 @@ export async function capturarDesdeCrm(
   contactId: string,
   etiqueta: string,
   desde: number,
+  campana: string | null = null,
 ): Promise<{ guardada: boolean; nota: string }> {
   const db = createAdminClient();
   const adj = adjuntoDeMencion(await mensajesDelContacto(contactId), { desde });
@@ -254,6 +257,8 @@ export async function capturarDesdeCrm(
     menciones: [],
     // Llegó como mención a la cuenta de la marca; no hay stickers que leer.
     menciona_marca: true,
+    campana,
+    contact_id: contactId,
   });
   if (dbErr) {
     await db.storage.from(BUCKET).remove([path]).catch(() => {});
@@ -273,18 +278,35 @@ export type CapturaGuardada = {
   menciona_marca: boolean;
   menciones: string[];
   captured_at: string;
+  campana: string | null;
   url: string | null; // firmada, para ver la miniatura
 };
 
+// Campañas que aparecen en las capturas, para armar el desplegable.
+export async function campanasDeCapturas(): Promise<string[]> {
+  const { data, error } = await createAdminClient()
+    .from("historias_capturadas")
+    .select("campana")
+    .not("campana", "is", null)
+    .limit(5000);
+  if (error) throw new Error(error.message);
+  return [...new Set((data ?? []).map((r) => r.campana as string))].sort((a, b) => a.localeCompare(b, "es"));
+}
+
 // Lista lo capturado, con URL firmada de lectura (1 h) para previsualizar.
-export async function listarCapturas(username?: string): Promise<CapturaGuardada[]> {
+export async function listarCapturas(
+  filtro: { username?: string; campana?: string } = {},
+): Promise<CapturaGuardada[]> {
   const db = createAdminClient();
   let q = db
     .from("historias_capturadas")
-    .select("id, username, ig_media_id, media_type, media_backup_path, taken_at, menciona_marca, menciones, captured_at")
+    .select("id, username, ig_media_id, media_type, media_backup_path, taken_at, menciona_marca, menciones, captured_at, campana")
     .order("taken_at", { ascending: false })
     .limit(500);
-  if (username) q = q.eq("username", username);
+  if (filtro.username) q = q.eq("username", filtro.username);
+  const fc = filtroCampana(filtro.campana);
+  if (fc?.tipo === "sin") q = q.is("campana", null);
+  else if (fc) q = q.ilike("campana", fc.patron);
 
   const { data, error } = await q;
   if (error) throw new Error(error.message);
@@ -301,6 +323,16 @@ export async function listarCapturas(username?: string): Promise<CapturaGuardada
       return { ...r, menciones: r.menciones ?? [], url } as CapturaGuardada;
     }),
   );
+}
+
+// Corrige a mano la campaña de una o varias capturas. null la quita.
+export async function asignarCampana(ids: string[], campana: string | null): Promise<{ actualizadas: number }> {
+  const { error, count } = await createAdminClient()
+    .from("historias_capturadas")
+    .update({ campana }, { count: "exact" })
+    .in("id", ids);
+  if (error) throw new Error(error.message);
+  return { actualizadas: count ?? 0 };
 }
 
 // Borra el archivo del bucket y luego la fila. Si el archivo ya no está, la

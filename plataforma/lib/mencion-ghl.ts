@@ -30,6 +30,22 @@ export function candidatosHandle(body: Record<string, unknown>): string[] {
   return handlesUnicos(valores);
 }
 
+// Campaña de la creadora al momento de la mención. La hereda el contacto por el
+// imprint de los custom values cuando se le pone la etiqueta de la campaña.
+// Se copia en la captura porque el campo es un solo slot: cuando la creadora
+// entra a la campaña siguiente, el contacto cambia y la historia no debe.
+// Un `campana` en Custom Data del workflow manda sobre el campo del contacto.
+export function campanaDelAviso(body: Record<string, unknown>): string | null {
+  const custom =
+    body.customData && typeof body.customData === "object"
+      ? (body.customData as Record<string, unknown>)
+      : {};
+  for (const v of [custom.campana, body["campaña_name_1"]]) {
+    if (typeof v === "string" && v.trim()) return v.trim();
+  }
+  return null;
+}
+
 export type MensajeGhl = {
   id: string;
   direction?: string;

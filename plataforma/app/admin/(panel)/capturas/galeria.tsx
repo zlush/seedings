@@ -2,14 +2,48 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { borrarCapturas } from "./actions";
-import { horaPublicacion } from "@/lib/captura";
+import { borrarCapturas, cambiarCampana } from "./actions";
+import { horaPublicacion, SIN_CAMPANA } from "@/lib/captura";
 import type { CapturaGuardada } from "@/lib/captura.server";
 
-export function Galeria({ capturas, filtro }: { capturas: CapturaGuardada[]; filtro: string }) {
+export function Galeria({
+  capturas,
+  filtro,
+  campana,
+  campanas,
+}: {
+  capturas: CapturaGuardada[];
+  filtro: string;
+  campana: string;
+  campanas: string[];
+}) {
   const router = useRouter();
   const [sel, setSel] = useState<Set<string>>(new Set());
   const [ig, setIg] = useState(filtro);
+  const [camp, setCamp] = useState(campana);
+  const [nuevaCamp, setNuevaCamp] = useState("");
+
+  function asignar() {
+    const ids = [...sel];
+    if (!ids.length) return;
+    startTransition(async () => {
+      const r = await cambiarCampana(ids, nuevaCamp);
+      setMsg(
+        r.error ??
+          `${r.actualizadas} historia(s) ${nuevaCamp.trim() && nuevaCamp.trim() !== SIN_CAMPANA ? `asignadas a "${nuevaCamp.trim()}"` : "quedaron sin campaña"}.`,
+      );
+      setSel(new Set());
+      setNuevaCamp("");
+      router.refresh();
+    });
+  }
+
+  function filtrar(nuevoIg: string, nuevaCamp: string) {
+    const p = new URLSearchParams();
+    if (nuevoIg.trim()) p.set("ig", nuevoIg.trim());
+    if (nuevaCamp) p.set("campana", nuevaCamp);
+    router.push(p.size ? `/admin/capturas?${p}` : "/admin/capturas");
+  }
   const [msg, setMsg] = useState<string | null>(null);
   const [pendiente, startTransition] = useTransition();
 
@@ -46,12 +80,28 @@ export function Galeria({ capturas, filtro }: { capturas: CapturaGuardada[]; fil
   return (
     <>
       <form
-        className="mt-6 flex gap-2"
+        className="mt-6 flex flex-wrap gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          router.push(ig.trim() ? `/admin/capturas?ig=${encodeURIComponent(ig.trim())}` : "/admin/capturas");
+          filtrar(ig, camp);
         }}
       >
+        {/* Texto libre: los nombres del CRM no son uniformes, y "spot" debe
+            traer todas las variantes de Spot Essence. La lista solo sugiere. */}
+        <input
+          value={camp}
+          onChange={(e) => setCamp(e.target.value)}
+          list="campanas-capturas"
+          placeholder="Filtrar por campaña"
+          aria-label="Filtrar por campaña"
+          className="flex-1 rounded-lg border border-cream/20 bg-transparent px-3 py-2 text-sm"
+        />
+        <datalist id="campanas-capturas">
+          {campanas.map((c) => (
+            <option key={c} value={c} />
+          ))}
+          <option value={SIN_CAMPANA} />
+        </datalist>
         <input
           value={ig}
           onChange={(e) => setIg(e.target.value)}
@@ -67,10 +117,27 @@ export function Galeria({ capturas, filtro }: { capturas: CapturaGuardada[]; fil
         <span className="text-cream/60">
           {capturas.length} historia(s) · {porUsuario.size} creador(es)
         </span>
+        {/* Corrige la campaña de lo seleccionado; vacío la quita. Usa las
+            mismas sugerencias que el filtro. */}
+        <input
+          value={nuevaCamp}
+          onChange={(e) => setNuevaCamp(e.target.value)}
+          list="campanas-capturas"
+          placeholder="Campaña para lo seleccionado"
+          aria-label="Campaña para las historias seleccionadas"
+          className="ml-auto w-56 rounded-lg border border-cream/20 bg-transparent px-3 py-2"
+        />
+        <button
+          onClick={asignar}
+          disabled={sel.size === 0 || pendiente}
+          className="rounded-lg border border-cream/20 px-4 py-2 disabled:opacity-40"
+        >
+          {`Asignar ${sel.size || ""}`}
+        </button>
         <button
           onClick={borrar}
           disabled={sel.size === 0 || pendiente}
-          className="ml-auto rounded-lg bg-red-500/80 px-4 py-2 text-white disabled:opacity-40"
+          className="rounded-lg bg-red-500/80 px-4 py-2 text-white disabled:opacity-40"
         >
           {pendiente ? "Borrando…" : `Borrar ${sel.size || ""}`}
         </button>
@@ -120,6 +187,7 @@ export function Galeria({ capturas, filtro }: { capturas: CapturaGuardada[]; fil
                     </div>
                   )}
                 </button>
+                {c.campana && <p className="mt-1 truncate text-xs text-cream/70">{c.campana}</p>}
                 <p
                   className="mt-1 flex items-center gap-1 text-xs text-cream/50"
                   title={`Capturada ${horaPublicacion(c.captured_at)}`}

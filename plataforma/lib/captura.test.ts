@@ -1,5 +1,39 @@
 import { describe, it, expect } from "vitest";
-import { construirPayloadCaptura, horaPublicacion } from "./captura";
+import { construirPayloadCaptura, horaPublicacion, filtroCampana, SIN_CAMPANA, campanaEditada } from "./captura";
+
+describe("campanaEditada", () => {
+  it("guarda el texto sin espacios sobrantes", () => {
+    expect(campanaEditada("  CASA IDEAS OSORNO ")).toBe("CASA IDEAS OSORNO");
+  });
+
+  it("vacío o '(sin campaña)' quita la campaña", () => {
+    expect(campanaEditada("")).toBeNull();
+    expect(campanaEditada("   ")).toBeNull();
+    expect(campanaEditada(SIN_CAMPANA)).toBeNull();
+  });
+
+  it("corta nombres absurdamente largos", () => {
+    expect(campanaEditada("x".repeat(500))).toHaveLength(120);
+  });
+});
+
+describe("filtroCampana", () => {
+  it("busca el texto en cualquier parte del nombre, sin importar mayúsculas", () => {
+    expect(filtroCampana("spot")).toEqual({ tipo: "contiene", patron: "%spot%" });
+    expect(filtroCampana("  Casa Ideas Osorno ")).toEqual({ tipo: "contiene", patron: "%Casa Ideas Osorno%" });
+  });
+
+  it("escapa los comodines: un % o un _ escrito se busca literal", () => {
+    expect(filtroCampana("50%_off")).toEqual({ tipo: "contiene", patron: String.raw`%50\%\_off%` });
+  });
+
+  it("'sin campaña' pide las capturas sin campaña; vacío no filtra", () => {
+    expect(filtroCampana(SIN_CAMPANA)).toEqual({ tipo: "sin" });
+    expect(filtroCampana("")).toBeNull();
+    expect(filtroCampana("   ")).toBeNull();
+    expect(filtroCampana(undefined)).toBeNull();
+  });
+});
 
 const base = {
   creador: "restaurador_de_recuerdos",

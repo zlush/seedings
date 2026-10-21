@@ -1,22 +1,26 @@
-import { listarCapturas, type CapturaGuardada } from "@/lib/captura.server";
+import { listarCapturas, campanasDeCapturas, type CapturaGuardada } from "@/lib/captura.server";
 import { Galeria } from "./galeria";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Historias capturadas · Seedings" };
 
-// Lo que guardó el descargador. Filtro por @ vía ?ig=<handle>.
+// Lo que guardó el descargador. Filtros por @ (?ig=<handle>) y por campaña (?campana=).
 export default async function CapturasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ig?: string }>;
+  searchParams: Promise<{ ig?: string; campana?: string }>;
 }) {
-  const { ig } = await searchParams;
+  const { ig, campana } = await searchParams;
 
   let capturas: CapturaGuardada[] = [];
+  let campanas: string[] = [];
   let error: string | null = null;
   try {
-    capturas = await listarCapturas(ig?.trim().toLowerCase() || undefined);
+    [capturas, campanas] = await Promise.all([
+      listarCapturas({ username: ig?.trim().toLowerCase() || undefined, campana: campana || undefined }),
+      campanasDeCapturas(),
+    ]);
   } catch (e) {
     capturas = [];
     error = e instanceof Error ? e.message : "No pudimos leer las capturas.";
@@ -33,10 +37,11 @@ export default async function CapturasPage({
         <p className="mt-6 rounded-lg bg-amber-500/10 p-3 text-sm text-amber-200">
           {error}
           {error.includes("historias_capturadas") && " — ¿aplicaste la migración 0015?"}
+          {error.includes("campana") && " — ¿aplicaste la migración 0018?"}
         </p>
       )}
 
-      <Galeria capturas={capturas} filtro={ig ?? ""} />
+      <Galeria capturas={capturas} filtro={ig ?? ""} campana={campana ?? ""} campanas={campanas} />
     </section>
   );
 }

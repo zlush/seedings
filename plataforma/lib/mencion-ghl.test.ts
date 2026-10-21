@@ -1,5 +1,22 @@
 import { describe, it, expect } from "vitest";
-import { candidatosHandle, adjuntoDeMencion, type MensajeGhl } from "./mencion-ghl";
+import { candidatosHandle, adjuntoDeMencion, campanaDelAviso, type MensajeGhl } from "./mencion-ghl";
+
+describe("campanaDelAviso", () => {
+  it("toma campaña_name_1 del contacto, sin espacios sobrantes", () => {
+    expect(campanaDelAviso({ "campaña_name_1": " CASA IDEAS TEMUCO " })).toBe("CASA IDEAS TEMUCO");
+  });
+
+  it("prefiere lo que venga en customData", () => {
+    expect(campanaDelAviso({ "campaña_name_1": "vieja", customData: { campana: "CASA IDEAS OSORNO" } })).toBe(
+      "CASA IDEAS OSORNO",
+    );
+  });
+
+  it("vacío o ausente es null: la captura queda sin campaña, no con texto vacío", () => {
+    expect(campanaDelAviso({ "campaña_name_1": "  " })).toBeNull();
+    expect(campanaDelAviso({})).toBeNull();
+  });
+});
 
 describe("candidatosHandle", () => {
   it("prueba primero el campo IG y después el TT, que es donde el formulario de Osorno dejó el @", () => {
