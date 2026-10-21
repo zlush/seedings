@@ -5,6 +5,7 @@ import { traerStoriesPublicas } from "@/lib/ig-stories.server";
 import { mencionaA, type StoryPublica } from "@/lib/ig-stories";
 import { ghlEnabled, fetchContactByInstagram, addTags, mensajesDelContacto } from "@/lib/ghl.server";
 import { adjuntoDeMencion } from "@/lib/mencion-ghl";
+import { dimensionesImagen, pareceHistoria } from "@/lib/imagen";
 import { construirPayloadCaptura, filtroCampana } from "@/lib/captura";
 
 const BUCKET = "story-backups";
@@ -240,6 +241,16 @@ export async function capturarDesdeCrm(
   const tipo = res.headers.get("content-type") ?? "";
   const esVideo = tipo ? tipo.startsWith("video") : adj.esVideo;
   const buf = Buffer.from(await res.arrayBuffer());
+
+  // El inbox guarda igual una mención y una foto mandada por DM. Una historia
+  // en imagen viene en 9:16; un pantallazo de métricas o del formulario no.
+  if (!esVideo) {
+    const dim = dimensionesImagen(buf);
+    if (!dim || !pareceHistoria(dim)) {
+      const medidas = dim ? `${dim.ancho}×${dim.alto}` : "medidas ilegibles";
+      return { guardada: false, nota: `imagen descartada: no tiene proporción de historia (${medidas})` };
+    }
+  }
 
   const path = `descargador/crm-${contactId}/${adj.messageId}.${esVideo ? "mp4" : "jpg"}`;
   const { error: upErr } = await db.storage
