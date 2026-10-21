@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { captureStoriesForCreator } from "@/lib/stories.server";
 import { computeCampaignTotals, type StoryWithMetrics } from "@/lib/ghl";
 import { ghlEnabled, pushMetricsToGhl } from "@/lib/ghl.server";
+import { revisarAlmacenamiento } from "@/lib/almacenamiento.server";
 
 export const maxDuration = 300;
 
@@ -83,5 +84,14 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ creators: creators.size, captures, closed });
+  // 3) Espacio de archivos: avisa a Alfredo desde 800 MB (el plan trae 1 GB).
+  // Va en este cron porque el plan Hobby de Vercel solo deja uno más.
+  let almacenamiento: unknown;
+  try {
+    almacenamiento = await revisarAlmacenamiento();
+  } catch (e) {
+    almacenamiento = { error: e instanceof Error ? e.message : "error" };
+  }
+
+  return NextResponse.json({ creators: creators.size, captures, closed, almacenamiento });
 }
