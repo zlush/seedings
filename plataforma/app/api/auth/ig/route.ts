@@ -61,7 +61,14 @@ export async function GET(request: NextRequest) {
     "response_type=code",
     `state=${state}`,
   ].join("&");
-  const dialog = `https://www.instagram.com/oauth/authorize?${query}`;
+  // En el celular, los links de instagram.com los abre la app de Instagram, que
+  // descarta la pantalla de permisos. Instagram publica sus excepciones en
+  // /.well-known/apple-app-site-association y /.well-known/assetlinks.json:
+  // iOS no captura `/oauth/authorize/*` (CON la barra final; sin ella cae en
+  // "/*") y ni iOS ni Android capturan las URL con el fragmento `#weblink`.
+  // El fragmento no llega al servidor y el navegador lo conserva en el 302
+  // que Instagram hace a /oauth/authorize/third_party/.
+  const dialog = `https://www.instagram.com/oauth/authorize/?${query}#weblink`;
 
   const res = NextResponse.redirect(dialog);
   // Solo una pista para el canje: si la cookie no vuelve, el callback
