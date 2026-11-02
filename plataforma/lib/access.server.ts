@@ -52,7 +52,7 @@ export async function sendAdminAccessEmail(email: string): Promise<{ ok?: boolea
       }),
     );
   } catch (e) {
-    return { error: `No pudimos enviar el correo: ${e instanceof Error ? e.message : "error"}` };
+    return { error: errorDeEnvio(e) };
   }
 
   return { ok: true };
@@ -100,7 +100,7 @@ export async function sendConnectInvite(contacto: {
       }),
     );
   } catch (e) {
-    return { error: `No pudimos enviar el correo: ${e instanceof Error ? e.message : "error"}` };
+    return { error: errorDeEnvio(e) };
   }
 
   return { ok: true };
@@ -133,8 +133,20 @@ export async function sendAccessEmail(
     const contactId = await upsertContactFields(clean, { link });
     await sendGhlEmail(contactId, "Tu acceso a Seedings 🌱", accessEmailHtml(link));
   } catch (e) {
-    return { error: `No pudimos enviar el correo: ${e instanceof Error ? e.message : "error"}` };
+    return { error: errorDeEnvio(e) };
   }
 
   return { ok: true };
+}
+
+// El detalle técnico va al log, no a la pantalla: lo lee la creadora y no
+// debe nombrar al proveedor del CRM. La baja voluntaria de correos es el
+// único caso que ella puede resolver, así que es el único que se explica.
+function errorDeEnvio(e: unknown): string {
+  const msg = e instanceof Error ? e.message : String(e);
+  console.error("[access] envío de correo falló:", msg);
+  if (/unsubscribed/i.test(msg)) {
+    return "Tu correo está dado de baja de nuestros envíos, así que no pudimos mandarte el enlace. Escríbenos por WhatsApp y te ayudamos a entrar.";
+  }
+  return "No pudimos enviar el correo. Reintenta en unos minutos.";
 }
