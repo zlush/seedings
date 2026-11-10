@@ -475,6 +475,17 @@
     .foot-brand{grid-column:span 2}
   }
 </style>
+<!-- Meta Pixel (dataset Seedings 2) -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1068313465567961');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1068313465567961&ev=PageView&noscript=1"></noscript>
 </head>
 <body>
 
@@ -860,6 +871,24 @@ navMobile.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
   });
 })();
 
+/* --- Origen de la visita (anuncios): se guarda al entrar y viaja con el formulario --- */
+const ORIGEN_CLAVES = ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","fbclid"];
+function leerOrigen(){
+  const qs = new URLSearchParams(window.location.search);
+  let guardado = {};
+  try { guardado = JSON.parse(sessionStorage.getItem("seedings_origen") || "{}"); } catch(e){}
+  const nuevo = {};
+  ORIGEN_CLAVES.forEach(k => { if (qs.get(k)) nuevo[k] = qs.get(k); });
+  const origen = Object.keys(nuevo).length ? nuevo : guardado;
+  try { sessionStorage.setItem("seedings_origen", JSON.stringify(origen)); } catch(e){}
+  return origen;
+}
+const ORIGEN = leerOrigen();
+function cookie(nombre){
+  const m = document.cookie.match(new RegExp("(?:^|; )" + nombre + "=([^;]*)"));
+  return m ? decodeURIComponent(m[1]) : "";
+}
+
 /* --- Formulario de contacto (webhook) --- */
 (function(){
   const form = document.getElementById("briefForm");
@@ -899,6 +928,15 @@ navMobile.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
       submitted_at: new Date().toISOString(),
       url: window.location.href,
       user_agent: navigator.userAgent,
+      utm_source: ORIGEN.utm_source || "",
+      utm_medium: ORIGEN.utm_medium || "",
+      utm_campaign: ORIGEN.utm_campaign || "",
+      utm_content: ORIGEN.utm_content || "",
+      utm_term: ORIGEN.utm_term || "",
+      fbclid: ORIGEN.fbclid || "",
+      fbc: cookie("_fbc"),
+      fbp: cookie("_fbp"),
+      event_id: "marca-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
     };
     try {
       const res = await fetch(WEBHOOK_URL, {
@@ -906,6 +944,11 @@ navMobile.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
+      try {
+        if (window.fbq) fbq("track", "Contact",
+          { content_category: "marca", content_name: service },
+          { eventID: payload.event_id });
+      } catch(e){}
       setStatus("sent", "✓ Brief enviado — te respondemos en 24h");
       setTimeout(() => { form.reset(); service = "envios";
         pills.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === "envios"));
