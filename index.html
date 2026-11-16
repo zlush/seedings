@@ -666,6 +666,10 @@ fbq('track','PageView');
         <label for="f-msg">Cuéntanos sobre tu marca</label>
         <textarea id="f-msg" name="message" rows="3" placeholder="¿Qué venden, qué buscan lograr, timing aproximado?"></textarea>
       </div>
+      <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
+        <label for="f-website">No llenar este campo</label>
+        <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
       <button class="cta-submit" id="submitBtn" type="submit">Enviar <span class="arrow" style="font-family:'Fraunces',serif;font-style:italic">→</span></button>
       <p class="cta-privacy">Al enviar aceptas nuestra política de privacidad. No spameamos — la primera respuesta es humana.</p>
     </form>
@@ -766,7 +770,7 @@ const FAQS = [
   {q:"¿Tienen mínimo de campaña?", a:"El Plan Básico parte con 70 creadores. Bajo eso, no logramos masa crítica para que la viralidad despegue."},
 ];
 
-const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/Z8KrOIcAnVpsZzTBSBXf/webhook-trigger/a741a061-1f69-4370-b69c-af7b657d1fa5";
+const FORM_ENDPOINT = "/api/contacto";
 
 /* =====================================================================
    LÓGICA DE LA PÁGINA
@@ -924,6 +928,7 @@ function cookie(nombre){
       brand: form.brand.value.trim(),
       phone: form.phone.value.trim(),
       message: form.message.value.trim(),
+      website: form.website.value,
       source: "seedings.cl", page: "landing",
       submitted_at: new Date().toISOString(),
       url: window.location.href,
@@ -939,7 +944,7 @@ function cookie(nombre){
       event_id: "marca-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
     };
     try {
-      const res = await fetch(WEBHOOK_URL, {
+      const res = await fetch(FORM_ENDPOINT, {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify(payload),
       });
@@ -955,7 +960,7 @@ function cookie(nombre){
         setStatus("idle");
       }, 5000);
     } catch (err){
-      console.error("Webhook submission failed:", err);
+      console.error("Form submission failed:", err);
       setStatus("error", "Algo falló — vuelve a intentar");
       setTimeout(() => setStatus("idle"), 4000);
     }

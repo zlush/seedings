@@ -2,6 +2,7 @@
   "name": "seedings-web",
   "private": true,
   "scripts": {
-    "build": "rm -rf public && mkdir public && cp -r index.html Imagenes assets robots.txt sitemap.xml public/"
+    "build": "rm -rf public && mkdir public && cp -r index.html Imagenes assets robots.txt sitemap.xml public/",
+    "test": "node --test test/contacto.test.js"
   }
 }
