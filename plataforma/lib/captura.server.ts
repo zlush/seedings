@@ -6,6 +6,7 @@ import { mencionaA, type StoryPublica } from "@/lib/ig-stories";
 import { ghlEnabled, fetchContactByInstagram, addTags, mensajesDelContacto } from "@/lib/ghl.server";
 import { adjuntoDeMencion } from "@/lib/mencion-ghl";
 import { dimensionesImagen, pareceHistoria } from "@/lib/imagen";
+import { tienePistaDeVideo } from "@/lib/video";
 import { construirPayloadCaptura, filtroCampana } from "@/lib/captura";
 
 const BUCKET = "story-backups";
@@ -241,6 +242,11 @@ export async function capturarDesdeCrm(
   const tipo = res.headers.get("content-type") ?? "";
   const esVideo = tipo ? tipo.startsWith("video") : adj.esVideo;
   const buf = Buffer.from(await res.arrayBuffer());
+
+  // Una nota de voz llega como un MP4 de solo audio, igual que un video.
+  if (esVideo && !tienePistaDeVideo(buf)) {
+    return { guardada: false, nota: "descartada: es una nota de voz, no una historia" };
+  }
 
   // El inbox guarda igual una mención y una foto mandada por DM. Una historia
   // en imagen viene en 9:16; un pantallazo de métricas o del formulario no.
